@@ -27,7 +27,7 @@
  *   · heavy derived lists memoized; paginated inbox and queue rendering
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import AdminPage from "../../components/admin/AdminPage";
 import AdminPanel from "../../components/admin/AdminPanel";
@@ -78,6 +78,19 @@ export default function AdminProductReview() {
     [setSearchParams]
   );
 
+  /* The review detail lives below the queue table — without bringing it on
+     screen the URL changes but the review interface never becomes visible,
+     which reads as a dead Review button. Every focus (queue row, deep link,
+     recently-reviewed link) scrolls the detail panel into view. */
+  const detailRef = useRef(null);
+  useEffect(() => {
+    if (!focusedProductId || !detailRef.current) return undefined;
+    const frame = requestAnimationFrame(() => {
+      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [focusedProductId]);
+
   const inbox = useMemo(() => getMediaInbox(), [items]);
   const filteredInbox = useMemo(
     () => (inboxFilter === "ALL" ? inbox : inbox.filter((row) => row.tags.includes(inboxFilter))),
@@ -107,7 +120,7 @@ export default function AdminProductReview() {
       </AdminPanel>
 
       {/* UNIFIED PRODUCT REVIEW DETAIL --------------------------------- */}
-      <div className="mt-8">
+      <div ref={detailRef} id="product-review-detail" className="mt-8 scroll-mt-24">
         <AdminPanel
           eyebrow={focusedProductId ? `Reviewing · ${focusedProductId}` : "Select a product from the queue"}
           title="Product review detail"
