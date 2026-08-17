@@ -1,0 +1,6337 @@
+{
+  "counts": {
+    "products": 168,
+    "media": 205,
+    "published": 99,
+    "storefront": 99,
+    "marketingMedia": 10,
+    "kidsProducts": 21
+  },
+  "products": [
+    {
+      "id": "BAN-009",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-1d8f202c6675",
+      "mediaIds": [
+        "pm-ing-1d8f202c6675"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-1d8f202c6675"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "bangles",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "BRD-001",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-21bf7be5f827",
+      "mediaIds": [
+        "pm-ing-21bf7be5f827",
+        "pm-ing-ec0417064667"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-21bf7be5f827",
+        "pm-ing-ec0417064667"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "bridal-couture",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-004",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-6bf11b5ac437",
+      "mediaIds": [
+        "pm-ing-6bf11b5ac437"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-6bf11b5ac437"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-005",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-4d9ba0b7054f",
+      "mediaIds": [
+        "pm-ing-4d9ba0b7054f"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-4d9ba0b7054f"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-006",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-c04af8266ee4",
+      "mediaIds": [
+        "pm-ing-c04af8266ee4"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-c04af8266ee4"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-007",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-86f785bdcaf4",
+      "mediaIds": [
+        "pm-ing-86f785bdcaf4"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-86f785bdcaf4"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-008",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-19185fc7650c",
+      "mediaIds": [
+        "pm-ing-19185fc7650c"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-19185fc7650c"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-009",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-634df6bd6640",
+      "mediaIds": [
+        "pm-ing-634df6bd6640"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-634df6bd6640"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-010",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-c3221054ff12",
+      "mediaIds": [
+        "pm-ing-c3221054ff12"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-c3221054ff12"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-011",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-f70c67bfc1d2",
+      "mediaIds": [
+        "pm-ing-f70c67bfc1d2"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-f70c67bfc1d2"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-012",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "GROUP_REVIEW_REQUIRED",
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-03a94904e4ea",
+      "mediaIds": [
+        "pm-ing-03a94904e4ea"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-03a94904e4ea"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-013",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-c095f65c2f14",
+      "mediaIds": [
+        "pm-ing-c095f65c2f14"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-c095f65c2f14"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-014",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-ac7ae9f24146",
+      "mediaIds": [
+        "pm-ing-ac7ae9f24146"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-ac7ae9f24146"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-015",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-4b3839035e4c",
+      "mediaIds": [
+        "pm-ing-4b3839035e4c"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-4b3839035e4c"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-016",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-d95fd1979ce3",
+      "mediaIds": [
+        "pm-ing-d95fd1979ce3"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-d95fd1979ce3"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-017",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-50c1b7af32b3",
+      "mediaIds": [
+        "pm-ing-50c1b7af32b3"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-50c1b7af32b3"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-018",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-cabd2b922c78",
+      "mediaIds": [
+        "pm-ing-cabd2b922c78"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-cabd2b922c78"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "INN-019",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-b9978c3adb45",
+      "mediaIds": [
+        "pm-ing-b9978c3adb45"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-b9978c3adb45"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-001",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "GROUP_REVIEW_REQUIRED",
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-5ce5e855873e",
+      "mediaIds": [
+        "pm-ing-5ce5e855873e"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-5ce5e855873e"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-002",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "GROUP_REVIEW_REQUIRED",
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-6025650ea128",
+      "mediaIds": [
+        "pm-ing-6025650ea128"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-6025650ea128"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-003",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "GROUP_REVIEW_REQUIRED",
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-9e3b3b0ac2d0",
+      "mediaIds": [
+        "pm-ing-9e3b3b0ac2d0"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-9e3b3b0ac2d0"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-004",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "GROUP_REVIEW_REQUIRED",
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-729c5b93743d",
+      "mediaIds": [
+        "pm-ing-729c5b93743d"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-729c5b93743d"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-005",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "GROUP_REVIEW_REQUIRED",
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-0854fd0dd8f8",
+      "mediaIds": [
+        "pm-ing-0854fd0dd8f8"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-0854fd0dd8f8"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-008",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-9f8e8c1d2d91",
+      "mediaIds": [
+        "pm-ing-9f8e8c1d2d91"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-9f8e8c1d2d91"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-009",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-9771ff5c286c",
+      "mediaIds": [
+        "pm-ing-9771ff5c286c"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-9771ff5c286c"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-010",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-7abde347d054",
+      "mediaIds": [
+        "pm-ing-7abde347d054"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-7abde347d054"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-011",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-877a5a844239",
+      "mediaIds": [
+        "pm-ing-877a5a844239"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-877a5a844239"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-012",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-74d76f503f29",
+      "mediaIds": [
+        "pm-ing-74d76f503f29"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-74d76f503f29"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-013",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-e84353b433be",
+      "mediaIds": [
+        "pm-ing-e84353b433be"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-e84353b433be"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-014",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-75df3e95edc5",
+      "mediaIds": [
+        "pm-ing-75df3e95edc5"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-75df3e95edc5"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-015",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-9fe6a93fe998",
+      "mediaIds": [
+        "pm-ing-9fe6a93fe998"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-9fe6a93fe998"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-016",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-e91d0f376568",
+      "mediaIds": [
+        "pm-ing-e91d0f376568"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-e91d0f376568"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-017",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-9f009acda047",
+      "mediaIds": [
+        "pm-ing-9f009acda047"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-9f009acda047"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-018",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-a99d684969df",
+      "mediaIds": [
+        "pm-ing-a99d684969df"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-a99d684969df"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "JEW-019",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-87d431e0ae24",
+      "mediaIds": [
+        "pm-ing-87d431e0ae24"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-87d431e0ae24"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-001",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-d8a2a5ce4231",
+      "mediaIds": [
+        "pm-ing-d8a2a5ce4231"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-d8a2a5ce4231"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Dress",
+      "price": 1690,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-002",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-372f6a884af0",
+      "mediaIds": [
+        "pm-ing-372f6a884af0"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-372f6a884af0"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 1790,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-003",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-07c14b148354",
+      "mediaIds": [
+        "pm-ing-07c14b148354"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-07c14b148354"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-004",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-fe3da3629d7f",
+      "mediaIds": [
+        "pm-ing-fe3da3629d7f"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-fe3da3629d7f"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys T-Shirt & Shorts Set",
+      "price": 1290,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-005",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-6b081543a5b3",
+      "mediaIds": [
+        "pm-ing-6b081543a5b3"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-6b081543a5b3"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-006",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-9c90e812f01e",
+      "mediaIds": [
+        "pm-ing-9c90e812f01e"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-9c90e812f01e"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1590,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-007",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-8e9a532cd2ea",
+      "mediaIds": [
+        "pm-ing-8e9a532cd2ea"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-8e9a532cd2ea"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys T-Shirt & Shorts Set",
+      "price": 1290,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-008",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-d5b4056638e9",
+      "mediaIds": [
+        "pm-ing-d5b4056638e9"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-d5b4056638e9"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Dress",
+      "price": 1790,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-009",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-cc07c83d8fe8",
+      "mediaIds": [
+        "pm-ing-cc07c83d8fe8"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-cc07c83d8fe8"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-010",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-68940ea962a7",
+      "mediaIds": [
+        "pm-ing-68940ea962a7"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-68940ea962a7"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1590,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-011",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-bae38e78ad27",
+      "mediaIds": [
+        "pm-ing-bae38e78ad27"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-bae38e78ad27"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Dress",
+      "price": 1690,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-012",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-9e9c0a8e9c12",
+      "mediaIds": [
+        "pm-ing-9e9c0a8e9c12"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-9e9c0a8e9c12"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-013",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-8de84dfcec70",
+      "mediaIds": [
+        "pm-ing-8de84dfcec70"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-8de84dfcec70"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 1390,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-014",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-91715d6aedb7",
+      "mediaIds": [
+        "pm-ing-91715d6aedb7"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-91715d6aedb7"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 2290,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-015",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-0967bfa3bca1",
+      "mediaIds": [
+        "pm-ing-0967bfa3bca1"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-0967bfa3bca1"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-016",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-ff5209630cbf",
+      "mediaIds": [
+        "pm-ing-ff5209630cbf"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-ff5209630cbf"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys T-Shirt & Shorts Set",
+      "price": 1290,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-017",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-07e29248c65e",
+      "mediaIds": [
+        "pm-ing-07e29248c65e"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-07e29248c65e"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1390,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-018",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-ee6efb76150f",
+      "mediaIds": [
+        "pm-ing-ee6efb76150f"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-ee6efb76150f"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 1890,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-019",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-171b447ed42a",
+      "mediaIds": [
+        "pm-ing-171b447ed42a"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-171b447ed42a"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 1790,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-020",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-d5f6f746d5c2",
+      "mediaIds": [
+        "pm-ing-d5f6f746d5c2"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-d5f6f746d5c2"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 2490,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "KID-021",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "CONFLICT_UNRESOLVED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-efbb9d5820f9",
+      "mediaIds": [
+        "pm-ing-efbb9d5820f9"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-efbb9d5820f9"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1590,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "MEN-001",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-9d21eaa3cbcc",
+      "mediaIds": [
+        "pm-ing-9d21eaa3cbcc",
+        "pm-ing-aa4b9bf3b3b5"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-9d21eaa3cbcc",
+        "pm-ing-aa4b9bf3b3b5"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "menswear",
+      "subcategory": "Kurta Pajama",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "MEN-002",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-0548807c590f",
+      "mediaIds": [
+        "pm-ing-0548807c590f",
+        "pm-ing-649f82da3e8f"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-0548807c590f",
+        "pm-ing-649f82da3e8f"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "menswear",
+      "subcategory": "Kurta Pajama",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "MEN-003",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-d4b9acc63d5a",
+      "mediaIds": [
+        "pm-ing-d4b9acc63d5a",
+        "pm-ing-eb158d4a1f1d"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-d4b9acc63d5a",
+        "pm-ing-eb158d4a1f1d"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "menswear",
+      "subcategory": "Kurta Pajama",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "MEN-004",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-17ab2ce3e100",
+      "mediaIds": [
+        "pm-ing-17ab2ce3e100",
+        "pm-ing-a4bd6b45e76b",
+        "pm-ing-fc3ec7325d73"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-17ab2ce3e100",
+        "pm-ing-a4bd6b45e76b",
+        "pm-ing-fc3ec7325d73"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "menswear",
+      "subcategory": "Sherwani",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "MEN-005",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-82c1427f01f8",
+      "mediaIds": [
+        "pm-ing-82c1427f01f8",
+        "pm-ing-f3f2de53deb7"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-82c1427f01f8",
+        "pm-ing-f3f2de53deb7"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "menswear",
+      "subcategory": "Sherwani",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "MEN-006",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-de8924ad8bff",
+      "mediaIds": [
+        "pm-ing-017adbb83f07",
+        "pm-ing-7e220d6a6521",
+        "pm-ing-de8924ad8bff"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-017adbb83f07",
+        "pm-ing-7e220d6a6521",
+        "pm-ing-de8924ad8bff"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "menswear",
+      "subcategory": "Sherwani",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "pf-001",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-silk",
+      "hoverImage": "fabric-silk",
+      "category": "sarees",
+      "subcategory": "Pato Saree",
+      "price": 18500,
+      "stock": 12,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-002",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-traditional",
+      "hoverImage": "fabric-embroidered",
+      "category": "sarees",
+      "subcategory": "Pato Saree",
+      "price": 16200,
+      "stock": 9,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-003",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-silk",
+      "hoverImage": "saree-traditional",
+      "category": "sarees",
+      "subcategory": "Pato Saree",
+      "price": 24800,
+      "stock": 3,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-004",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-traditional",
+      "hoverImage": "fabric-silk",
+      "category": "sarees",
+      "subcategory": "Pato Saree",
+      "price": 13400,
+      "stock": 14,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-005",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-ivory-silk",
+      "hoverImage": "fabric-silk",
+      "category": "sarees",
+      "subcategory": "Silk Saree",
+      "price": 32500,
+      "stock": 7,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-006",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-silk",
+      "hoverImage": "fabric-silk",
+      "category": "sarees",
+      "subcategory": "Silk Saree",
+      "price": 21900,
+      "stock": 11,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-007",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-silk",
+      "hoverImage": "saree-printed",
+      "category": "sarees",
+      "subcategory": "Silk Saree",
+      "price": 9800,
+      "stock": 18,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-008",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-silk",
+      "hoverImage": "fabric-embroidered",
+      "category": "sarees",
+      "subcategory": "Silk Saree",
+      "price": 7450,
+      "stock": 22,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-009",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-silk",
+      "hoverImage": "fabric-cotton",
+      "category": "sarees",
+      "subcategory": "Silk Saree",
+      "price": 4650,
+      "stock": 30,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-010",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-banarasi",
+      "hoverImage": "fabric-embroidered",
+      "category": "sarees",
+      "subcategory": "Banarasi Saree",
+      "price": 42000,
+      "stock": 4,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-011",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-banarasi",
+      "hoverImage": "saree-silk",
+      "category": "sarees",
+      "subcategory": "Banarasi Saree",
+      "price": 27500,
+      "stock": 8,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-012",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-banarasi",
+      "hoverImage": "fabric-chiffon",
+      "category": "sarees",
+      "subcategory": "Banarasi Saree",
+      "price": 15800,
+      "stock": 13,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-013",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-banarasi",
+      "hoverImage": "fabric-chiffon",
+      "category": "sarees",
+      "subcategory": "Banarasi Saree",
+      "price": 11200,
+      "stock": 16,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-014",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-cotton",
+      "hoverImage": "fabric-cotton",
+      "category": "sarees",
+      "subcategory": "Cotton Saree",
+      "price": 2850,
+      "stock": 42,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-015",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-cotton",
+      "hoverImage": "fabric-printed",
+      "category": "sarees",
+      "subcategory": "Cotton Saree",
+      "price": 3950,
+      "stock": 27,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-016",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-cotton",
+      "hoverImage": "saree-traditional",
+      "category": "sarees",
+      "subcategory": "Cotton Saree",
+      "price": 4200,
+      "stock": 19,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-017",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-linen",
+      "hoverImage": "fabric-cotton",
+      "category": "sarees",
+      "subcategory": "Cotton Saree",
+      "price": 1980,
+      "stock": 55,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-018",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-printed",
+      "hoverImage": "fabric-printed",
+      "category": "sarees",
+      "subcategory": "Printed Saree",
+      "price": 2450,
+      "stock": 48,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-019",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-printed",
+      "hoverImage": "fabric-chiffon",
+      "category": "sarees",
+      "subcategory": "Printed Saree",
+      "price": 3280,
+      "stock": 36,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-020",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-embroidered",
+      "hoverImage": "saree-silk",
+      "category": "sarees",
+      "subcategory": "Designer Saree",
+      "price": 19600,
+      "stock": 10,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-021",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-embroidered",
+      "hoverImage": "women-bridal-wear",
+      "category": "sarees",
+      "subcategory": "Designer Saree",
+      "price": 34500,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-022",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-embroidered",
+      "hoverImage": "fabric-chiffon",
+      "category": "sarees",
+      "subcategory": "Designer Saree",
+      "price": 12900,
+      "stock": 15,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-023",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-wine",
+      "hoverImage": "lehenga-bridal",
+      "category": "lehengas",
+      "subcategory": "Bridal Lehenga",
+      "price": 78500,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-024",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-bridal",
+      "hoverImage": "women-bridal-wear",
+      "category": "lehengas",
+      "subcategory": "Bridal Lehenga",
+      "price": 68000,
+      "stock": 2,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-025",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-bridal",
+      "hoverImage": "saree-ivory-silk",
+      "category": "lehengas",
+      "subcategory": "Bridal Lehenga",
+      "price": 56400,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-026",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-designer",
+      "hoverImage": "lehenga-bridal",
+      "category": "lehengas",
+      "subcategory": "Bridal Lehenga",
+      "price": 44900,
+      "stock": 5,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-027",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-designer",
+      "hoverImage": "fabric-embroidered",
+      "category": "lehengas",
+      "subcategory": "Wedding Lehenga",
+      "price": 38500,
+      "stock": 6,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-028",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-designer",
+      "hoverImage": "lehenga-party",
+      "category": "lehengas",
+      "subcategory": "Wedding Lehenga",
+      "price": 29800,
+      "stock": 9,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-029",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-party",
+      "hoverImage": "fabric-embroidered",
+      "category": "lehengas",
+      "subcategory": "Designer Lehenga",
+      "price": 24600,
+      "stock": 11,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-030",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-party",
+      "hoverImage": "fabric-printed",
+      "category": "lehengas",
+      "subcategory": "Designer Lehenga",
+      "price": 18900,
+      "stock": 14,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-031",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-designer",
+      "hoverImage": "fabric-chiffon",
+      "category": "lehengas",
+      "subcategory": "Designer Lehenga",
+      "price": 21400,
+      "stock": 3,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-032",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-party",
+      "hoverImage": "fabric-chiffon",
+      "category": "lehengas",
+      "subcategory": "Party Lehenga",
+      "price": 12800,
+      "stock": 21,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-033",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-party",
+      "hoverImage": "fabric-embroidered",
+      "category": "lehengas",
+      "subcategory": "Party Lehenga",
+      "price": 15600,
+      "stock": 17,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-034",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-party",
+      "hoverImage": "fabric-printed",
+      "category": "lehengas",
+      "subcategory": "Party Lehenga",
+      "price": 9400,
+      "stock": 25,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-035",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "women-bridal-wear",
+      "hoverImage": "saree-banarasi",
+      "category": "bridal-couture",
+      "subcategory": "Bridal Saree",
+      "price": 52000,
+      "stock": 4,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-036",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-ivory-silk",
+      "hoverImage": "women-bridal-wear",
+      "category": "bridal-couture",
+      "subcategory": "Bridal Saree",
+      "price": 64500,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-037",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "women-bridal-wear",
+      "hoverImage": "fabric-embroidered",
+      "category": "bridal-couture",
+      "subcategory": "Reception Wear",
+      "price": 46800,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-038",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-embroidered",
+      "hoverImage": "women-bridal-wear",
+      "category": "bridal-couture",
+      "subcategory": "Reception Wear",
+      "price": 39900,
+      "stock": 2,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-039",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-wine",
+      "hoverImage": "lehenga-party",
+      "category": "bridal-couture",
+      "subcategory": "Sangeet Wear",
+      "price": 28400,
+      "stock": 8,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-040",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-designer",
+      "hoverImage": "fabric-embroidered",
+      "category": "bridal-couture",
+      "subcategory": "Sangeet Wear",
+      "price": 33200,
+      "stock": 6,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-041",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-printed",
+      "hoverImage": "lehenga-party",
+      "category": "bridal-couture",
+      "subcategory": "Mehendi Wear",
+      "price": 17800,
+      "stock": 13,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-042",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-printed",
+      "hoverImage": "fabric-cotton",
+      "category": "bridal-couture",
+      "subcategory": "Mehendi Wear",
+      "price": 8900,
+      "stock": 24,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-043",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "saree-banarasi",
+      "hoverImage": "saree-ivory-silk",
+      "category": "bridal-couture",
+      "subcategory": "Trousseau",
+      "price": 96000,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-044",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "lehenga-bridal",
+      "hoverImage": "women-bridal-wear",
+      "category": "bridal-couture",
+      "subcategory": "Trousseau",
+      "price": 118000,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-045",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "accessory-dupattas",
+      "hoverImage": "fabric-embroidered",
+      "category": "bridal-couture",
+      "subcategory": "Trousseau",
+      "price": 14500,
+      "stock": 10,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-046",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-bangles",
+      "hoverImage": "bridal-jewellery",
+      "category": "bangles",
+      "subcategory": "Bridal Bangles",
+      "price": 8400,
+      "stock": 26,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-047",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-bangles",
+      "hoverImage": "women-bridal-wear",
+      "category": "bangles",
+      "subcategory": "Bridal Bangles",
+      "price": 12600,
+      "stock": 4,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-048",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-bangles",
+      "hoverImage": "bridal-jewellery",
+      "category": "bangles",
+      "subcategory": "Gold-finish Bangles",
+      "price": 3200,
+      "stock": 48,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-049",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-bangles",
+      "hoverImage": "fabric-silk",
+      "category": "bangles",
+      "subcategory": "Gold-finish Bangles",
+      "price": 1650,
+      "stock": 72,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-050",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "bridal-bangles",
+      "category": "bangles",
+      "subcategory": "Kada + Cuffs",
+      "price": 5900,
+      "stock": 15,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-051",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "bridal-bangles",
+      "category": "bangles",
+      "subcategory": "Kada + Cuffs",
+      "price": 1890,
+      "stock": 60,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-052",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-bangles",
+      "hoverImage": "saree-ivory-silk",
+      "category": "bangles",
+      "subcategory": "Gold-finish Bangles",
+      "price": 4450,
+      "stock": 31,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-053",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "groom-sherwani",
+      "category": "bangles",
+      "subcategory": "Kada + Cuffs",
+      "price": 6800,
+      "stock": 12,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-054",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "women-bridal-wear",
+      "category": "jewellery",
+      "subcategory": "Jewellery Set",
+      "price": 18900,
+      "stock": 7,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-055",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "bridal-bangles",
+      "category": "jewellery",
+      "subcategory": "Necklaces",
+      "price": 26400,
+      "stock": 3,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-056",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "saree-ivory-silk",
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 3400,
+      "stock": 44,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-057",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "women-contemporary",
+      "category": "jewellery",
+      "subcategory": "Earrings",
+      "price": 1450,
+      "stock": 65,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-058",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "women-bridal-wear",
+      "category": "jewellery",
+      "subcategory": "Maang Tikka",
+      "price": 2890,
+      "stock": 33,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-059",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "fabric-silk",
+      "category": "jewellery",
+      "subcategory": "Rings",
+      "price": 890,
+      "stock": 88,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-060",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "bridal-jewellery",
+      "hoverImage": "bridal-bangles",
+      "category": "jewellery",
+      "subcategory": "Jewellery Set",
+      "price": 22800,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-061",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "women-contemporary",
+      "hoverImage": "fabric-linen",
+      "category": "kurtis-and-suits",
+      "subcategory": "Kurti",
+      "price": 2650,
+      "stock": 52,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-062",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "women-contemporary",
+      "hoverImage": "fabric-cotton",
+      "category": "kurtis-and-suits",
+      "subcategory": "Kurti",
+      "price": 1980,
+      "stock": 47,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-063",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-printed",
+      "hoverImage": "fabric-cotton",
+      "category": "kurtis-and-suits",
+      "subcategory": "Suit Set",
+      "price": 3850,
+      "stock": 29,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-064",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-embroidered",
+      "hoverImage": "fabric-silk",
+      "category": "kurtis-and-suits",
+      "subcategory": "Suit Set",
+      "price": 7900,
+      "stock": 18,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-065",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-cotton",
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "Petticoat",
+      "price": 640,
+      "stock": 140,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-066",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-silk",
+      "hoverImage": "fabric-embroidered",
+      "category": "innerwear",
+      "subcategory": "Blouse",
+      "price": 1290,
+      "stock": 74,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-067",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-cotton",
+      "hoverImage": null,
+      "category": "innerwear",
+      "subcategory": "Shapewear",
+      "price": 1150,
+      "stock": 96,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-068",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "accessory-dupattas",
+      "hoverImage": "saree-banarasi",
+      "category": "dupattas",
+      "subcategory": "Dupatta",
+      "price": 4600,
+      "stock": 23,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-069",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "accessory-dupattas",
+      "hoverImage": "fabric-printed",
+      "category": "dupattas",
+      "subcategory": "Dupatta",
+      "price": 2380,
+      "stock": 34,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-070",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-linen",
+      "hoverImage": "fabric-cotton",
+      "category": "dupattas",
+      "subcategory": "Stole",
+      "price": 980,
+      "stock": 68,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-071",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "groom-sherwani",
+      "hoverImage": "men-sherwani",
+      "category": "menswear",
+      "subcategory": "Sherwani",
+      "price": 42500,
+      "stock": 6,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-072",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "men-sherwani",
+      "hoverImage": "groom-sherwani",
+      "category": "menswear",
+      "subcategory": "Sherwani",
+      "price": 36800,
+      "stock": 0,
+      "availability": "made-to-order",
+      "published": true
+    },
+    {
+      "id": "pf-073",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "men-sherwani",
+      "hoverImage": "fabric-embroidered",
+      "category": "menswear",
+      "subcategory": "Sherwani",
+      "price": 38900,
+      "stock": 2,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-074",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "men-kurta",
+      "hoverImage": "fabric-cotton",
+      "category": "menswear",
+      "subcategory": "Kurta",
+      "price": 1890,
+      "stock": 82,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-075",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "men-kurta",
+      "hoverImage": "fabric-silk",
+      "category": "menswear",
+      "subcategory": "Kurta",
+      "price": 4600,
+      "stock": 28,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-076",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "men-kurta",
+      "hoverImage": "fabric-linen",
+      "category": "menswear",
+      "subcategory": "Kurta Pajama",
+      "price": 3200,
+      "stock": 46,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-077",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "fabric-embroidered",
+      "hoverImage": "men-sherwani",
+      "category": "menswear",
+      "subcategory": "Nehru Jacket",
+      "price": 5800,
+      "stock": 21,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-078",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "men-kurta",
+      "hoverImage": "groom-sherwani",
+      "category": "menswear",
+      "subcategory": "Kurta",
+      "price": 8900,
+      "stock": 16,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-079",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-001.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Dress",
+      "price": 1690,
+      "stock": 32,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-080",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-002.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 1790,
+      "stock": 14,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-081",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-003.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 41,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-082",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-004.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys T-Shirt & Shorts Set",
+      "price": 1290,
+      "stock": 55,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-083",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-005.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 78,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-084",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-006.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1590,
+      "stock": 26,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-085",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-007.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys T-Shirt & Shorts Set",
+      "price": 1290,
+      "stock": 3,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-086",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-008.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Dress",
+      "price": 1790,
+      "stock": 62,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-087",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-009.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 20,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-088",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-010.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1590,
+      "stock": 30,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-089",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-011.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Dress",
+      "price": 1690,
+      "stock": 18,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-090",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-012.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 25,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-091",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-013.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 1390,
+      "stock": 35,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-092",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-014.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 2290,
+      "stock": 22,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-093",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-015.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1490,
+      "stock": 40,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-094",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-016.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys T-Shirt & Shorts Set",
+      "price": 1290,
+      "stock": 28,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-095",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-017.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1390,
+      "stock": 16,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-096",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-018.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 1890,
+      "stock": 33,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-097",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-019.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Girls Casual Set",
+      "price": 1790,
+      "stock": 50,
+      "availability": "in-stock",
+      "published": true
+    },
+    {
+      "id": "pf-098",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-020.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 2490,
+      "stock": 4,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "pf-099",
+      "status": "PUBLISHED",
+      "reviewState": "NONE",
+      "reviewFlags": [],
+      "assignedEmployeeId": null,
+      "primaryMediaId": null,
+      "mediaIds": [],
+      "galleryMediaIds": [],
+      "image": "/library/kids-021.webp",
+      "hoverImage": null,
+      "category": "kidswear",
+      "subcategory": "Boys Casual Set",
+      "price": 1590,
+      "stock": 2,
+      "availability": "low-stock",
+      "published": true
+    },
+    {
+      "id": "SAR-001",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "GROUP_REVIEW_REQUIRED",
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-2e4e50a3f43d",
+      "mediaIds": [
+        "pm-ing-2e4e50a3f43d",
+        "pm-ing-5eff0ddc955b",
+        "pm-ing-70ef87c1f6d3"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-2e4e50a3f43d",
+        "pm-ing-5eff0ddc955b",
+        "pm-ing-70ef87c1f6d3"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "sarees",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "SAR-002",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "GROUP_REVIEW_REQUIRED",
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED",
+        "TAXONOMY_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-7e30fc813de0",
+      "mediaIds": [
+        "pm-ing-7e30fc813de0",
+        "pm-ing-9c218ea77ef4",
+        "pm-ing-dae0dcb2dac7"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-7e30fc813de0",
+        "pm-ing-9c218ea77ef4",
+        "pm-ing-dae0dcb2dac7"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "sarees",
+      "subcategory": "",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "SAR-003",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-95d2e017e8d8",
+      "mediaIds": [
+        "pm-ing-5375c90ee0e6",
+        "pm-ing-95d2e017e8d8"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-5375c90ee0e6",
+        "pm-ing-95d2e017e8d8"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "sarees",
+      "subcategory": "Cotton Saree",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "SAR-004",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-bd40ac5622de",
+      "mediaIds": [
+        "pm-ing-bd40ac5622de"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-bd40ac5622de"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "sarees",
+      "subcategory": "Cotton Saree",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "SAR-005",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-18bc6ff68f2f",
+      "mediaIds": [
+        "pm-ing-18bc6ff68f2f",
+        "pm-ing-383c86ca647a"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-18bc6ff68f2f",
+        "pm-ing-383c86ca647a"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "sarees",
+      "subcategory": "Silk Saree",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "SAR-006",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-ae281ff699e6",
+      "mediaIds": [
+        "pm-ing-84a6ab27f089",
+        "pm-ing-ae281ff699e6",
+        "pm-ing-f70ce105b272"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-84a6ab27f089",
+        "pm-ing-ae281ff699e6",
+        "pm-ing-f70ce105b272"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "sarees",
+      "subcategory": "Silk Saree",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    },
+    {
+      "id": "SAR-007",
+      "status": "DRAFT",
+      "reviewState": "NONE",
+      "reviewFlags": [
+        "NAME_REVIEW_REQUIRED",
+        "PRICE_REVIEW_REQUIRED"
+      ],
+      "assignedEmployeeId": null,
+      "primaryMediaId": "pm-ing-035a10bfeca6",
+      "mediaIds": [
+        "pm-ing-035a10bfeca6",
+        "pm-ing-47ca2f69fe22"
+      ],
+      "galleryMediaIds": [
+        "pm-ing-035a10bfeca6",
+        "pm-ing-47ca2f69fe22"
+      ],
+      "image": null,
+      "hoverImage": null,
+      "category": "sarees",
+      "subcategory": "Silk Saree",
+      "price": 0,
+      "stock": 0,
+      "availability": "in-stock",
+      "published": false
+    }
+  ],
+  "media": [
+    {
+      "id": "pm-ing-00dc6238c718",
+      "productId": "pf-035",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-bridal-001-side.webp"
+    },
+    {
+      "id": "pm-ing-017adbb83f07",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-sherwani-006-left-side.webp"
+    },
+    {
+      "id": "pm-ing-01872bb56ead",
+      "productId": "pf-014",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-cotton-001-side.webp"
+    },
+    {
+      "id": "pm-ing-035a10bfeca6",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-silk-006-front.webp"
+    },
+    {
+      "id": "pm-ing-03a94904e4ea",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-012.webp"
+    },
+    {
+      "id": "pm-ing-0548807c590f",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-kurta-pajama-003-front.webp"
+    },
+    {
+      "id": "pm-ing-063b2212fd9a",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-groom-sherwani.jpg"
+    },
+    {
+      "id": "pm-ing-06ea66b9df08",
+      "productId": "pf-066",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-innerwear-002.webp"
+    },
+    {
+      "id": "pm-ing-075f33ec47cf",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-bridal-editorial.jpg"
+    },
+    {
+      "id": "pm-ing-07c14b148354",
+      "productId": "pf-081",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-003.webp"
+    },
+    {
+      "id": "pm-ing-07e29248c65e",
+      "productId": "pf-095",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-017.webp"
+    },
+    {
+      "id": "pm-ing-0854fd0dd8f8",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-anklet-005.webp"
+    },
+    {
+      "id": "pm-ing-0967bfa3bca1",
+      "productId": "pf-093",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-015.webp"
+    },
+    {
+      "id": "pm-ing-0bed80671f0c",
+      "productId": "pf-048",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-bangle-003.webp"
+    },
+    {
+      "id": "pm-ing-0c295e4fd2b3",
+      "productId": "pf-073",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "men-sherwani-003-multiple-front.webp"
+    },
+    {
+      "id": "pm-ing-0f0f5b56c5f2",
+      "productId": "pf-040",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-bridal-005-front.webp"
+    },
+    {
+      "id": "pm-ing-151f748efdcb",
+      "productId": "pf-067",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-innerwear-003.webp"
+    },
+    {
+      "id": "pm-ing-162dd9706e0c",
+      "productId": "pf-071",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "men-sherwani-001-front.webp"
+    },
+    {
+      "id": "pm-ing-16cee0da33b9",
+      "productId": "pf-011",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-banarasi-001-front.webp"
+    },
+    {
+      "id": "pm-ing-171b447ed42a",
+      "productId": "pf-097",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-019.webp"
+    },
+    {
+      "id": "pm-ing-1731e13eff81",
+      "productId": "pf-072",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "men-sherwani-002-back.webp"
+    },
+    {
+      "id": "pm-ing-17ab2ce3e100",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-sherwani-004-front.webp"
+    },
+    {
+      "id": "pm-ing-18bc6ff68f2f",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-silk-004-front.webp"
+    },
+    {
+      "id": "pm-ing-19185fc7650c",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-008.webp"
+    },
+    {
+      "id": "pm-ing-1c35dce096fd",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "HOME_HERO",
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "hero002.avif"
+    },
+    {
+      "id": "pm-ing-1d8f202c6675",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-bangle-009.webp"
+    },
+    {
+      "id": "pm-ing-1f68df0647ba",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "HOME_HERO",
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "hero001.avif"
+    },
+    {
+      "id": "pm-ing-21bf7be5f827",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-bridal-006-front.webp"
+    },
+    {
+      "id": "pm-ing-24191fffa9f5",
+      "productId": "pf-025",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-lehenga-002-front-close.webp"
+    },
+    {
+      "id": "pm-ing-2904c98d512b",
+      "productId": "pf-017",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-cotton-004-front-close.webp"
+    },
+    {
+      "id": "pm-ing-29cd292b1e26",
+      "productId": "pf-046",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-bangle-001.webp"
+    },
+    {
+      "id": "pm-ing-2e4e50a3f43d",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-bandhani-001-front.webp"
+    },
+    {
+      "id": "pm-ing-2eadb64bd7fe",
+      "productId": "pf-038",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-bridal-003-front.webp"
+    },
+    {
+      "id": "pm-ing-35044339835b",
+      "productId": "pf-026",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-lehenga-003-back.webp"
+    },
+    {
+      "id": "pm-ing-364313407bee",
+      "productId": "pf-015",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-cotton-002-side.webp"
+    },
+    {
+      "id": "pm-ing-372f6a884af0",
+      "productId": "pf-080",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-002.webp"
+    },
+    {
+      "id": "pm-ing-383c86ca647a",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-silk-004-back.webp"
+    },
+    {
+      "id": "pm-ing-3949731dc02d",
+      "productId": "pf-017",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-cotton-004-side.webp"
+    },
+    {
+      "id": "pm-ing-3aa35e739c27",
+      "productId": "pf-028",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-lehenga-005-front.webp"
+    },
+    {
+      "id": "pm-ing-3e4cde17fe28",
+      "productId": "pf-076",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "men-kurta-pajama-001-front.webp"
+    },
+    {
+      "id": "pm-ing-42bcc46998f5",
+      "productId": "pf-023",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-lehenga-001-front.webp"
+    },
+    {
+      "id": "pm-ing-45bc9ba1a24c",
+      "productId": "pf-018",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-chiffon-001-back.webp"
+    },
+    {
+      "id": "pm-ing-46b7576fc686",
+      "productId": "pf-018",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-chiffon-001-front.webp"
+    },
+    {
+      "id": "pm-ing-47ca2f69fe22",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-silk-006-back.webp"
+    },
+    {
+      "id": "pm-ing-4835aafe3384",
+      "productId": "pf-039",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-bridal-004-front.webp"
+    },
+    {
+      "id": "pm-ing-4b3839035e4c",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-015.webp"
+    },
+    {
+      "id": "pm-ing-4d9ba0b7054f",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-005.webp"
+    },
+    {
+      "id": "pm-ing-50c1b7af32b3",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-017.webp"
+    },
+    {
+      "id": "pm-ing-5149a5ca0b4d",
+      "productId": "pf-039",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-bridal-004-side.webp"
+    },
+    {
+      "id": "pm-ing-5375c90ee0e6",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-cotton-005-back.webp"
+    },
+    {
+      "id": "pm-ing-5582d5813c12",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-ing-55a5b3056dfc",
+      "productId": "pf-016",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-cotton-003-front.webp"
+    },
+    {
+      "id": "pm-ing-5a708725559e",
+      "productId": "pf-050",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-bangle-005.webp"
+    },
+    {
+      "id": "pm-ing-5b4a76766beb",
+      "productId": "pf-071",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "men-sherwani-001-back.webp"
+    },
+    {
+      "id": "pm-ing-5ce5e855873e",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-anklet-001.webp"
+    },
+    {
+      "id": "pm-ing-5eff0ddc955b",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-bandhani-001-front-close.webp"
+    },
+    {
+      "id": "pm-ing-6025650ea128",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-anklet-002.webp"
+    },
+    {
+      "id": "pm-ing-6229b9ced7d4",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-editorial-hero.jpg"
+    },
+    {
+      "id": "pm-ing-62c7ad21a728",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-minimal-hero.jpg"
+    },
+    {
+      "id": "pm-ing-634df6bd6640",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-009.webp"
+    },
+    {
+      "id": "pm-ing-649f82da3e8f",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-kurta-pajama-003-back.webp"
+    },
+    {
+      "id": "pm-ing-650279fcd1ec",
+      "productId": "pf-012",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-banarasi-003-back.webp"
+    },
+    {
+      "id": "pm-ing-6562eae3e999",
+      "productId": "pf-025",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-lehenga-002-back.webp"
+    },
+    {
+      "id": "pm-ing-6752c352e6a9",
+      "productId": "pf-012",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-banarasi-003-side.webp"
+    },
+    {
+      "id": "pm-ing-68940ea962a7",
+      "productId": "pf-088",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-010.webp"
+    },
+    {
+      "id": "pm-ing-6a86ceee09fe",
+      "productId": "pf-009",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-silk-003-front.webp"
+    },
+    {
+      "id": "pm-ing-6aa77087c116",
+      "productId": "pf-014",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-cotton-001-back.webp"
+    },
+    {
+      "id": "pm-ing-6b081543a5b3",
+      "productId": "pf-083",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-005.webp"
+    },
+    {
+      "id": "pm-ing-6bf11b5ac437",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-004.webp"
+    },
+    {
+      "id": "pm-ing-6d57b819ad3a",
+      "productId": "pf-016",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-cotton-003-side.webp"
+    },
+    {
+      "id": "pm-ing-70ef87c1f6d3",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-bandhani-001-side.webp"
+    },
+    {
+      "id": "pm-ing-721a6e470dbd",
+      "productId": "pf-015",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-cotton-002-back.webp"
+    },
+    {
+      "id": "pm-ing-729c5b93743d",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-anklet-004.webp"
+    },
+    {
+      "id": "pm-ing-74d76f503f29",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-007.webp"
+    },
+    {
+      "id": "pm-ing-75df3e95edc5",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-009.webp"
+    },
+    {
+      "id": "pm-ing-77f7acb21f60",
+      "productId": "pf-007",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-silk-001-side.webp"
+    },
+    {
+      "id": "pm-ing-793d42dec6b6",
+      "productId": "pf-039",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-bridal-004-front-close.webp"
+    },
+    {
+      "id": "pm-ing-7abde347d054",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-005.webp"
+    },
+    {
+      "id": "pm-ing-7c953d980cfe",
+      "productId": "pf-015",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-cotton-002-front.webp"
+    },
+    {
+      "id": "pm-ing-7e220d6a6521",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-sherwani-006-right-side.webp"
+    },
+    {
+      "id": "pm-ing-7e30fc813de0",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-chanderi-001-front.webp"
+    },
+    {
+      "id": "pm-ing-7e908c929dfa",
+      "productId": "pf-053",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-bangle-008.webp"
+    },
+    {
+      "id": "pm-ing-7ea63ae8796a",
+      "productId": "pf-076",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "men-kurta-pajama-001-back.webp"
+    },
+    {
+      "id": "pm-ing-7f2cd530db3d",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-future-hero.jpg"
+    },
+    {
+      "id": "pm-ing-8093fbbe7874",
+      "productId": "pf-071",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "men-sherwani-001-side.webp"
+    },
+    {
+      "id": "pm-ing-82264dc6b9d9",
+      "productId": "pf-052",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-bangle-007.webp"
+    },
+    {
+      "id": "pm-ing-82c1427f01f8",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-sherwani-005-front.webp"
+    },
+    {
+      "id": "pm-ing-8347d5eca570",
+      "productId": "pf-025",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-lehenga-002-front.webp"
+    },
+    {
+      "id": "pm-ing-84a6ab27f089",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-silk-005-back.webp"
+    },
+    {
+      "id": "pm-ing-86df8fe09202",
+      "productId": "pf-008",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-silk-002-front.webp"
+    },
+    {
+      "id": "pm-ing-86f785bdcaf4",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-007.webp"
+    },
+    {
+      "id": "pm-ing-877a5a844239",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-006.webp"
+    },
+    {
+      "id": "pm-ing-87d431e0ae24",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-014.webp"
+    },
+    {
+      "id": "pm-ing-88624ca97681",
+      "productId": "pf-026",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-lehenga-003-front.webp"
+    },
+    {
+      "id": "pm-ing-8de84dfcec70",
+      "productId": "pf-091",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-013.webp"
+    },
+    {
+      "id": "pm-ing-8e9a532cd2ea",
+      "productId": "pf-085",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-007.webp"
+    },
+    {
+      "id": "pm-ing-91715d6aedb7",
+      "productId": "pf-092",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-014.webp"
+    },
+    {
+      "id": "pm-ing-95b984c30c25",
+      "productId": "pf-010",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-banarasi-002-front.webp"
+    },
+    {
+      "id": "pm-ing-95d2e017e8d8",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-cotton-005-front.webp"
+    },
+    {
+      "id": "pm-ing-9771ff5c286c",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-004.webp"
+    },
+    {
+      "id": "pm-ing-9843818f9b5c",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-atelier-fabric.jpg"
+    },
+    {
+      "id": "pm-ing-9c218ea77ef4",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-chanderi-001-front-close.webp"
+    },
+    {
+      "id": "pm-ing-9c3c23468510",
+      "productId": "pf-057",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-earring-002.webp"
+    },
+    {
+      "id": "pm-ing-9c90e812f01e",
+      "productId": "pf-084",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-006.webp"
+    },
+    {
+      "id": "pm-ing-9d21eaa3cbcc",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-kurta-pajama-002-front.webp"
+    },
+    {
+      "id": "pm-ing-9e3b3b0ac2d0",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-anklet-003.webp"
+    },
+    {
+      "id": "pm-ing-9e9c0a8e9c12",
+      "productId": "pf-090",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-012.webp"
+    },
+    {
+      "id": "pm-ing-9f009acda047",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-012.webp"
+    },
+    {
+      "id": "pm-ing-9f7b5134e4e1",
+      "productId": "pf-009",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-silk-003-side.webp"
+    },
+    {
+      "id": "pm-ing-9f8e8c1d2d91",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-003.webp"
+    },
+    {
+      "id": "pm-ing-9fe6a93fe998",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-010.webp"
+    },
+    {
+      "id": "pm-ing-a1e001c05224",
+      "productId": "pf-007",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-silk-001-back.webp"
+    },
+    {
+      "id": "pm-ing-a2a2007dfaff",
+      "productId": "pf-040",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-bridal-005-side.webp"
+    },
+    {
+      "id": "pm-ing-a2eec39ffee1",
+      "productId": "pf-028",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-lehenga-005-back.webp"
+    },
+    {
+      "id": "pm-ing-a4bd6b45e76b",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-sherwani-004-multiple-front.webp"
+    },
+    {
+      "id": "pm-ing-a72dd29cea96",
+      "productId": "pf-017",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-cotton-004-front.webp"
+    },
+    {
+      "id": "pm-ing-a739b4d8f1fa",
+      "productId": "pf-073",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "men-sherwani-003-back.webp"
+    },
+    {
+      "id": "pm-ing-a99d684969df",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-013.webp"
+    },
+    {
+      "id": "pm-ing-a9c7fcbb09cc",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "HOME_HERO",
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "hero005.avif"
+    },
+    {
+      "id": "pm-ing-aa4b9bf3b3b5",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-kurta-pajama-002-back.webp"
+    },
+    {
+      "id": "pm-ing-ac7ae9f24146",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-014.webp"
+    },
+    {
+      "id": "pm-ing-ae281ff699e6",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-silk-005-front.webp"
+    },
+    {
+      "id": "pm-ing-b39b75eaff61",
+      "productId": "pf-007",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-silk-001-front.webp"
+    },
+    {
+      "id": "pm-ing-b9978c3adb45",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-019.webp"
+    },
+    {
+      "id": "pm-ing-bab1aafc71e0",
+      "productId": "pf-023",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-lehenga-001-side.webp"
+    },
+    {
+      "id": "pm-ing-bae38e78ad27",
+      "productId": "pf-089",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-011.webp"
+    },
+    {
+      "id": "pm-ing-bbc703407240",
+      "productId": "pf-038",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-bridal-003-right-side.webp"
+    },
+    {
+      "id": "pm-ing-bcb36c3fe527",
+      "productId": "pf-065",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-innerwear-001.webp"
+    },
+    {
+      "id": "pm-ing-bd139c1e51cd",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-bridal-bangles.jpg"
+    },
+    {
+      "id": "pm-ing-bd40ac5622de",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-cotton-006-front.webp"
+    },
+    {
+      "id": "pm-ing-c042547d14a3",
+      "productId": "pf-011",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-banarasi-001-back.webp"
+    },
+    {
+      "id": "pm-ing-c04af8266ee4",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-006.webp"
+    },
+    {
+      "id": "pm-ing-c095f65c2f14",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-013.webp"
+    },
+    {
+      "id": "pm-ing-c3221054ff12",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-010.webp"
+    },
+    {
+      "id": "pm-ing-c34c885be075",
+      "productId": "pf-006",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-kanchipuram-001-front.webp"
+    },
+    {
+      "id": "pm-ing-cabd2b922c78",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-018.webp"
+    },
+    {
+      "id": "pm-ing-cb98fd42769a",
+      "productId": "pf-056",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-earring-001.webp"
+    },
+    {
+      "id": "pm-ing-cbe6947cff63",
+      "productId": "pf-035",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "DRAFT",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-bridal-002.webp"
+    },
+    {
+      "id": "pm-ing-cc07c83d8fe8",
+      "productId": "pf-087",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-009.webp"
+    },
+    {
+      "id": "pm-ing-cd798f7d64f5",
+      "productId": "pf-051",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-bangle-006.webp"
+    },
+    {
+      "id": "pm-ing-cdedd1ff08c0",
+      "productId": "pf-049",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-bangle-004.webp"
+    },
+    {
+      "id": "pm-ing-d4b9acc63d5a",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-kurta-pajama-004-front.webp"
+    },
+    {
+      "id": "pm-ing-d5b4056638e9",
+      "productId": "pf-086",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-008.webp"
+    },
+    {
+      "id": "pm-ing-d5f6f746d5c2",
+      "productId": "pf-098",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-020.webp"
+    },
+    {
+      "id": "pm-ing-d845379edb8c",
+      "productId": "pf-012",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-banarasi-003-front.webp"
+    },
+    {
+      "id": "pm-ing-d8a2a5ce4231",
+      "productId": "pf-079",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-001.webp"
+    },
+    {
+      "id": "pm-ing-d95fd1979ce3",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-016.webp"
+    },
+    {
+      "id": "pm-ing-dae0dcb2dac7",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-chanderi-001-side.webp"
+    },
+    {
+      "id": "pm-ing-dc3acc6caf72",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-kids-festive.jpg"
+    },
+    {
+      "id": "pm-ing-dc7ec91cfa17",
+      "productId": "pf-073",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "men-sherwani-003-front.webp"
+    },
+    {
+      "id": "pm-ing-dcdddfe744d8",
+      "productId": "pf-047",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "jewellery-bangle-002.webp"
+    },
+    {
+      "id": "pm-ing-de8924ad8bff",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-sherwani-006-front.webp"
+    },
+    {
+      "id": "pm-ing-dfc479600b23",
+      "productId": "pf-011",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-banarasi-001-side.webp"
+    },
+    {
+      "id": "pm-ing-e18d3d11e678",
+      "productId": "pf-072",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "men-sherwani-002-side.webp"
+    },
+    {
+      "id": "pm-ing-e2247fb14506",
+      "productId": "pf-018",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-chiffon-001-side.webp"
+    },
+    {
+      "id": "pm-ing-e28a686a28a1",
+      "productId": "pf-006",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-kanchipuram-001-back.webp"
+    },
+    {
+      "id": "pm-ing-e3f19e42a9ac",
+      "productId": "pf-010",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-banarasi-002-side.webp"
+    },
+    {
+      "id": "pm-ing-e45e21f93c93",
+      "productId": "pf-027",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-lehenga-004-back.webp"
+    },
+    {
+      "id": "pm-ing-e54814c607f1",
+      "productId": "pf-072",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "men-sherwani-002-front.webp"
+    },
+    {
+      "id": "pm-ing-e84353b433be",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-008.webp"
+    },
+    {
+      "id": "pm-ing-e91d0f376568",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "jewellery-earring-011.webp"
+    },
+    {
+      "id": "pm-ing-eb158d4a1f1d",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-kurta-pajama-004-back.webp"
+    },
+    {
+      "id": "pm-ing-eb1a10fd4479",
+      "productId": "pf-038",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-bridal-003-left-side.webp"
+    },
+    {
+      "id": "pm-ing-ec0417064667",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-bridal-006-back.webp"
+    },
+    {
+      "id": "pm-ing-ee3454c97714",
+      "productId": "pf-027",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-lehenga-004-front.webp"
+    },
+    {
+      "id": "pm-ing-ee6efb76150f",
+      "productId": "pf-096",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-018.webp"
+    },
+    {
+      "id": "pm-ing-ef18ac022573",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-commerce-hero.jpg"
+    },
+    {
+      "id": "pm-ing-ef18fdfbf784",
+      "productId": "pf-035",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-bridal-001-front.webp"
+    },
+    {
+      "id": "pm-ing-efbb9d5820f9",
+      "productId": "pf-099",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-021.webp"
+    },
+    {
+      "id": "pm-ing-f3f2de53deb7",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-sherwani-005-side.webp"
+    },
+    {
+      "id": "pm-ing-f70c67bfc1d2",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-innerwear-011.webp"
+    },
+    {
+      "id": "pm-ing-f70ce105b272",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "women-saree-silk-005-side.webp"
+    },
+    {
+      "id": "pm-ing-f85169b5668b",
+      "productId": "pf-006",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-kanchipuram-001-side.webp"
+    },
+    {
+      "id": "pm-ing-fbd5241b2b28",
+      "productId": "pf-014",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "women-saree-cotton-001-front.webp"
+    },
+    {
+      "id": "pm-ing-fbfc473dbb88",
+      "productId": "pf-016",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-cotton-003-front-close.webp"
+    },
+    {
+      "id": "pm-ing-fc3ec7325d73",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "men-sherwani-004-back.webp"
+    },
+    {
+      "id": "pm-ing-fd73ef10a8c3",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "HOME_HERO",
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "hero003.avif"
+    },
+    {
+      "id": "pm-ing-fe3da3629d7f",
+      "productId": "pf-082",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-004.webp"
+    },
+    {
+      "id": "pm-ing-ff1817feae8b",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "HOME_HERO",
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "hero004.avif"
+    },
+    {
+      "id": "pm-ing-ff5209630cbf",
+      "productId": "pf-094",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "kids-016.webp"
+    },
+    {
+      "id": "pm-ing-ff88aa7de367",
+      "productId": "pf-008",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "women-saree-silk-002-side.webp"
+    },
+    {
+      "id": "pm-seed-001",
+      "productId": "pf-001",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-seed-002",
+      "productId": "pf-001",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "DETAIL",
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-seed-003",
+      "productId": "pf-001",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "MODEL",
+      "fileName": "pexels-photo-28943474.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800"
+    },
+    {
+      "id": "pm-seed-004",
+      "productId": "pf-001",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "CLOSEUP",
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-seed-005",
+      "productId": "pf-001",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "VIDEO",
+      "role": "PRODUCT_VIDEO",
+      "fileName": "ForBiggerBlazes.mp4"
+    },
+    {
+      "id": "pm-seed-006",
+      "productId": "pf-024",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "house-bridal-editorial.jpg"
+    },
+    {
+      "id": "pm-seed-007",
+      "productId": "pf-024",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "MODEL",
+      "fileName": "pexels-photo-38866219.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800"
+    },
+    {
+      "id": "pm-seed-008",
+      "productId": "pf-024",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "DETAIL",
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-seed-009",
+      "productId": "pf-024",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "VIDEO",
+      "role": "SHOWCASE",
+      "fileName": "ForBiggerBlazes.mp4"
+    },
+    {
+      "id": "pm-seed-010",
+      "productId": "pf-036",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "COVER",
+      "fileName": "house-editorial-hero.jpg"
+    },
+    {
+      "id": "pm-seed-011",
+      "productId": "pf-036",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-seed-012",
+      "productId": "pf-036",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "LIFESTYLE",
+      "fileName": "house-bridal-bangles.jpg"
+    },
+    {
+      "id": "pm-seed-013",
+      "productId": "pf-005",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "GALLERY",
+      "fileName": "house-editorial-hero.jpg"
+    },
+    {
+      "id": "pm-seed-014",
+      "productId": "pf-005",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": "DETAIL",
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-seed-102",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "SAREE_SECTION",
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-seed-103",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "LEHENGA_SECTION",
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-bridal-editorial.jpg"
+    },
+    {
+      "id": "pm-seed-104",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "FESTIVE_SECTION",
+      "status": "ACTIVE",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "pexels-photo-4814062.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200"
+    },
+    {
+      "id": "pm-seed-106",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "BRIDAL_SECTION",
+      "status": "DRAFT",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "pexels-photo-38866219.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800"
+    },
+    {
+      "id": "pm-seed-107",
+      "productId": null,
+      "scope": "MARKETING",
+      "placement": "GROOM_SECTION",
+      "status": "ARCHIVED",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "house-groom-sherwani.jpg"
+    },
+    {
+      "id": "pm-seed-201",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "DRAFT",
+      "type": "IMAGE",
+      "role": null,
+      "fileName": "pexels-photo-459486.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=627&w=1200"
+    },
+    {
+      "id": "pm-seed-202",
+      "productId": null,
+      "scope": "UNASSIGNED",
+      "placement": null,
+      "status": "DRAFT",
+      "type": "VIDEO",
+      "role": null,
+      "fileName": "ForBiggerBlazes.mp4"
+    },
+    {
+      "id": "pm-seed-301",
+      "productId": "pf-002",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "PENDING_REVIEW",
+      "type": "IMAGE",
+      "role": "DETAIL",
+      "fileName": "pexels-photo-28943474.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800"
+    },
+    {
+      "id": "pm-seed-302",
+      "productId": "pf-002",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "PENDING_REVIEW",
+      "type": "IMAGE",
+      "role": "CLOSEUP",
+      "fileName": "house-heritage-textile.jpg"
+    },
+    {
+      "id": "pm-seed-303",
+      "productId": "pf-004",
+      "scope": "PRODUCT",
+      "placement": null,
+      "status": "REJECTED",
+      "type": "IMAGE",
+      "role": "LIFESTYLE",
+      "fileName": "pexels-photo-28943465.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=800"
+    }
+  ],
+  "kids": [
+    {
+      "productId": "KID-001",
+      "mediaFile": "kids-001.webp",
+      "mediaId": "pm-ing-d8a2a5ce4231",
+      "ownerProductId": "pf-079",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-002",
+      "mediaFile": "kids-002.webp",
+      "mediaId": "pm-ing-372f6a884af0",
+      "ownerProductId": "pf-080",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-003",
+      "mediaFile": "kids-003.webp",
+      "mediaId": "pm-ing-07c14b148354",
+      "ownerProductId": "pf-081",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-004",
+      "mediaFile": "kids-004.webp",
+      "mediaId": "pm-ing-fe3da3629d7f",
+      "ownerProductId": "pf-082",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-005",
+      "mediaFile": "kids-005.webp",
+      "mediaId": "pm-ing-6b081543a5b3",
+      "ownerProductId": "pf-083",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-006",
+      "mediaFile": "kids-006.webp",
+      "mediaId": "pm-ing-9c90e812f01e",
+      "ownerProductId": "pf-084",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-007",
+      "mediaFile": "kids-007.webp",
+      "mediaId": "pm-ing-8e9a532cd2ea",
+      "ownerProductId": "pf-085",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-008",
+      "mediaFile": "kids-008.webp",
+      "mediaId": "pm-ing-d5b4056638e9",
+      "ownerProductId": "pf-086",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-009",
+      "mediaFile": "kids-009.webp",
+      "mediaId": "pm-ing-cc07c83d8fe8",
+      "ownerProductId": "pf-087",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-010",
+      "mediaFile": "kids-010.webp",
+      "mediaId": "pm-ing-68940ea962a7",
+      "ownerProductId": "pf-088",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-011",
+      "mediaFile": "kids-011.webp",
+      "mediaId": "pm-ing-bae38e78ad27",
+      "ownerProductId": "pf-089",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-012",
+      "mediaFile": "kids-012.webp",
+      "mediaId": "pm-ing-9e9c0a8e9c12",
+      "ownerProductId": "pf-090",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-013",
+      "mediaFile": "kids-013.webp",
+      "mediaId": "pm-ing-8de84dfcec70",
+      "ownerProductId": "pf-091",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-014",
+      "mediaFile": "kids-014.webp",
+      "mediaId": "pm-ing-91715d6aedb7",
+      "ownerProductId": "pf-092",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-015",
+      "mediaFile": "kids-015.webp",
+      "mediaId": "pm-ing-0967bfa3bca1",
+      "ownerProductId": "pf-093",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-016",
+      "mediaFile": "kids-016.webp",
+      "mediaId": "pm-ing-ff5209630cbf",
+      "ownerProductId": "pf-094",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-017",
+      "mediaFile": "kids-017.webp",
+      "mediaId": "pm-ing-07e29248c65e",
+      "ownerProductId": "pf-095",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-018",
+      "mediaFile": "kids-018.webp",
+      "mediaId": "pm-ing-ee6efb76150f",
+      "ownerProductId": "pf-096",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-019",
+      "mediaFile": "kids-019.webp",
+      "mediaId": "pm-ing-171b447ed42a",
+      "ownerProductId": "pf-097",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-020",
+      "mediaFile": "kids-020.webp",
+      "mediaId": "pm-ing-d5f6f746d5c2",
+      "ownerProductId": "pf-098",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    },
+    {
+      "productId": "KID-021",
+      "mediaFile": "kids-021.webp",
+      "mediaId": "pm-ing-efbb9d5820f9",
+      "ownerProductId": "pf-099",
+      "productExists": true,
+      "status": "DRAFT",
+      "reviewState": "NONE"
+    }
+  ],
+  "publishedProductIds": [
+    "pf-001",
+    "pf-002",
+    "pf-003",
+    "pf-004",
+    "pf-005",
+    "pf-006",
+    "pf-007",
+    "pf-008",
+    "pf-009",
+    "pf-010",
+    "pf-011",
+    "pf-012",
+    "pf-013",
+    "pf-014",
+    "pf-015",
+    "pf-016",
+    "pf-017",
+    "pf-018",
+    "pf-019",
+    "pf-020",
+    "pf-021",
+    "pf-022",
+    "pf-023",
+    "pf-024",
+    "pf-025",
+    "pf-026",
+    "pf-027",
+    "pf-028",
+    "pf-029",
+    "pf-030",
+    "pf-031",
+    "pf-032",
+    "pf-033",
+    "pf-034",
+    "pf-035",
+    "pf-036",
+    "pf-037",
+    "pf-038",
+    "pf-039",
+    "pf-040",
+    "pf-041",
+    "pf-042",
+    "pf-043",
+    "pf-044",
+    "pf-045",
+    "pf-046",
+    "pf-047",
+    "pf-048",
+    "pf-049",
+    "pf-050",
+    "pf-051",
+    "pf-052",
+    "pf-053",
+    "pf-054",
+    "pf-055",
+    "pf-056",
+    "pf-057",
+    "pf-058",
+    "pf-059",
+    "pf-060",
+    "pf-061",
+    "pf-062",
+    "pf-063",
+    "pf-064",
+    "pf-065",
+    "pf-066",
+    "pf-067",
+    "pf-068",
+    "pf-069",
+    "pf-070",
+    "pf-071",
+    "pf-072",
+    "pf-073",
+    "pf-074",
+    "pf-075",
+    "pf-076",
+    "pf-077",
+    "pf-078",
+    "pf-079",
+    "pf-080",
+    "pf-081",
+    "pf-082",
+    "pf-083",
+    "pf-084",
+    "pf-085",
+    "pf-086",
+    "pf-087",
+    "pf-088",
+    "pf-089",
+    "pf-090",
+    "pf-091",
+    "pf-092",
+    "pf-093",
+    "pf-094",
+    "pf-095",
+    "pf-096",
+    "pf-097",
+    "pf-098",
+    "pf-099"
+  ],
+  "storefrontProductIds": [
+    "pf-001",
+    "pf-002",
+    "pf-003",
+    "pf-004",
+    "pf-005",
+    "pf-006",
+    "pf-007",
+    "pf-008",
+    "pf-009",
+    "pf-010",
+    "pf-011",
+    "pf-012",
+    "pf-013",
+    "pf-014",
+    "pf-015",
+    "pf-016",
+    "pf-017",
+    "pf-018",
+    "pf-019",
+    "pf-020",
+    "pf-021",
+    "pf-022",
+    "pf-023",
+    "pf-024",
+    "pf-025",
+    "pf-026",
+    "pf-027",
+    "pf-028",
+    "pf-029",
+    "pf-030",
+    "pf-031",
+    "pf-032",
+    "pf-033",
+    "pf-034",
+    "pf-035",
+    "pf-036",
+    "pf-037",
+    "pf-038",
+    "pf-039",
+    "pf-040",
+    "pf-041",
+    "pf-042",
+    "pf-043",
+    "pf-044",
+    "pf-045",
+    "pf-046",
+    "pf-047",
+    "pf-048",
+    "pf-049",
+    "pf-050",
+    "pf-051",
+    "pf-052",
+    "pf-053",
+    "pf-054",
+    "pf-055",
+    "pf-056",
+    "pf-057",
+    "pf-058",
+    "pf-059",
+    "pf-060",
+    "pf-061",
+    "pf-062",
+    "pf-063",
+    "pf-064",
+    "pf-065",
+    "pf-066",
+    "pf-067",
+    "pf-068",
+    "pf-069",
+    "pf-070",
+    "pf-071",
+    "pf-072",
+    "pf-073",
+    "pf-074",
+    "pf-075",
+    "pf-076",
+    "pf-077",
+    "pf-078",
+    "pf-079",
+    "pf-080",
+    "pf-081",
+    "pf-082",
+    "pf-083",
+    "pf-084",
+    "pf-085",
+    "pf-086",
+    "pf-087",
+    "pf-088",
+    "pf-089",
+    "pf-090",
+    "pf-091",
+    "pf-092",
+    "pf-093",
+    "pf-094",
+    "pf-095",
+    "pf-096",
+    "pf-097",
+    "pf-098",
+    "pf-099"
+  ],
+  "taxonomy": {
+    "categories": [
+      {
+        "id": "bangles",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "bridal-couture",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "dupattas",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "innerwear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "jewellery",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "kidswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "kurtis-and-suits",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "lehengas",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "menswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "sarees",
+        "status": "ACTIVE"
+      }
+    ],
+    "subcategories": [
+      {
+        "id": "bangles-bridal-bangles",
+        "categoryId": "bangles",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "bangles-gold-finish-bangles",
+        "categoryId": "bangles",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "bangles-kada-cuffs",
+        "categoryId": "bangles",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "bridal-couture-bridal-saree",
+        "categoryId": "bridal-couture",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "bridal-couture-mehendi-wear",
+        "categoryId": "bridal-couture",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "bridal-couture-reception-wear",
+        "categoryId": "bridal-couture",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "bridal-couture-sangeet-wear",
+        "categoryId": "bridal-couture",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "bridal-couture-trousseau",
+        "categoryId": "bridal-couture",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "dupattas-dupatta",
+        "categoryId": "dupattas",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "dupattas-stole",
+        "categoryId": "dupattas",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "innerwear-blouse",
+        "categoryId": "innerwear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "innerwear-petticoat",
+        "categoryId": "innerwear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "innerwear-shapewear",
+        "categoryId": "innerwear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "jewellery-earrings",
+        "categoryId": "jewellery",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "jewellery-jewellery-set",
+        "categoryId": "jewellery",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "jewellery-maang-tikka",
+        "categoryId": "jewellery",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "jewellery-necklaces",
+        "categoryId": "jewellery",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "jewellery-rings",
+        "categoryId": "jewellery",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "kidswear-boys-casual-set",
+        "categoryId": "kidswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "kidswear-boys-t-shirt-and-shorts-set",
+        "categoryId": "kidswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "kidswear-girls-casual-set",
+        "categoryId": "kidswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "kidswear-girls-dress",
+        "categoryId": "kidswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "kurtis-and-suits-kurti",
+        "categoryId": "kurtis-and-suits",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "kurtis-and-suits-suit-set",
+        "categoryId": "kurtis-and-suits",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "lehengas-bridal-lehenga",
+        "categoryId": "lehengas",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "lehengas-designer-lehenga",
+        "categoryId": "lehengas",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "lehengas-party-lehenga",
+        "categoryId": "lehengas",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "lehengas-wedding-lehenga",
+        "categoryId": "lehengas",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "menswear-kurta",
+        "categoryId": "menswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "menswear-kurta-pajama",
+        "categoryId": "menswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "menswear-nehru-jacket",
+        "categoryId": "menswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "menswear-sherwani",
+        "categoryId": "menswear",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "sarees-banarasi-saree",
+        "categoryId": "sarees",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "sarees-cotton-saree",
+        "categoryId": "sarees",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "sarees-designer-saree",
+        "categoryId": "sarees",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "sarees-pato-saree",
+        "categoryId": "sarees",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "sarees-printed-saree",
+        "categoryId": "sarees",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "sarees-silk-saree",
+        "categoryId": "sarees",
+        "status": "ACTIVE"
+      }
+    ],
+    "collections": [
+      {
+        "id": "bridal-trousseau",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "everyday-atelier",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "featured",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "festive-edit",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "groom-atelier",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "handloom-stories",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "heritage-weaves",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "little-heirlooms",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "new-arrivals",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "silk",
+        "status": "ACTIVE"
+      },
+      {
+        "id": "wedding",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  "marketingMedia": [
+    {
+      "id": "pm-ing-1c35dce096fd",
+      "placement": "HOME_HERO"
+    },
+    {
+      "id": "pm-ing-1f68df0647ba",
+      "placement": "HOME_HERO"
+    },
+    {
+      "id": "pm-ing-a9c7fcbb09cc",
+      "placement": "HOME_HERO"
+    },
+    {
+      "id": "pm-ing-fd73ef10a8c3",
+      "placement": "HOME_HERO"
+    },
+    {
+      "id": "pm-ing-ff1817feae8b",
+      "placement": "HOME_HERO"
+    },
+    {
+      "id": "pm-seed-102",
+      "placement": "SAREE_SECTION"
+    },
+    {
+      "id": "pm-seed-103",
+      "placement": "LEHENGA_SECTION"
+    },
+    {
+      "id": "pm-seed-104",
+      "placement": "FESTIVE_SECTION"
+    },
+    {
+      "id": "pm-seed-106",
+      "placement": "BRIDAL_SECTION"
+    },
+    {
+      "id": "pm-seed-107",
+      "placement": "GROOM_SECTION"
+    }
+  ],
+  "groups": []
+}

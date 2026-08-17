@@ -1,0 +1,1478 @@
+{
+  "generatedAt": "2026-08-13T10:21:26.000Z",
+  "totalOld": 169,
+  "totalMigrated": 85,
+  "alreadyCurrent": 69,
+  "missing": 25,
+  "entries": [
+    {
+      "oldPath": "images/atelier-fabric.jpg",
+      "newPath": "library/house-atelier-fabric.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-9843818f9b5c",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "hero/editorial",
+      "taxonomyId": null,
+      "collectionId": null
+    },
+    {
+      "oldPath": "images/bridal-editorial.jpg",
+      "newPath": "library/house-bridal-editorial.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-075f33ec47cf",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "hero/editorial",
+      "taxonomyId": "lehengas",
+      "collectionId": "bridal-trousseau"
+    },
+    {
+      "oldPath": "images/commerce-hero.jpg",
+      "newPath": "library/house-commerce-hero.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-ef18ac022573",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "hero/editorial",
+      "taxonomyId": null,
+      "collectionId": null
+    },
+    {
+      "oldPath": "images/editorial-hero.jpg",
+      "newPath": "library/house-editorial-hero.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-6229b9ced7d4",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "hero/editorial",
+      "taxonomyId": "sarees",
+      "collectionId": null
+    },
+    {
+      "oldPath": "images/future-hero.jpg",
+      "newPath": "library/house-future-hero.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-7f2cd530db3d",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "hero/editorial",
+      "taxonomyId": "lehengas",
+      "collectionId": null
+    },
+    {
+      "oldPath": "images/heritage-textile.jpg",
+      "newPath": "library/house-heritage-textile.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-5582d5813c12",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "editorial",
+      "taxonomyId": "sarees",
+      "collectionId": "heritage-weaves"
+    },
+    {
+      "oldPath": "images/minimal-hero.jpg",
+      "newPath": "library/house-minimal-hero.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-62c7ad21a728",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "editorial",
+      "taxonomyId": "kurtis-and-suits",
+      "collectionId": "everyday-atelier"
+    },
+    {
+      "oldPath": "images/pratikshya/groom/groom-sherwani.jpg",
+      "newPath": "library/house-groom-sherwani.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-063b2212fd9a",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "category/editorial",
+      "taxonomyId": "menswear",
+      "collectionId": "groom-atelier"
+    },
+    {
+      "oldPath": "images/pratikshya/jewellery/bangles-gold.jpg",
+      "newPath": "library/house-bridal-bangles.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-bd139c1e51cd",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "category",
+      "taxonomyId": "bangles",
+      "collectionId": "bridal-trousseau"
+    },
+    {
+      "oldPath": "images/pratikshya/kids/kids-festive.jpg",
+      "newPath": "library/house-kids-festive.jpg",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-dc3acc6caf72",
+      "productId": null,
+      "note": "Phase 21.11 house plate folded into canonical library",
+      "usage": "category",
+      "taxonomyId": "kidswear",
+      "collectionId": "little-heirlooms"
+    },
+    {
+      "oldPath": "library/jewellery-anklet-001.webp",
+      "newPath": "library/jewellery-anklet-001.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-5ce5e855873e",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-anklet-002.webp",
+      "newPath": "library/jewellery-anklet-002.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-6025650ea128",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-anklet-003.webp",
+      "newPath": "library/jewellery-anklet-003.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-9e3b3b0ac2d0",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-anklet-004.webp",
+      "newPath": "library/jewellery-anklet-004.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-729c5b93743d",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-anklet-005.webp",
+      "newPath": "library/jewellery-anklet-005.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-0854fd0dd8f8",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-001.webp",
+      "newPath": "library/jewellery-bangle-001.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-29cd292b1e26",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-002.webp",
+      "newPath": "library/jewellery-bangle-002.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-dcdddfe744d8",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-003.webp",
+      "newPath": "library/jewellery-bangle-003.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-0bed80671f0c",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-004.webp",
+      "newPath": "library/jewellery-bangle-004.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-cdedd1ff08c0",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-005.webp",
+      "newPath": "library/jewellery-bangle-005.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-5a708725559e",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-006.webp",
+      "newPath": "library/jewellery-bangle-006.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-cd798f7d64f5",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-007.webp",
+      "newPath": "library/jewellery-bangle-007.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-82264dc6b9d9",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-008.webp",
+      "newPath": "library/jewellery-bangle-008.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-7e908c929dfa",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-bangle-009.webp",
+      "newPath": "library/jewellery-bangle-009.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-1d8f202c6675",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-001.webp",
+      "newPath": "library/jewellery-earring-001.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-cb98fd42769a",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-002.webp",
+      "newPath": "library/jewellery-earring-002.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-9c3c23468510",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-003.webp",
+      "newPath": "library/jewellery-earring-003.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-9f8e8c1d2d91",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-004.webp",
+      "newPath": "library/jewellery-earring-004.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-9771ff5c286c",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-005.webp",
+      "newPath": "library/jewellery-earring-005.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-7abde347d054",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-006.webp",
+      "newPath": "library/jewellery-earring-006.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-877a5a844239",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-007.webp",
+      "newPath": "library/jewellery-earring-007.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-74d76f503f29",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-008.webp",
+      "newPath": "library/jewellery-earring-008.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-e84353b433be",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-009.webp",
+      "newPath": "library/jewellery-earring-009.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-75df3e95edc5",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-010.webp",
+      "newPath": "library/jewellery-earring-010.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-9fe6a93fe998",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-011.webp",
+      "newPath": "library/jewellery-earring-011.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-e91d0f376568",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-012.webp",
+      "newPath": "library/jewellery-earring-012.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-9f009acda047",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-013.webp",
+      "newPath": "library/jewellery-earring-013.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-a99d684969df",
+      "productId": null
+    },
+    {
+      "oldPath": "library/jewellery-earring-014.webp",
+      "newPath": "library/jewellery-earring-014.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-87d431e0ae24",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-001.webp",
+      "newPath": "library/kids-001.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-d8a2a5ce4231",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-002.webp",
+      "newPath": "library/kids-002.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-372f6a884af0",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-003.webp",
+      "newPath": "library/kids-003.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-07c14b148354",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-004.webp",
+      "newPath": "library/kids-004.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-fe3da3629d7f",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-005.webp",
+      "newPath": "library/kids-005.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-6b081543a5b3",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-006.webp",
+      "newPath": "library/kids-006.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-9c90e812f01e",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-007.webp",
+      "newPath": "library/kids-007.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-8e9a532cd2ea",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-008.webp",
+      "newPath": "library/kids-008.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-d5b4056638e9",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-009.webp",
+      "newPath": "library/kids-009.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-cc07c83d8fe8",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-010.webp",
+      "newPath": "library/kids-010.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-68940ea962a7",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-011.webp",
+      "newPath": "library/kids-011.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-bae38e78ad27",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-012.webp",
+      "newPath": "library/kids-012.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-9e9c0a8e9c12",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-013.webp",
+      "newPath": "library/kids-013.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-8de84dfcec70",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-014.webp",
+      "newPath": "library/kids-014.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-91715d6aedb7",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-015.webp",
+      "newPath": "library/kids-015.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-0967bfa3bca1",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-016.webp",
+      "newPath": "library/kids-016.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-ff5209630cbf",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-017.webp",
+      "newPath": "library/kids-017.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-07e29248c65e",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-018.webp",
+      "newPath": "library/kids-018.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-ee6efb76150f",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-019.webp",
+      "newPath": "library/kids-019.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-171b447ed42a",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-020.webp",
+      "newPath": "library/kids-020.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-d5f6f746d5c2",
+      "productId": null
+    },
+    {
+      "oldPath": "library/kids-021.webp",
+      "newPath": "library/kids-021.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-efbb9d5820f9",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-001.webp",
+      "newPath": "library/men-kurta-pajama-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-3e4cde17fe28",
+      "productId": "pf-076",
+      "candidates": [
+        "library/men-kurta-pajama-001-back.webp",
+        "library/men-kurta-pajama-001-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-002.webp",
+      "newPath": "library/men-kurta-pajama-002-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-a33338f77d76",
+      "productId": "pf-076",
+      "candidates": [
+        "library/men-kurta-pajama-002-back.webp",
+        "library/men-kurta-pajama-002-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-003.webp",
+      "newPath": "library/men-kurta-pajama-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-432e99d311fe",
+      "productId": null,
+      "candidates": [
+        "library/men-kurta-pajama-003-back.webp",
+        "library/men-kurta-pajama-003-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-004.webp",
+      "newPath": "library/men-kurta-pajama-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-2a5c488f1972",
+      "productId": null,
+      "candidates": [
+        "library/men-kurta-pajama-004-back.webp",
+        "library/men-kurta-pajama-004-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-005.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-ffdb8b5fc081",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-006.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-05b390d02705",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-007.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-4219adb18444",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-008.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-ac1065900484",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-kurta-pajama-009.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-34b8868b5fe0",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-sherwani-001.webp",
+      "newPath": "library/men-sherwani-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-162dd9706e0c",
+      "productId": "pf-071",
+      "candidates": [
+        "library/men-sherwani-001-back.webp",
+        "library/men-sherwani-001-front.webp",
+        "library/men-sherwani-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-sherwani-002.webp",
+      "newPath": "library/men-sherwani-002-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-3cfc34d4ab09",
+      "productId": "pf-071",
+      "candidates": [
+        "library/men-sherwani-002-back.webp",
+        "library/men-sherwani-002-front.webp",
+        "library/men-sherwani-002-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-sherwani-003.webp",
+      "newPath": "library/men-sherwani-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-607b0e91fabe",
+      "productId": "pf-071",
+      "candidates": [
+        "library/men-sherwani-003-back.webp",
+        "library/men-sherwani-003-front.webp",
+        "library/men-sherwani-003-multiple-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-sherwani-004.webp",
+      "newPath": "library/men-sherwani-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-e54814c607f1",
+      "productId": "pf-072",
+      "candidates": [
+        "library/men-sherwani-004-back.webp",
+        "library/men-sherwani-004-front.webp",
+        "library/men-sherwani-004-multiple-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-sherwani-005.webp",
+      "newPath": "library/men-sherwani-005-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-ac905f296116",
+      "productId": "pf-072",
+      "candidates": [
+        "library/men-sherwani-005-front.webp",
+        "library/men-sherwani-005-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-sherwani-006.webp",
+      "newPath": "library/men-sherwani-006-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-736b150bf398",
+      "productId": "pf-072",
+      "candidates": [
+        "library/men-sherwani-006-front.webp",
+        "library/men-sherwani-006-left-side.webp",
+        "library/men-sherwani-006-right-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/men-sherwani-007.webp",
+      "newPath": "library/men-sherwani-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-dc7ec91cfa17",
+      "productId": "pf-073"
+    },
+    {
+      "oldPath": "library/men-sherwani-008.webp",
+      "newPath": "library/men-sherwani-003-back.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-d601767d0d48",
+      "productId": "pf-073"
+    },
+    {
+      "oldPath": "library/men-sherwani-009.webp",
+      "newPath": "library/men-sherwani-003-multiple-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-fc0d4c42f254",
+      "productId": "pf-073"
+    },
+    {
+      "oldPath": "library/men-sherwani-010.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-41ff6846e3a6",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-sherwani-011.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-674e81476f5d",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-sherwani-012.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-9c4359ae642f",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-sherwani-013.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-8715b9b2c842",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-sherwani-014.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-97a579f253f2",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-sherwani-015.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-1d420f717a6f",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-sherwani-016.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-93089e5b0734",
+      "productId": null
+    },
+    {
+      "oldPath": "library/men-sherwani-017.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-afb74da6c18f",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-001.webp",
+      "newPath": "library/women-innerwear-001.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-bcb36c3fe527",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-002.webp",
+      "newPath": "library/women-innerwear-002.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-06ea66b9df08",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-003.webp",
+      "newPath": "library/women-innerwear-003.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-151f748efdcb",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-004.webp",
+      "newPath": "library/women-innerwear-004.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-6bf11b5ac437",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-005.webp",
+      "newPath": "library/women-innerwear-005.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-4d9ba0b7054f",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-006.webp",
+      "newPath": "library/women-innerwear-006.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-c04af8266ee4",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-007.webp",
+      "newPath": "library/women-innerwear-007.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-86f785bdcaf4",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-008.webp",
+      "newPath": "library/women-innerwear-008.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-19185fc7650c",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-009.webp",
+      "newPath": "library/women-innerwear-009.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-634df6bd6640",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-010.webp",
+      "newPath": "library/women-innerwear-010.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-c3221054ff12",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-011.webp",
+      "newPath": "library/women-innerwear-011.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-f70c67bfc1d2",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-012.webp",
+      "newPath": "library/women-innerwear-012.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-03a94904e4ea",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-013.webp",
+      "newPath": "library/women-innerwear-013.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-c095f65c2f14",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-014.webp",
+      "newPath": "library/women-innerwear-014.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-ac7ae9f24146",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-015.webp",
+      "newPath": "library/women-innerwear-015.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-4b3839035e4c",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-016.webp",
+      "newPath": "library/women-innerwear-016.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-d95fd1979ce3",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-017.webp",
+      "newPath": "library/women-innerwear-017.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-50c1b7af32b3",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-018.webp",
+      "newPath": "library/women-innerwear-018.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-cabd2b922c78",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-innerwear-019.webp",
+      "newPath": "library/women-innerwear-019.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-b9978c3adb45",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-lehenga-001.webp",
+      "newPath": "library/women-lehenga-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-42bcc46998f5",
+      "productId": "pf-023",
+      "candidates": [
+        "library/women-lehenga-001-front.webp",
+        "library/women-lehenga-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-lehenga-002.webp",
+      "newPath": "library/women-lehenga-002-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-85d69fb4e305",
+      "productId": "pf-023",
+      "candidates": [
+        "library/women-lehenga-002-back.webp",
+        "library/women-lehenga-002-front-close.webp",
+        "library/women-lehenga-002-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-lehenga-003.webp",
+      "newPath": "library/women-lehenga-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-8347d5eca570",
+      "productId": "pf-025",
+      "candidates": [
+        "library/women-lehenga-003-back.webp",
+        "library/women-lehenga-003-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-lehenga-004.webp",
+      "newPath": "library/women-lehenga-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-2f87b1b3b073",
+      "productId": "pf-025",
+      "candidates": [
+        "library/women-lehenga-004-back.webp",
+        "library/women-lehenga-004-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-lehenga-005.webp",
+      "newPath": "library/women-lehenga-005-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-35e57cd2bd17",
+      "productId": "pf-025",
+      "candidates": [
+        "library/women-lehenga-005-back.webp",
+        "library/women-lehenga-005-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-lehenga-006.webp",
+      "newPath": "library/women-lehenga-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-88624ca97681",
+      "productId": "pf-026"
+    },
+    {
+      "oldPath": "library/women-lehenga-007.webp",
+      "newPath": "library/women-lehenga-003-back.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-f72f23f37bd5",
+      "productId": "pf-026"
+    },
+    {
+      "oldPath": "library/women-lehenga-008.webp",
+      "newPath": "library/women-lehenga-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-ee3454c97714",
+      "productId": "pf-027"
+    },
+    {
+      "oldPath": "library/women-lehenga-009.webp",
+      "newPath": "library/women-lehenga-004-back.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-f100839cbc60",
+      "productId": "pf-027"
+    },
+    {
+      "oldPath": "library/women-lehenga-010.webp",
+      "newPath": "library/women-lehenga-005-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-3aa35e739c27",
+      "productId": "pf-028"
+    },
+    {
+      "oldPath": "library/women-lehenga-011.webp",
+      "newPath": "library/women-lehenga-005-back.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-d97d187c7f6e",
+      "productId": "pf-028"
+    },
+    {
+      "oldPath": "library/women-bridal-001.webp",
+      "newPath": "library/women-bridal-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-ef18fdfbf784",
+      "productId": "pf-035",
+      "candidates": [
+        "library/women-bridal-001-front.webp",
+        "library/women-bridal-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-bridal-002.webp",
+      "newPath": "library/women-bridal-002.webp",
+      "status": "ALREADY_CURRENT",
+      "assetId": "pm-ing-cbe6947cff63",
+      "productId": "pf-035"
+    },
+    {
+      "oldPath": "library/women-bridal-003.webp",
+      "newPath": "library/women-bridal-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-0f1edfe6ee92",
+      "productId": "pf-035",
+      "candidates": [
+        "library/women-bridal-003-front.webp",
+        "library/women-bridal-003-left-side.webp",
+        "library/women-bridal-003-right-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-bridal-004.webp",
+      "newPath": "library/women-bridal-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-a0aab56c1441",
+      "productId": "pf-035",
+      "candidates": [
+        "library/women-bridal-004-front-close.webp",
+        "library/women-bridal-004-front.webp",
+        "library/women-bridal-004-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-bridal-005.webp",
+      "newPath": "library/women-bridal-005-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-bf34acb919e2",
+      "productId": "pf-037",
+      "candidates": [
+        "library/women-bridal-005-front.webp",
+        "library/women-bridal-005-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-bridal-006.webp",
+      "newPath": "library/women-bridal-006-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-018388e5989e",
+      "productId": "pf-037",
+      "candidates": [
+        "library/women-bridal-006-back.webp",
+        "library/women-bridal-006-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-bridal-007.webp",
+      "newPath": "library/women-bridal-002.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-1651a6ea70db",
+      "productId": "pf-037"
+    },
+    {
+      "oldPath": "library/women-bridal-008.webp",
+      "newPath": "library/women-bridal-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-2eadb64bd7fe",
+      "productId": "pf-038"
+    },
+    {
+      "oldPath": "library/women-bridal-009.webp",
+      "newPath": "library/women-bridal-003-left-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-30cbd2a119ae",
+      "productId": "pf-038"
+    },
+    {
+      "oldPath": "library/women-bridal-010.webp",
+      "newPath": "library/women-bridal-003-right-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-cbbb7d071c7d",
+      "productId": "pf-038"
+    },
+    {
+      "oldPath": "library/women-bridal-011.webp",
+      "newPath": "library/women-bridal-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-4835aafe3384",
+      "productId": "pf-039"
+    },
+    {
+      "oldPath": "library/women-bridal-012.webp",
+      "newPath": "library/women-bridal-004-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-fcbd38556b7c",
+      "productId": "pf-039"
+    },
+    {
+      "oldPath": "library/women-bridal-013.webp",
+      "newPath": "library/women-bridal-004-front-close.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-c049bfb7d2ee",
+      "productId": "pf-039"
+    },
+    {
+      "oldPath": "library/women-bridal-014.webp",
+      "newPath": "library/women-bridal-005-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-0f0f5b56c5f2",
+      "productId": "pf-040"
+    },
+    {
+      "oldPath": "library/women-bridal-015.webp",
+      "newPath": "library/women-bridal-005-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-dbb8c11e0f55",
+      "productId": "pf-040"
+    },
+    {
+      "oldPath": "library/women-saree-bandhani-001.webp",
+      "newPath": "library/women-saree-bandhani-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-4f4e6f1b06ad",
+      "productId": null,
+      "candidates": [
+        "library/women-saree-bandhani-001-front-close.webp",
+        "library/women-saree-bandhani-001-front.webp",
+        "library/women-saree-bandhani-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-bandhani-002.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-3eaab9b7d4c9",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-bandhani-003.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-cc5f836de346",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-banarasi-001.webp",
+      "newPath": "library/women-saree-banarasi-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-16cee0da33b9",
+      "productId": "pf-011",
+      "candidates": [
+        "library/women-saree-banarasi-001-back.webp",
+        "library/women-saree-banarasi-001-front.webp",
+        "library/women-saree-banarasi-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-banarasi-002.webp",
+      "newPath": "library/women-saree-banarasi-002-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-107c7f508d40",
+      "productId": "pf-011",
+      "candidates": [
+        "library/women-saree-banarasi-002-front.webp",
+        "library/women-saree-banarasi-002-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-banarasi-003.webp",
+      "newPath": "library/women-saree-banarasi-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-46d4ef3201ae",
+      "productId": "pf-011",
+      "candidates": [
+        "library/women-saree-banarasi-003-back.webp",
+        "library/women-saree-banarasi-003-front.webp",
+        "library/women-saree-banarasi-003-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-banarasi-004.webp",
+      "newPath": "library/women-saree-banarasi-002-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-95b984c30c25",
+      "productId": "pf-010"
+    },
+    {
+      "oldPath": "library/women-saree-banarasi-005.webp",
+      "newPath": "library/women-saree-banarasi-002-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-44848a9cf5fd",
+      "productId": "pf-010"
+    },
+    {
+      "oldPath": "library/women-saree-banarasi-006.webp",
+      "newPath": "library/women-saree-banarasi-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-d845379edb8c",
+      "productId": "pf-012"
+    },
+    {
+      "oldPath": "library/women-saree-banarasi-007.webp",
+      "newPath": "library/women-saree-banarasi-003-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-8ce60cf03ef0",
+      "productId": "pf-012"
+    },
+    {
+      "oldPath": "library/women-saree-banarasi-008.webp",
+      "newPath": "library/women-saree-banarasi-003-back.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-59cb272aa499",
+      "productId": "pf-012"
+    },
+    {
+      "oldPath": "library/women-saree-chanderi-001.webp",
+      "newPath": "library/women-saree-chanderi-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-c5cb4751b099",
+      "productId": null,
+      "candidates": [
+        "library/women-saree-chanderi-001-front-close.webp",
+        "library/women-saree-chanderi-001-front.webp",
+        "library/women-saree-chanderi-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-chanderi-002.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-c9cb5b15c537",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-chanderi-003.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-1db50336f750",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-chiffon-001.webp",
+      "newPath": "library/women-saree-chiffon-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-46b7576fc686",
+      "productId": "pf-018",
+      "candidates": [
+        "library/women-saree-chiffon-001-back.webp",
+        "library/women-saree-chiffon-001-front.webp",
+        "library/women-saree-chiffon-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-chiffon-002.webp",
+      "newPath": "library/women-saree-chiffon-001-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-7b75993f381a",
+      "productId": "pf-018"
+    },
+    {
+      "oldPath": "library/women-saree-chiffon-003.webp",
+      "newPath": "library/women-saree-chiffon-001-back.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-9e5d1a93dc68",
+      "productId": "pf-018"
+    },
+    {
+      "oldPath": "library/women-saree-cotton-001.webp",
+      "newPath": "library/women-saree-cotton-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-fbd5241b2b28",
+      "productId": "pf-014",
+      "candidates": [
+        "library/women-saree-cotton-001-back.webp",
+        "library/women-saree-cotton-001-front.webp",
+        "library/women-saree-cotton-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-cotton-002.webp",
+      "newPath": "library/women-saree-cotton-002-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-26c23f1154a4",
+      "productId": "pf-014",
+      "candidates": [
+        "library/women-saree-cotton-002-back.webp",
+        "library/women-saree-cotton-002-front.webp",
+        "library/women-saree-cotton-002-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-cotton-003.webp",
+      "newPath": "library/women-saree-cotton-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-ec4de8d85c2a",
+      "productId": "pf-014",
+      "candidates": [
+        "library/women-saree-cotton-003-front-close.webp",
+        "library/women-saree-cotton-003-front.webp",
+        "library/women-saree-cotton-003-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-cotton-004.webp",
+      "newPath": "library/women-saree-cotton-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-7c953d980cfe",
+      "productId": "pf-015",
+      "candidates": [
+        "library/women-saree-cotton-004-front-close.webp",
+        "library/women-saree-cotton-004-front.webp",
+        "library/women-saree-cotton-004-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-cotton-005.webp",
+      "newPath": "library/women-saree-cotton-005-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-fb2076c0d352",
+      "productId": "pf-015",
+      "candidates": [
+        "library/women-saree-cotton-005-back.webp",
+        "library/women-saree-cotton-005-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-cotton-006.webp",
+      "newPath": "library/women-saree-cotton-006-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-c2585e95c84d",
+      "productId": "pf-015",
+      "candidates": [
+        "library/women-saree-cotton-006-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-cotton-007.webp",
+      "newPath": "library/women-saree-cotton-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-55a5b3056dfc",
+      "productId": "pf-016"
+    },
+    {
+      "oldPath": "library/women-saree-cotton-008.webp",
+      "newPath": "library/women-saree-cotton-003-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-5120a344a8a0",
+      "productId": "pf-016"
+    },
+    {
+      "oldPath": "library/women-saree-cotton-009.webp",
+      "newPath": "library/women-saree-cotton-003-front-close.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-5f2a9e70be30",
+      "productId": "pf-016"
+    },
+    {
+      "oldPath": "library/women-saree-cotton-010.webp",
+      "newPath": "library/women-saree-cotton-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-a72dd29cea96",
+      "productId": "pf-017"
+    },
+    {
+      "oldPath": "library/women-saree-cotton-011.webp",
+      "newPath": "library/women-saree-cotton-004-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-ad0049c4700f",
+      "productId": "pf-017"
+    },
+    {
+      "oldPath": "library/women-saree-cotton-012.webp",
+      "newPath": "library/women-saree-cotton-004-front-close.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-fd73d1c67388",
+      "productId": "pf-017"
+    },
+    {
+      "oldPath": "library/women-saree-cotton-013.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-82089edd1c69",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-cotton-014.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-f9ca5c552141",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-kanchipuram-001.webp",
+      "newPath": "library/women-saree-kanchipuram-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-c34c885be075",
+      "productId": "pf-006",
+      "candidates": [
+        "library/women-saree-kanchipuram-001-back.webp",
+        "library/women-saree-kanchipuram-001-front.webp",
+        "library/women-saree-kanchipuram-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-kanchipuram-002.webp",
+      "newPath": "library/women-saree-kanchipuram-001-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-4cdac8f9220b",
+      "productId": "pf-006"
+    },
+    {
+      "oldPath": "library/women-saree-kanchipuram-003.webp",
+      "newPath": "library/women-saree-kanchipuram-001-back.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-b3184bdd241c",
+      "productId": "pf-006"
+    },
+    {
+      "oldPath": "library/women-saree-silk-001.webp",
+      "newPath": "library/women-saree-silk-001-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-b39b75eaff61",
+      "productId": "pf-007",
+      "candidates": [
+        "library/women-saree-silk-001-back.webp",
+        "library/women-saree-silk-001-front.webp",
+        "library/women-saree-silk-001-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-silk-002.webp",
+      "newPath": "library/women-saree-silk-002-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-f12f26de84eb",
+      "productId": "pf-007",
+      "candidates": [
+        "library/women-saree-silk-002-front.webp",
+        "library/women-saree-silk-002-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-silk-003.webp",
+      "newPath": "library/women-saree-silk-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-7f4813983168",
+      "productId": "pf-007",
+      "candidates": [
+        "library/women-saree-silk-003-front.webp",
+        "library/women-saree-silk-003-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-cotton-015.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-f16091574882",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-silk-004.webp",
+      "newPath": "library/women-saree-silk-004-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-1b6ae0933cc0",
+      "productId": null,
+      "candidates": [
+        "library/women-saree-silk-004-back.webp",
+        "library/women-saree-silk-004-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-silk-005.webp",
+      "newPath": "library/women-saree-silk-005-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-597aa5b3d0d8",
+      "productId": null,
+      "candidates": [
+        "library/women-saree-silk-005-back.webp",
+        "library/women-saree-silk-005-front.webp",
+        "library/women-saree-silk-005-side.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-silk-006.webp",
+      "newPath": "library/women-saree-silk-006-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-86df8fe09202",
+      "productId": "pf-008",
+      "candidates": [
+        "library/women-saree-silk-006-back.webp",
+        "library/women-saree-silk-006-front.webp"
+      ]
+    },
+    {
+      "oldPath": "library/women-saree-silk-007.webp",
+      "newPath": "library/women-saree-silk-002-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-92d2b18ffe3a",
+      "productId": "pf-008"
+    },
+    {
+      "oldPath": "library/women-saree-silk-008.webp",
+      "newPath": "library/women-saree-silk-003-front.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-6a86ceee09fe",
+      "productId": "pf-009"
+    },
+    {
+      "oldPath": "library/women-saree-silk-009.webp",
+      "newPath": "library/women-saree-silk-003-side.webp",
+      "status": "MIGRATED",
+      "assetId": "pm-ing-82c1f118b071",
+      "productId": "pf-009"
+    },
+    {
+      "oldPath": "library/women-saree-silk-010.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-c1ed921d7c3e",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-silk-011.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-0fd04f6f78a5",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-silk-012.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-b77f8fe213b9",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-silk-013.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-6436887d1224",
+      "productId": null
+    },
+    {
+      "oldPath": "library/women-saree-silk-014.webp",
+      "newPath": null,
+      "status": "MISSING",
+      "assetId": "pm-ing-c62eb0caaa57",
+      "productId": null
+    }
+  ],
+  "housePlatesMigrated": 10
+}

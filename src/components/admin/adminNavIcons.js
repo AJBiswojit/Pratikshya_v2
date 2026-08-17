@@ -1,0 +1,91 @@
+/**
+ * PRATIKSHYA FASHON — Admin navigation icons.
+ *
+ * Lucide only, matching the employee portal's approach: navigation config
+ * names an icon, this map resolves it, so config files never import React.
+ * Includes the keys the shared PortalSidebar uses (user, logout, chevronDown).
+ */
+
+import {
+  Activity,
+  ArrowLeftRight,
+  BadgeCheck,
+  BarChart3,
+  Boxes,
+  ChartNoAxesCombined,
+  ClipboardCheck,
+  ClipboardList,
+  Clock3,
+  Film,
+  Image as ImageIcon,
+  ImagePlay,
+  Inbox,
+  Layers,
+  LayoutDashboard,
+  LayoutGrid,
+  LogOut,
+  Package,
+  RotateCcw,
+  Settings,
+  ShieldCheck,
+  ShoppingBag,
+  SlidersHorizontal,
+  Sparkles,
+  Tag,
+  Tags,
+  Target,
+  TrendingUp,
+  TriangleAlert,
+  User,
+  Users,
+  UsersRound,
+  Video,
+  Warehouse,
+  ChevronDown,
+  ChevronRight,
+  Box,
+} from "lucide-react";
+
+export const ADMIN_NAV_ICONS = {
+  layout: LayoutDashboard,
+  check: ClipboardCheck,
+  sparkles: Sparkles,
+  grid: LayoutGrid,
+  layers: Layers,
+  tag: Tag,
+  tags: Tags,
+  bag: ShoppingBag,
+  users: Users,
+  usersRound: UsersRound,
+  undo: RotateCcw,
+  boxes: Boxes,
+  box: Box,
+  warehouse: Warehouse,
+  swap: ArrowLeftRight,
+  badge: BadgeCheck,
+  shield: ShieldCheck,
+  clock: Clock3,
+  target: Target,
+  trend: TrendingUp,
+  chart: BarChart3,
+  chartNoAxes: ChartNoAxesCombined,
+  list: ClipboardList,
+  image: ImageIcon,
+  imagePlay: ImagePlay,
+  film: Film,
+  video: Video,
+  sliders: SlidersHorizontal,
+  package: Package,
+  inbox: Inbox,
+  alert: TriangleAlert,
+  activity: Activity,
+  settings: Settings,
+  user: User,
+  logout: LogOut,
+  chevronDown: ChevronDown,
+  chevronRight: ChevronRight,
+};
+
+export const adminNavIcon = (name) => ADMIN_NAV_ICONS[name] ?? LayoutDashboard;
+
+export default ADMIN_NAV_ICONS;

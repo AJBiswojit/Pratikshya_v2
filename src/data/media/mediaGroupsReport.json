@@ -1,0 +1,1280 @@
+{
+  "generatedAt": "2026-08-13T06:34:42.031Z",
+  "totalGroups": 108,
+  "groups": [
+    {
+      "groupKey": "jewellery-anklet-001",
+      "prefix": "jewellery-anklet",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-anklet-001.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-anklet-002",
+      "prefix": "jewellery-anklet",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-anklet-002.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-anklet-003",
+      "prefix": "jewellery-anklet",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-anklet-003.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-anklet-004",
+      "prefix": "jewellery-anklet",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-anklet-004.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-anklet-005",
+      "prefix": "jewellery-anklet",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-anklet-005.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-001",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-001.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-002",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-002.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-003",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-003.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-004",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-004.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-005",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-005.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-006",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-006.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-007",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-007.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-008",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-008.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-bangle-009",
+      "prefix": "jewellery-bangle",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-bangle-009.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-001",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-001.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-002",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-002.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-003",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-003.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-004",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-004.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-005",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-005.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-006",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-006.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-007",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-007.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-008",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-008.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-009",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-009.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-010",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-010.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-011",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-011.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-012",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-012.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-013",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-013.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "jewellery-earring-014",
+      "prefix": "jewellery-earring",
+      "count": 1,
+      "views": [],
+      "files": [
+        "jewellery-earring-014.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-001",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-001.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-002",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-002.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-003",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-003.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-004",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-004.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-005",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-005.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-006",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-006.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-007",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-007.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-008",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-008.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-009",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-009.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-010",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-010.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-011",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-011.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-012",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-012.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-013",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-013.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-014",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-014.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-015",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-015.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-016",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-016.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-017",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-017.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-018",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-018.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-019",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-019.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-020",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-020.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "kids-021",
+      "prefix": "kids",
+      "count": 1,
+      "views": [],
+      "files": [
+        "kids-021.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "men-kurta-pajama-001",
+      "prefix": "men-kurta-pajama",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "men-kurta-pajama-001-front.webp",
+        "men-kurta-pajama-001-back.webp"
+      ],
+      "productId": "pf-076"
+    },
+    {
+      "groupKey": "men-kurta-pajama-002",
+      "prefix": "men-kurta-pajama",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "men-kurta-pajama-002-front.webp",
+        "men-kurta-pajama-002-back.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "men-kurta-pajama-003",
+      "prefix": "men-kurta-pajama",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "men-kurta-pajama-003-front.webp",
+        "men-kurta-pajama-003-back.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "men-kurta-pajama-004",
+      "prefix": "men-kurta-pajama",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "men-kurta-pajama-004-front.webp",
+        "men-kurta-pajama-004-back.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "men-sherwani-001",
+      "prefix": "men-sherwani",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "men-sherwani-001-front.webp",
+        "men-sherwani-001-side.webp",
+        "men-sherwani-001-back.webp"
+      ],
+      "productId": "pf-071"
+    },
+    {
+      "groupKey": "men-sherwani-002",
+      "prefix": "men-sherwani",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "men-sherwani-002-front.webp",
+        "men-sherwani-002-side.webp",
+        "men-sherwani-002-back.webp"
+      ],
+      "productId": "pf-072"
+    },
+    {
+      "groupKey": "men-sherwani-003",
+      "prefix": "men-sherwani",
+      "count": 3,
+      "views": [
+        "front",
+        "back",
+        "multiple-front"
+      ],
+      "files": [
+        "men-sherwani-003-front.webp",
+        "men-sherwani-003-back.webp",
+        "men-sherwani-003-multiple-front.webp"
+      ],
+      "productId": "pf-073"
+    },
+    {
+      "groupKey": "men-sherwani-004",
+      "prefix": "men-sherwani",
+      "count": 3,
+      "views": [
+        "front",
+        "back",
+        "multiple-front"
+      ],
+      "files": [
+        "men-sherwani-004-front.webp",
+        "men-sherwani-004-back.webp",
+        "men-sherwani-004-multiple-front.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "men-sherwani-005",
+      "prefix": "men-sherwani",
+      "count": 2,
+      "views": [
+        "front",
+        "side"
+      ],
+      "files": [
+        "men-sherwani-005-front.webp",
+        "men-sherwani-005-side.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "men-sherwani-006",
+      "prefix": "men-sherwani",
+      "count": 3,
+      "views": [
+        "front",
+        "left-side",
+        "right-side"
+      ],
+      "files": [
+        "men-sherwani-006-front.webp",
+        "men-sherwani-006-left-side.webp",
+        "men-sherwani-006-right-side.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-bridal-001",
+      "prefix": "women-bridal",
+      "count": 2,
+      "views": [
+        "front",
+        "side"
+      ],
+      "files": [
+        "women-bridal-001-front.webp",
+        "women-bridal-001-side.webp"
+      ],
+      "productId": "pf-035"
+    },
+    {
+      "groupKey": "women-bridal-002",
+      "prefix": "women-bridal",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-bridal-002.webp"
+      ],
+      "productId": "pf-037"
+    },
+    {
+      "groupKey": "women-bridal-003",
+      "prefix": "women-bridal",
+      "count": 3,
+      "views": [
+        "front",
+        "left-side",
+        "right-side"
+      ],
+      "files": [
+        "women-bridal-003-front.webp",
+        "women-bridal-003-left-side.webp",
+        "women-bridal-003-right-side.webp"
+      ],
+      "productId": "pf-038"
+    },
+    {
+      "groupKey": "women-bridal-004",
+      "prefix": "women-bridal",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "front-close"
+      ],
+      "files": [
+        "women-bridal-004-front.webp",
+        "women-bridal-004-side.webp",
+        "women-bridal-004-front-close.webp"
+      ],
+      "productId": "pf-039"
+    },
+    {
+      "groupKey": "women-bridal-005",
+      "prefix": "women-bridal",
+      "count": 2,
+      "views": [
+        "front",
+        "side"
+      ],
+      "files": [
+        "women-bridal-005-front.webp",
+        "women-bridal-005-side.webp"
+      ],
+      "productId": "pf-040"
+    },
+    {
+      "groupKey": "women-bridal-006",
+      "prefix": "women-bridal",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "women-bridal-006-front.webp",
+        "women-bridal-006-back.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-001",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-001.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-002",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-002.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-003",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-003.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-004",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-004.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-005",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-005.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-006",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-006.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-007",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-007.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-008",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-008.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-009",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-009.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-010",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-010.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-011",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-011.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-012",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-012.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-013",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-013.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-014",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-014.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-015",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-015.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-016",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-016.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-017",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-017.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-018",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-018.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-innerwear-019",
+      "prefix": "women-innerwear",
+      "count": 1,
+      "views": [],
+      "files": [
+        "women-innerwear-019.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-lehenga-001",
+      "prefix": "women-lehenga",
+      "count": 2,
+      "views": [
+        "front",
+        "side"
+      ],
+      "files": [
+        "women-lehenga-001-front.webp",
+        "women-lehenga-001-side.webp"
+      ],
+      "productId": "pf-023"
+    },
+    {
+      "groupKey": "women-lehenga-002",
+      "prefix": "women-lehenga",
+      "count": 3,
+      "views": [
+        "front",
+        "back",
+        "front-close"
+      ],
+      "files": [
+        "women-lehenga-002-front.webp",
+        "women-lehenga-002-back.webp",
+        "women-lehenga-002-front-close.webp"
+      ],
+      "productId": "pf-025"
+    },
+    {
+      "groupKey": "women-lehenga-003",
+      "prefix": "women-lehenga",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "women-lehenga-003-front.webp",
+        "women-lehenga-003-back.webp"
+      ],
+      "productId": "pf-026"
+    },
+    {
+      "groupKey": "women-lehenga-004",
+      "prefix": "women-lehenga",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "women-lehenga-004-front.webp",
+        "women-lehenga-004-back.webp"
+      ],
+      "productId": "pf-027"
+    },
+    {
+      "groupKey": "women-lehenga-005",
+      "prefix": "women-lehenga",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "women-lehenga-005-front.webp",
+        "women-lehenga-005-back.webp"
+      ],
+      "productId": "pf-028"
+    },
+    {
+      "groupKey": "women-saree-banarasi-001",
+      "prefix": "women-saree-banarasi",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "women-saree-banarasi-001-front.webp",
+        "women-saree-banarasi-001-side.webp",
+        "women-saree-banarasi-001-back.webp"
+      ],
+      "productId": "pf-011"
+    },
+    {
+      "groupKey": "women-saree-banarasi-002",
+      "prefix": "women-saree-banarasi",
+      "count": 2,
+      "views": [
+        "front",
+        "side"
+      ],
+      "files": [
+        "women-saree-banarasi-002-front.webp",
+        "women-saree-banarasi-002-side.webp"
+      ],
+      "productId": "pf-010"
+    },
+    {
+      "groupKey": "women-saree-banarasi-003",
+      "prefix": "women-saree-banarasi",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "women-saree-banarasi-003-front.webp",
+        "women-saree-banarasi-003-side.webp",
+        "women-saree-banarasi-003-back.webp"
+      ],
+      "productId": "pf-012"
+    },
+    {
+      "groupKey": "women-saree-bandhani-001",
+      "prefix": "women-saree-bandhani",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "front-close"
+      ],
+      "files": [
+        "women-saree-bandhani-001-front.webp",
+        "women-saree-bandhani-001-side.webp",
+        "women-saree-bandhani-001-front-close.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-saree-chanderi-001",
+      "prefix": "women-saree-chanderi",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "front-close"
+      ],
+      "files": [
+        "women-saree-chanderi-001-front.webp",
+        "women-saree-chanderi-001-side.webp",
+        "women-saree-chanderi-001-front-close.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-saree-chiffon-001",
+      "prefix": "women-saree-chiffon",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "women-saree-chiffon-001-front.webp",
+        "women-saree-chiffon-001-side.webp",
+        "women-saree-chiffon-001-back.webp"
+      ],
+      "productId": "pf-018"
+    },
+    {
+      "groupKey": "women-saree-cotton-001",
+      "prefix": "women-saree-cotton",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "women-saree-cotton-001-front.webp",
+        "women-saree-cotton-001-side.webp",
+        "women-saree-cotton-001-back.webp"
+      ],
+      "productId": "pf-014"
+    },
+    {
+      "groupKey": "women-saree-cotton-002",
+      "prefix": "women-saree-cotton",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "women-saree-cotton-002-front.webp",
+        "women-saree-cotton-002-side.webp",
+        "women-saree-cotton-002-back.webp"
+      ],
+      "productId": "pf-015"
+    },
+    {
+      "groupKey": "women-saree-cotton-003",
+      "prefix": "women-saree-cotton",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "front-close"
+      ],
+      "files": [
+        "women-saree-cotton-003-front.webp",
+        "women-saree-cotton-003-side.webp",
+        "women-saree-cotton-003-front-close.webp"
+      ],
+      "productId": "pf-016"
+    },
+    {
+      "groupKey": "women-saree-cotton-004",
+      "prefix": "women-saree-cotton",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "front-close"
+      ],
+      "files": [
+        "women-saree-cotton-004-front.webp",
+        "women-saree-cotton-004-side.webp",
+        "women-saree-cotton-004-front-close.webp"
+      ],
+      "productId": "pf-017"
+    },
+    {
+      "groupKey": "women-saree-cotton-005",
+      "prefix": "women-saree-cotton",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "women-saree-cotton-005-front.webp",
+        "women-saree-cotton-005-back.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-saree-cotton-006",
+      "prefix": "women-saree-cotton",
+      "count": 1,
+      "views": [
+        "front"
+      ],
+      "files": [
+        "women-saree-cotton-006-front.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-saree-kanchipuram-001",
+      "prefix": "women-saree-kanchipuram",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "women-saree-kanchipuram-001-front.webp",
+        "women-saree-kanchipuram-001-side.webp",
+        "women-saree-kanchipuram-001-back.webp"
+      ],
+      "productId": "pf-006"
+    },
+    {
+      "groupKey": "women-saree-silk-001",
+      "prefix": "women-saree-silk",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "women-saree-silk-001-front.webp",
+        "women-saree-silk-001-side.webp",
+        "women-saree-silk-001-back.webp"
+      ],
+      "productId": "pf-007"
+    },
+    {
+      "groupKey": "women-saree-silk-002",
+      "prefix": "women-saree-silk",
+      "count": 2,
+      "views": [
+        "front",
+        "side"
+      ],
+      "files": [
+        "women-saree-silk-002-front.webp",
+        "women-saree-silk-002-side.webp"
+      ],
+      "productId": "pf-008"
+    },
+    {
+      "groupKey": "women-saree-silk-003",
+      "prefix": "women-saree-silk",
+      "count": 2,
+      "views": [
+        "front",
+        "side"
+      ],
+      "files": [
+        "women-saree-silk-003-front.webp",
+        "women-saree-silk-003-side.webp"
+      ],
+      "productId": "pf-009"
+    },
+    {
+      "groupKey": "women-saree-silk-004",
+      "prefix": "women-saree-silk",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "women-saree-silk-004-front.webp",
+        "women-saree-silk-004-back.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-saree-silk-005",
+      "prefix": "women-saree-silk",
+      "count": 3,
+      "views": [
+        "front",
+        "side",
+        "back"
+      ],
+      "files": [
+        "women-saree-silk-005-front.webp",
+        "women-saree-silk-005-side.webp",
+        "women-saree-silk-005-back.webp"
+      ],
+      "productId": null
+    },
+    {
+      "groupKey": "women-saree-silk-006",
+      "prefix": "women-saree-silk",
+      "count": 2,
+      "views": [
+        "front",
+        "back"
+      ],
+      "files": [
+        "women-saree-silk-006-front.webp",
+        "women-saree-silk-006-back.webp"
+      ],
+      "productId": null
+    }
+  ]
+}

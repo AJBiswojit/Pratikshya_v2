@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pratikshya Fashion — How An Image Becomes A Product</title>
+<meta name="description" content="Simple visual workflow guide: from image to customer-ready product at Pratikshya Fashion.">
+<style>
+:root{
+  --bg:#fdfbf6;
+  --bg-2:#f7f0e6;
+  --paper:#ffffff;
+  --ink:#161211;
+  --muted:#7a6e62;
+  --line:#ece4d6;
+  --brass:#a67c3b;
+  --brass-light:#d8b67a;
+  --brass-soft:#f6efe1;
+  --shadow:0 2px 12px rgba(28,18,8,.06), 0 18px 42px -22px rgba(28,18,8,.22);
+  --shadow-hover:0 6px 20px rgba(28,18,8,.08), 0 28px 58px -20px rgba(28,18,8,.28);
+  --radius:20px;
+  --radius-sm:14px;
+  --serif: Georgia, "Times New Roman", Palatino, serif;
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.7;font-size:16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+img{max-width:100%}
+a{color:var(--brass);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* NAV */
+#topnav{position:sticky;top:0;z-index:50;background:rgba(253,251,246,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+#topnav .bar{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:14px 24px}
+.brand{font-family:var(--serif);letter-spacing:.22em;font-size:13px;text-transform:uppercase;white-space:nowrap}
+.brand b{color:var(--brass);font-weight:600}
+.links{display:flex;gap:2px;flex:1;flex-wrap:wrap}
+.links a{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:8px 12px;border-radius:999px;text-decoration:none;transition:.2s}
+.links a:hover{background:var(--brass-soft);color:var(--ink)}
+.links a.active{background:var(--ink);color:#fff}
+@media(max-width:720px){.links{display:none}}
+
+/* HERO */
+#hero{padding:54px 0 18px}
+.eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--brass);font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--brass-light);display:inline-block}
+h1{font-family:var(--serif);font-weight:500;line-height:1.02;letter-spacing:-.02em;font-size:clamp(36px,6vw,72px)}
+h1 .thin{display:block;font-size:.42em;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:14px;line-height:1.3}
+.lead{color:var(--muted);max-width:62ch;font-size:19px;line-height:1.6;margin-top:20px}
+.lead b{color:var(--ink);font-weight:600}
+
+/* BIG STORY JOURNEY - main visual */
+.journey-hero{margin-top:44px;background:var(--paper);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);overflow:hidden}
+.journey-hero-top{display:grid;grid-template-columns:1.15fr .85fr;gap:0}
+@media(max-width:900px){.journey-hero-top{grid-template-columns:1fr}}
+.journey-left{padding:36px 36px 32px}
+.journey-right{background:linear-gradient(160deg,var(--bg-2),#fff);padding:28px;border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+@media(max-width:900px){.journey-right{border-left:0;border-top:1px solid var(--line)}}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;padding:6px 14px;border-radius:999px;background:var(--ink);color:#fff}
+.badge.gold{background:var(--brass);color:#fff}
+.journey-left h2{font-family:var(--serif);font-size:clamp(26px,3.4vw,38px);line-height:1.15;margin:18px 0 12px}
+.journey-left p{color:var(--muted);font-size:15.5px;max-width:56ch}
+
+.example-box{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;gap:16px;align-items:center;box-shadow:var(--shadow)}
+.ex-thumb{width:84px;height:84px;border-radius:14px;background:linear-gradient(150deg,#f5e8d0,#fff);border:1px solid var(--line);display:grid;place-items:center;font-size:38px;flex:0 0 84px}
+.ex-meta b{font-family:var(--serif);font-size:18px;font-weight:500;display:block}
+.ex-meta span{font-size:13px;color:var(--muted)}
+
+/* vertial timeline */
+.v-journey{display:flex;flex-direction:column;align-items:center;gap:0;position:relative;width:100%}
+.v-journey::before{content:"";position:absolute;left:50%;top:18px;bottom:18px;width:1px;background:linear-gradient(180deg,var(--brass-light),var(--line));transform:translateX(-50%)}
+@media(max-width:520px){.v-journey::before{left:22px;transform:none}}
+.vj-item{position:relative;z-index:1;width:100%;display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;gap:8px;padding:8px 0}
+@media(max-width:520px){.vj-item{grid-template-columns:44px 1fr}}
+.vj-item .side{font-size:12px;color:var(--muted)}
+.vj-item .side.right{text-align:left}
+.vj-item .side.left{text-align:right}
+@media(max-width:520px){.vj-item .side.left{display:none}}
+.vj-dot{width:56px;height:56px;border-radius:50%;background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow);display:grid;place-items:center;font-size:20px;transition:transform .25s ease, box-shadow .25s ease}
+.vj-item.active .vj-dot{border-color:var(--brass-light);box-shadow:var(--shadow-hover);transform:scale(1.05)}
+.vj-dot small{display:block;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:700;margin-top:1px}
+.vj-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);min-width:0}
+.vj-card b{font-size:13px;display:block;letter-spacing:.02em}
+.vj-card span{font-size:11.5px;color:var(--muted);line-height:1.4;display:block;margin-top:2px}
+.vj-arrow{color:var(--brass-light);font-size:18px;text-align:center;line-height:1;padding:2px 0;animation:arrowPulse 2.2s ease-in-out infinite}
+@keyframes arrowPulse{0%,100%{opacity:.35;transform:translateY(0)}50%{opacity:1;transform:translateY(3px)}}
+
+/* SECTIONS */
+section{padding:72px 0;position:relative}
+section + section{border-top:1px solid var(--line)}
+.section-head{max-width:760px;margin-bottom:34px}
+.section-head h2{font-family:var(--serif);font-size:clamp(28px,4vw,44px);line-height:1.12;font-weight:500}
+.section-head .sub{color:var(--muted);font-size:17px;margin-top:10px;line-height:1.6}
+
+/* WORKFLOW 7 CARDS */
+.workflow-wrap{position:relative}
+.workflow-line{position:absolute;left:50%;top:14px;bottom:14px;width:1px;background:linear-gradient(180deg,var(--brass-light),transparent 10%,transparent 90%,var(--brass-light));transform:translateX(-50%);pointer-events:none}
+@media(max-width:820px){.workflow-line{left:28px;transform:none}}
+.steps{display:flex;flex-direction:column;gap:22px;position:relative}
+.step-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:28px 28px 24px;box-shadow:var(--shadow);display:grid;grid-template-columns:86px 1fr;gap:18px;transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease;position:relative}
+.step-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:var(--brass-light)}
+@media(max-width:640px){.step-card{grid-template-columns:1fr;padding:22px}}
+.step-num{font-family:var(--serif);font-size:54px;line-height:.9;color:var(--brass-light);font-weight:400}
+.step-num small{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);font-weight:700;margin-top:6px}
+.step-title{font-family:var(--serif);font-size:26px;line-height:1.15;margin-bottom:18px}
+.step-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-top:8px}
+@media(max-width:820px){.step-grid{grid-template-columns:1fr}}
+.k{font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:800;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.k::before{content:"";width:14px;height:1px;background:var(--brass-light);display:inline-block}
+.step-grid p{font-size:14.2px;line-height:1.55;color:var(--ink)}
+.step-grid p.muted{color:var(--muted)}
+.next-badge{margin-top:20px;display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--brass);background:var(--brass-soft);border:1px solid #ecdcc0;padding:7px 14px;border-radius:999px}
+.next-badge i{font-style:normal}
+
+/* arrow between cards */
+.step-arrow{display:flex;justify-content:center;padding:2px 0;color:var(--brass-light);font-size:22px;line-height:1}
+.step-arrow span{display:inline-flex;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--paper);align-items:center;justify-content:center;box-shadow:var(--shadow);animation:arrowPulse 2.4s ease-in-out infinite}
+
+/* PRODUCT VIEWS */
+.views-visual{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:center;max-width:780px;margin:30px auto 0}
+@media(max-width:700px){.views-visual{grid-template-columns:1fr;gap:8px}}
+.views-visual .center-node{text-align:center}
+.product-node{background:var(--ink);color:#fff;border-radius:22px;padding:16px 22px;display:inline-flex;align-items:center;gap:10px;font-family:var(--serif);font-size:18px;box-shadow:var(--shadow);letter-spacing:.02em}
+.view-node{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:16px 14px;text-align:center;box-shadow:var(--shadow);transition:.22s}
+.view-node:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover);border-color:var(--brass-light)}
+.view-node b{display:block;font-size:13px;letter-spacing:.16em;text-transform:uppercase;margin-top:10px}
+.view-node span{font-size:12.5px;color:var(--muted);display:block;margin-top:4px;line-height:1.4}
+.view-icon{width:64px;height:86px;margin:0 auto;border-radius:12px;background:linear-gradient(160deg,var(--bg-2),#fff);border:1px solid var(--line);display:grid;place-items:center;font-size:28px}
+.connector{width:1px;height:28px;background:var(--brass-light);margin:0 auto}
+@media(max-width:700px){.connector{display:none}}
+.views-note{text-align:center;color:var(--muted);font-size:14.5px;margin-top:18px;max-width:60ch;margin-left:auto;margin-right:auto}
+
+/* MEDIA VS MARKETING */
+.compare{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:stretch;margin-top:30px}
+@media(max-width:800px){.compare{grid-template-columns:1fr;gap:12px}}
+.compare-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:var(--shadow);text-align:center;transition:.22s}
+.compare-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.compare-card.product{border-top:3px solid var(--brass)}
+.compare-card.marketing{border-top:3px solid #8b6b9e}
+.compare-card h3{font-family:var(--serif);font-size:22px;margin-bottom:6px}
+.compare-card .ey{font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:800;color:var(--brass);margin-bottom:14px}
+.compare-card.marketing .ey{color:#8b6b9e}
+.compare-list{list-style:none;text-align:left;margin-top:18px;display:grid;gap:8px}
+.compare-list li{font-size:13.5px;color:var(--muted);padding-left:18px;position:relative}
+.compare-list li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:50%;background:var(--brass-light)}
+.compare-card.marketing .compare-list li::before{background:#c3a6e8}
+.compare-vs{display:grid;place-items:center;font-family:var(--serif);font-size:34px;color:var(--brass);font-style:italic}
+.simple-flow{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:22px;flex-wrap:wrap}
+.flow-node{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 18px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;box-shadow:var(--shadow)}
+.flow-node.dark{background:var(--ink);color:#fff;border-color:var(--ink)}
+.flow-arrow{color:var(--brass-light);font-size:18px}
+
+/* REVIEW FLAGS */
+.flags{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:28px}
+@media(max-width:900px){.flags{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.flags{grid-template-columns:1fr}}
+.flag-card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);transition:.22s;position:relative;overflow:hidden}
+.flag-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.flag-card::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--brass-light)}
+.flag-card h4{font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:800}
+.flag-card p{font-size:14px;color:var(--muted);margin-top:10px;line-height:1.5}
+.flag-card b{color:var(--ink);font-weight:600;display:block;margin-top:8px;font-size:13px}
+.flag-path{margin-top:36px;background:linear-gradient(180deg,#fdfbf6,#f7f0e9);border:1px solid var(--line);border-radius:22px;padding:28px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;box-shadow:var(--shadow)}
+.flag-path .check{display:inline-flex;align-items:center;gap:8px;background:var(--paper);border:1px solid #d9e7d3;color:#3d7a4a;border-radius:999px;padding:8px 16px;font-size:12.5px;font-weight:600}
+.path-arrow{color:var(--brass);font-size:20px;animation:arrowPulse 2.4s ease-in-out infinite}
+.path-final{background:var(--ink);color:#fff;border-radius:999px;padding:12px 28px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:700}
+
+/* ROLES */
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px}
+@media(max-width:880px){.roles{grid-template-columns:1fr}}
+.role-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:var(--shadow);transition:.22s}
+.role-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.role-card .role-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--bg-2);border:1px solid var(--line);margin-bottom:16px}
+.role-card h3{font-family:var(--serif);font-size:20px;margin-bottom:6px}
+.role-card .role-sub{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--muted);margin-bottom:14px}
+.role-card ul{list-style:none;display:grid;gap:8px}
+.role-card li{font-size:13.5px;color:var(--muted);padding-left:18px;position:relative;line-height:1.5}
+.role-card li::before{content:"•";position:absolute;left:2px;color:var(--brass)}
+
+/* WRONG */
+.wrong-list{display:grid;gap:12px;margin-top:24px;max-width:780px}
+.wrong-row{display:grid;grid-template-columns:180px 24px 1fr;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow);align-items:center;transition:.2s}
+.wrong-row:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover)}
+@media(max-width:640px){.wrong-row{grid-template-columns:1fr;gap:6px}.wrong-row .arrow{display:none}}
+.wrong-row b{font-size:13px;letter-spacing:.02em}
+.wrong-row .arrow{color:var(--brass-light);text-align:center}
+.wrong-row span{font-size:14px;color:var(--muted)}
+
+/* FINAL FLOW */
+.final-flow{margin-top:28px;background:var(--ink);border-radius:28px;padding:40px 24px;position:relative;overflow:hidden;box-shadow:var(--shadow-hover)}
+.final-flow::before{content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,106,.22),transparent 70%)}
+.final-flow::after{content:"";position:absolute;left:-90px;bottom:-90px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.06),transparent 70%)}
+.final-flow h3{position:relative;font-family:var(--serif);color:#fff;text-align:center;font-size:clamp(24px,3vw,34px);font-weight:400}
+.final-track{position:relative;max-width:520px;margin:34px auto 0;display:flex;flex-direction:column;align-items:center;gap:0}
+.final-track::before{content:"";position:absolute;left:50%;top:12px;bottom:12px;width:1px;background:linear-gradient(180deg,rgba(201,168,106,.6),rgba(236,228,214,.12));transform:translateX(-50%)}
+.fnode{position:relative;z-index:1;background:#211a14;color:#f2e9dc;border:1px solid rgba(201,168,106,.28);border-radius:999px;padding:10px 20px;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;display:inline-flex;align-items:center;gap:10px;min-width:220px;justify-content:center;box-shadow:0 4px 18px rgba(0,0,0,.22)}
+.fnode.light{background:#fff;color:var(--ink);border-color:var(--line)}
+.fnode .ico{font-size:16px}
+.f-arrow{color:var(--brass-light);font-size:18px;padding:8px 0;animation:arrowPulse 2.2s ease-in-out infinite}
+.final-tagline{text-align:center;color:#d8cfc0;margin-top:28px;font-family:var(--serif);font-style:italic;font-size:20px;position:relative}
+
+/* TECHNICAL DETAILS */
+.tech-wrap{margin-top:18px}
+details.tech{background:var(--paper);border:1px dashed var(--line);border-radius:14px;overflow:hidden}
+details.tech summary{cursor:pointer;padding:16px 20px;font-size:13px;font-weight:600;letter-spacing:.06em;display:flex;align-items:center;gap:10px;list-style:none}
+details.tech summary::-webkit-details-marker{display:none}
+details.tech summary::after{content:"+";margin-left:auto;font-family:var(--serif);font-size:22px;color:var(--brass)}
+details.tech[open] summary::after{transform:rotate(45deg)}
+.tech-body{padding:0 20px 18px;font-size:13px;color:var(--muted);line-height:1.7;border-top:1px solid var(--line);margin-top:-1px;padding-top:16px}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* footer */
+footer{padding:56px 0 72px;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line);margin-top:24px}
+footer b{font-family:var(--serif);letter-spacing:.22em;text-transform:uppercase;color:var(--ink);font-weight:500;display:block;margin-bottom:8px}
+
+/* util */
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:999px;padding:9px 18px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:.2s;cursor:pointer}
+.btn:hover{border-color:var(--brass);color:var(--brass);text-decoration:none}
+.hint{text-align:center;color:var(--muted);font-size:12.5px;margin-top:14px;letter-spacing:.04em}
+</style>
+</head>
+<body>
+
+<nav id="topnav">
+  <div class="bar">
+    <div class="brand">PRATIKSHYA <b>FASHION</b></div>
+    <div class="links" id="navlinks">
+      <a href="#overview">Overview</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#product-images">Product Images</a>
+      <a href="#review">Review</a>
+      <a href="#roles">Roles</a>
+      <a href="#final-flow">Final Flow</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- OVERVIEW + MAIN VISUAL JOURNEY -->
+<section id="overview">
+  <div class="wrap">
+    <div class="eyebrow">Simple Guide — No Technical Knowledge Needed</div>
+    <h1>How an image<br>becomes a product <span class="thin">Anyone can understand this in 5 minutes</span></h1>
+    <p class="lead">Every product you see on Pratikshya Fashion started as <b>one photograph</b>. This page shows where that photo comes from, what happens to it, and how it finally appears to a customer. <b>That's it.</b></p>
+
+    <!-- MAIN VISUAL - BANGLE EXAMPLE -->
+    <div class="journey-hero reveal">
+      <div class="journey-hero-top">
+        <div class="journey-left">
+          <span class="badge gold">Main Visual — Follow One Product</span>
+          <h2>Women's Bangle — from camera to customer</h2>
+          <p>We will follow ONE example through the whole page, so nothing feels abstract.</p>
+
+          <div class="example-box">
+            <div class="ex-thumb">💍</div>
+            <div class="ex-meta">
+              <b>Women's Bangle</b>
+              <span>ID: BAN-001 · Product group: jewellery-bangle-001<br>3 views: front, side, back</span>
+            </div>
+          </div>
+
+          <p style="margin-top:16px;font-size:13px;color:var(--muted)"><b style="color:var(--ink)">Bangle image ↓</b> Media Library ↓ Mapped to BAN-001 ↓ Product information completed ↓ Employee checks it ↓ Admin approves it ↓ Customer sees it</p>
+        </div>
+
+        <!-- vertical journey -->
+        <div class="journey-right">
+          <div class="v-journey">
+            <div class="vj-item active">
+              <div class="side left">Original file<br><b>jewellery-bangle-001.webp</b></div>
+              <div class="vj-dot">📷<small>Image</small></div>
+              <div class="vj-card"><b>Bangle photograph taken</b><span>Front view of the product</span></div>
+            </div>
+            <div class="vj-arrow">▼</div>
+            <div class="vj-item">
+              <div class="side left"></div>
+              <div class="vj-dot">🗂️<small>Library</small></div>
+              <div class="vj-card"><b>Media Library</b><span>System registers the image</span></div>
+            </div>
+            <div class="vj-arrow">▼</div>
+            <div class="vj-item">
+              <div class="side left">Checked by system</div>
+              <div class="vj-dot">🔍<small>Review</small></div>
+              <div class="vj-card"><b>Review</b><span>Is it the correct product?</span></div>
+            </div>
+            <div class="vj-arrow">▼</div>
+            <div class="vj-item">
+              <div class="side left"></div>
+              <div class="vj-dot">🧩<small>Map</small></div>
+              <div class="vj-card"><b>Mapped to BAN-001</b><span>Front + Side + Back grouped</span></div>
+            </div>
+            <div class="vj-arrow">▼</div>
+            <div class="vj-item">
+              <div class="side left">Name, Price, Category</div>
+              <div class="vj-dot">📦<small>Product</small></div>
+              <div class="vj-card"><b>Product Created</b><span>Product ID BAN-001</span></div>
+            </div>
+            <div class="vj-arrow">▼</div>
+            <div class="vj-item">
+              <div class="side left">Assigned employee</div>
+              <div class="vj-dot">👤<small>Employee</small></div>
+              <div class="vj-card"><b>Employee completes info</b><span>Checks details</span></div>
+            </div>
+            <div class="vj-arrow">▼</div>
+            <div class="vj-item">
+              <div class="side left">Super Admin</div>
+              <div class="vj-dot">✅<small>Admin</small></div>
+              <div class="vj-card"><b>Admin approves</b><span>Final check</span></div>
+            </div>
+            <div class="vj-arrow">▼</div>
+            <div class="vj-item">
+              <div class="side left"></div>
+              <div class="vj-dot" style="background:var(--ink);color:#fff">🛍️<small style="color:var(--brass-light)">Website</small></div>
+              <div class="vj-card" style="background:var(--ink);color:#fff;border-color:var(--ink)"><b>Customer sees it</b><span style="color:#d8cfc0">Explore · Search · Product Page</span></div>
+            </div>
+          </div>
+          <p class="hint">This is the only journey you need to remember.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 STEPS WORKFLOW -->
+<section id="workflow">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">The Workflow</div>
+      <h2>7 steps from image to website</h2>
+      <p class="sub">Each card shows <b>what happens</b>, <b>who does it</b>, and <b>what happens next</b>. That's all you need.</p>
+    </div>
+
+    <div class="workflow-wrap">
+      <div class="workflow-line"></div>
+      <div class="steps">
+
+        <!-- 01 -->
+        <div class="step-card reveal">
+          <div class="step-num">01<small>Step</small></div>
+          <div>
+            <div class="step-title">Image Enters</div>
+            <div class="step-grid">
+              <div><div class="k">What Happens</div><p>A product image is added to the Media Library.</p><p class="muted">System identifies: filename, image type, product group, image view.</p></div>
+              <div><div class="k">Who Does It</div><p>System automatically, or Admin / Employee uploads it.</p></div>
+              <div><div class="k">What Happens Next</div><p>Image goes to Media Review to check if it belongs to the correct product.</p></div>
+            </div>
+            <div class="next-badge"><i>NEXT →</i> 02 Media Review</div>
+          </div>
+        </div>
+        <div class="step-arrow"><span>▼</span></div>
+
+        <!-- 02 -->
+        <div class="step-card reveal">
+          <div class="step-num">02<small>Step</small></div>
+          <div>
+            <div class="step-title">Media Review</div>
+            <div class="step-grid">
+              <div><div class="k">What Happens</div><p>The image is checked to make sure it belongs to the correct product.</p><p class="muted">Possible results: ✓ Correct · ⚠ Needs review · ✕ Wrong / duplicate</p></div>
+              <div><div class="k">Who Does It</div><p>System flags it first, then Super Admin reviews it.</p></div>
+              <div><div class="k">What Happens Next</div><p>If correct, the image is connected to its product.</p></div>
+            </div>
+            <div class="next-badge"><i>NEXT →</i> 03 Product Mapping</div>
+          </div>
+        </div>
+        <div class="step-arrow"><span>▼</span></div>
+
+        <!-- 03 -->
+        <div class="step-card reveal">
+          <div class="step-num">03<small>Step</small></div>
+          <div>
+            <div class="step-title">Product Mapping</div>
+            <div class="step-grid">
+              <div><div class="k">What Happens</div><p>The image is connected to the correct product. Front, side and back images belonging to the same product are grouped together.</p></div>
+              <div><div class="k">Who Does It</div><p>System groups by filename, Admin confirms the mapping.</p></div>
+              <div><div class="k">What Happens Next</div><p>A product draft is created with its images.</p></div>
+            </div>
+            <div class="next-badge"><i>NEXT →</i> 04 Product Created</div>
+          </div>
+        </div>
+        <div class="step-arrow"><span>▼</span></div>
+
+        <!-- 04 -->
+        <div class="step-card reveal">
+          <div class="step-num">04<small>Step</small></div>
+          <div>
+            <div class="step-title">Product Created</div>
+            <div class="step-grid">
+              <div><div class="k">What Happens</div><p>The product receives its product ID and product information.</p><p class="muted">Example: Product ID BAN-001, Name Women's Bangle, Price, Category, Images.</p></div>
+              <div><div class="k">Who Does It</div><p>System creates the draft with a permanent ID.</p></div>
+              <div><div class="k">What Happens Next</div><p>The draft goes to the assigned employee for completion.</p></div>
+            </div>
+            <div class="next-badge"><i>NEXT →</i> 05 Employee Review</div>
+          </div>
+        </div>
+        <div class="step-arrow"><span>▼</span></div>
+
+        <!-- 05 -->
+        <div class="step-card reveal">
+          <div class="step-num">05<small>Step</small></div>
+          <div>
+            <div class="step-title">Employee Review</div>
+            <div class="step-grid">
+              <div><div class="k">What Happens</div><p>The assigned employee checks and completes the product information. They can update allowed product details and submit the product for review.</p></div>
+              <div><div class="k">Who Does It</div><p>Assigned Employee (only their products).</p></div>
+              <div><div class="k">What Happens Next</div><p>Product is submitted to Super Admin for final approval.</p></div>
+            </div>
+            <div class="next-badge"><i>NEXT →</i> 06 Admin Approval</div>
+          </div>
+        </div>
+        <div class="step-arrow"><span>▼</span></div>
+
+        <!-- 06 -->
+        <div class="step-card reveal">
+          <div class="step-num">06<small>Step</small></div>
+          <div>
+            <div class="step-title">Admin Approval</div>
+            <div class="step-grid">
+              <div><div class="k">What Happens</div><p>The Super Admin checks the final product. Before publishing, required review issues must be resolved: Name, Price, Taxonomy, Grouping, Media.</p></div>
+              <div><div class="k">Who Does It</div><p>Super Admin only.</p></div>
+              <div><div class="k">What Happens Next</div><p>If everything is correct, product is approved and published.</p></div>
+            </div>
+            <div class="next-badge"><i>NEXT →</i> 07 Website</div>
+          </div>
+        </div>
+        <div class="step-arrow"><span>▼</span></div>
+
+        <!-- 07 -->
+        <div class="step-card reveal" style="border-color:var(--brass-light);box-shadow:var(--shadow-hover)">
+          <div class="step-num">07<small>Step</small></div>
+          <div>
+            <div class="step-title">Website</div>
+            <div class="step-grid">
+              <div><div class="k">What Happens</div><p>Once approved and published, the product becomes visible to customers. It can appear in Explore, Category, Search, Product Page, Collections.</p></div>
+              <div><div class="k">Who Does It</div><p>System automatically shows only published products.</p></div>
+              <div><div class="k">What Happens Next</div><p>Customer can see and buy it. Journey complete.</p></div>
+            </div>
+            <div class="next-badge" style="background:var(--ink);color:#fff;border-color:var(--ink)">🛍 CUSTOMER SEES IT</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT IMAGES EXPLANATION -->
+<section id="product-images">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Product Images</div>
+      <h2>One product can have multiple views</h2>
+      <p class="sub">Different photos of the <b>same</b> bangle — not different products.</p>
+    </div>
+
+    <div class="views-visual reveal">
+      <div></div><div></div>
+      <div class="center-node"><div class="product-node">📦 PRODUCT <span style="opacity:.7;font-size:13px;margin-left:6px">BAN-001</span></div></div>
+      <div></div><div></div>
+    </div>
+
+    <div style="display:flex;justify-content:center;gap:60px;margin-top:6px" class="reveal">
+      <div class="connector"></div><div class="connector"></div><div class="connector"></div>
+    </div>
+
+    <div class="views-visual reveal" style="margin-top:0">
+      <div class="view-node">
+        <div class="view-icon">👁️</div>
+        <b>Front</b>
+        <span>main image<br>What customer sees first</span>
+      </div>
+      <div style="color:var(--brass-light);font-size:20px;text-align:center">—</div>
+      <div class="view-node">
+        <div class="view-icon">↗️</div>
+        <b>Side</b>
+        <span>additional view<br>Shows shape and side</span>
+      </div>
+      <div style="color:var(--brass-light);font-size:20px;text-align:center">—</div>
+      <div class="view-node">
+        <div class="view-icon">🔄</div>
+        <b>Back</b>
+        <span>additional view<br>Shows back design</span>
+      </div>
+    </div>
+
+    <p class="views-note reveal"><b style="color:var(--ink)">These are different views of ONE product.</b> Do NOT show them as separate products.<br>Front = main image. Side & Back = extra images in gallery and hover.</p>
+
+    <!-- Comparison PRODUCT vs MARKETING -->
+    <div class="section-head reveal" style="margin-top:86px">
+      <div class="eyebrow">Two Types of Images</div>
+      <h2>Product media vs Marketing media</h2>
+      <p class="sub">Both are images, but they are used in completely different places.</p>
+    </div>
+
+    <div class="compare reveal">
+      <div class="compare-card product">
+        <div class="ey">Product Media</div>
+        <h3>Shows a real product</h3>
+        <p style="color:var(--muted);font-size:14px;margin-top:6px">Belongs to exactly one product</p>
+        <ul class="compare-list">
+          <li>Product card (the small tile in shop)</li>
+          <li>Product page gallery</li>
+          <li>Hover image (second view on mouse)</li>
+          <li>Front / Side / Back views</li>
+        </ul>
+        <div class="simple-flow">
+          <div class="flow-node">📷 Product Image</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node dark">Product</div>
+        </div>
+      </div>
+
+      <div class="compare-vs">≠</div>
+
+      <div class="compare-card marketing">
+        <div class="ey">Marketing Media</div>
+        <h3>Sells a mood</h3>
+        <p style="color:var(--muted);font-size:14px;margin-top:6px">Not linked to any product — linked to a place on site</p>
+        <ul class="compare-list">
+          <li>Homepage hero carousel</li>
+          <li>Banner / Sale section</li>
+          <li>Editorial story</li>
+          <li>Lookbook / collection cover</li>
+        </ul>
+        <div class="simple-flow">
+          <div class="flow-node">🖼️ Marketing Image</div>
+          <span class="flow-arrow">→</span>
+          <div class="flow-node dark">Homepage / Promotion</div>
+        </div>
+      </div>
+    </div>
+    <p class="hint reveal"><b style="color:var(--ink)">PRODUCT IMAGE → PRODUCT.</b> MARKETING IMAGE → HOMEPAGE / PROMOTION. One image can never be both.</p>
+  </div>
+</section>
+
+<!-- REVIEW FLAGS -->
+<section id="review">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Publishing Rules</div>
+      <h2>Why can't some products be published?</h2>
+      <p class="sub">A small checklist keeps bad products away from customers. If any item fails, admin cannot publish.</p>
+    </div>
+
+    <div class="flags reveal">
+      <div class="flag-card">
+        <h4>📝 Name</h4>
+        <p>Product name needs review.</p>
+        <b>Example: name is still placeholder like “Uncatalogued Bangle · BAN-001”.</b>
+      </div>
+      <div class="flag-card">
+        <h4>💰 Price</h4>
+        <p>Product price needs review.</p>
+        <b>Example: price is 0 because system refused to guess it.</b>
+      </div>
+      <div class="flag-card">
+        <h4>🏷️ Taxonomy</h4>
+        <p>Category / classification needs review.</p>
+        <b>Example: category was guessed from filename, or subcategory missing.</b>
+      </div>
+      <div class="flag-card">
+        <h4>🖼️ Grouping</h4>
+        <p>Product images need grouping / identity review.</p>
+        <b>Example: system isn't sure if two photos show same product or two products.</b>
+      </div>
+    </div>
+
+    <div class="flag-path reveal">
+      <span class="check">✅ Name ok</span>
+      <span class="check">✅ Price ok</span>
+      <span class="check">✅ Category ok</span>
+      <span class="check">✅ Grouping ok</span>
+      <span class="check">✅ Media ok</span>
+      <div class="path-arrow">▼</div>
+      <div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--muted)">All Issues Resolved</div>
+      <div class="path-arrow">▼</div>
+      <div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--brass)">Admin Approves</div>
+      <div class="path-arrow">▼</div>
+      <div class="path-final">Product Goes Live</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO DOES WHAT -->
+<section id="roles">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">People & System</div>
+      <h2>Who does what?</h2>
+      <p class="sub">Only three roles. No confusion.</p>
+    </div>
+
+    <div class="roles reveal">
+      <div class="role-card">
+        <div class="role-icon">⚙️</div>
+        <h3>System</h3>
+        <div class="role-sub">Automatic</div>
+        <ul>
+          <li>Registers media — gives each image a permanent ID</li>
+          <li>Groups media based on filename rules</li>
+          <li>Maintains product / media relationships</li>
+          <li>Filters storefront to show only published products</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <div class="role-icon">👤</div>
+        <h3>Employee</h3>
+        <div class="role-sub">Works on assigned products</div>
+        <ul>
+          <li>Completes product information (name, price, category, description)</li>
+          <li>Reviews product media — does the photo match?</li>
+          <li>Submits product for approval when ready</li>
+          <li>Can only edit products assigned to them</li>
+        </ul>
+      </div>
+      <div class="role-card" style="border-color:var(--brass-light)">
+        <div class="role-icon">👑</div>
+        <h3>Super Admin</h3>
+        <div class="role-sub">Final control</div>
+        <ul>
+          <li>Reviews submitted products</li>
+          <li>Resolves important issues (name, price, grouping)</li>
+          <li>Approves / publishes products</li>
+          <li>Manages employees and media ownership</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT HAPPENS IF SOMETHING IS WRONG -->
+<section>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">When Things Go Wrong</div>
+      <h2>What if something is wrong?</h2>
+      <p class="sub">Every problem has one clear fix.</p>
+    </div>
+
+    <div class="wrong-list reveal">
+      <div class="wrong-row"><b>❌ Wrong image</b><div class="arrow">→</div><span>Send to media review — admin decides if it belongs or not.</span></div>
+      <div class="wrong-row"><b>🧩 Wrong product mapping</b><div class="arrow">→</div><span>Correct the mapping — re-assign image to right product.</span></div>
+      <div class="wrong-row"><b>📝 Missing product information</b><div class="arrow">→</div><span>Employee completes it — name, price, category, description.</span></div>
+      <div class="wrong-row"><b>⚠️ Name / price / category problem</b><div class="arrow">→</div><span>Resolve review flag — fix the data, flag clears automatically.</span></div>
+      <div class="wrong-row"><b>↩️ Product rejected</b><div class="arrow">→</div><span>Goes back for correction — employee fixes it and submits again.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL FLOW -->
+<section id="final-flow">
+  <div class="wrap">
+    <div class="section-head reveal" style="margin-bottom:0">
+      <div class="eyebrow">The Big Picture</div>
+      <h2>From one image to a customer-ready product</h2>
+    </div>
+
+    <div class="final-flow reveal">
+      <h3>📷 → 🛍 — The Complete Flow</h3>
+      <div class="final-track">
+        <div class="fnode"><span class="ico">📷</span> Image</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode light"><span class="ico">🗂️</span> Media Library</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode light"><span class="ico">🔍</span> Review</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode light"><span class="ico">🧩</span> Product Mapping</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode light"><span class="ico">📦</span> Product Draft</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode light"><span class="ico">👤</span> Employee Review</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode light"><span class="ico">👑</span> Admin Review</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode light"><span class="ico">✅</span> Approved</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode light"><span class="ico">🚀</span> Published</div>
+        <div class="f-arrow">▼</div>
+        <div class="fnode" style="background:#fff;color:var(--ink);border-color:#fff"><span class="ico">🛍</span> Customer</div>
+      </div>
+      <div class="final-tagline">“From one image to a customer-ready product.”</div>
+    </div>
+
+    <!-- Technical details collapsed -->
+    <div class="tech-wrap reveal" style="margin-top:56px">
+      <details class="tech">
+        <summary>Technical Details — For Developers <span style="margin-left:8px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(click to expand — normal users don't need this)</span></summary>
+        <div class="tech-body">
+          <p><b>This section contains the old complex documentation.</b> The simple guide above is the main experience. Everything below is implementation detail preserved for developers.</p>
+          <ul style="margin-top:12px;padding-left:18px;display:grid;gap:6px">
+            <li>Glossary, API contract, backend entities, storage keys (pratikshya_products, pratikshya_media, etc.), localStorage explanation</li>
+            <li>JavaScript filenames: mediaRepository.js, mediaStore.js, productWorkflow.js, catalogueReconciliation.js, productMediaSet.js, kidsProductIdentity.js</li>
+            <li>Function names: parseMediaFilename(), buildMediaGroups(), getProductMediaSet(), transferMediaOwnership(), approveProduct(), publishProduct()</li>
+            <li>13 marketing placements, 12 review flags, 4 product statuses, view suffixes (front, side, back, detail, close, left, right, multiple)</li>
+            <li>Authentication: AdminAuthContext, EmployeeAuthContext, AuthContext — three portals</li>
+            <li>Seed data: 99 products + 181 ingested media + 21 confirmed Kids identities (KID-001 … KID-021)</li>
+            <li>Deterministic rules: similar ≠ same product, one product owns one media file, hero reserve, no random image selection, no cross-product hover</li>
+            <li>Original deep audit files: docs/product-media-workflow.md and docs/backend/ handoff package</li>
+          </ul>
+          <p style="margin-top:14px">The previous version of this HTML (1479 lines) contained tables, exception matrices, and developer vocabularies. That content is now intentionally collapsed here to keep the main page beginner-friendly.</p>
+        </div>
+      </details>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <b>Pratikshya Fashion</b>
+  Media → Product → Review → Approval → Website<br>
+  Simple visual workflow guide · self-contained HTML · no application code was changed
+  <div style="margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <a class="btn" href="#overview">↑ Back to top</a>
+    <a class="btn" href="#workflow">View workflow</a>
+  </div>
+</footer>
+
+<script>
+// reveal on scroll
+if('IntersectionObserver' in window){
+  const io=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
+  },{threshold:.14});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+}else{
+  document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));
+}
+
+// simple active nav highlight
+const links=document.querySelectorAll('#navlinks a');
+const sections=document.querySelectorAll('section[id]');
+if('IntersectionObserver' in window){
+  const navIo=new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+en.target.id));
+      }
+    });
+  },{rootMargin:'-30% 0px -70% 0px',threshold:0});
+  sections.forEach(s=>navIo.observe(s));
+}
+</script>
+</body>
+</html>

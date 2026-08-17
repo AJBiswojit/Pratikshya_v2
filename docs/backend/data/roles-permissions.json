@@ -1,0 +1,1094 @@
+{
+  "_meta": {
+    "source": "AJBiswojit/Pratikshya_Fashon — current repository implementation",
+    "extraction": "extracted-from-repository",
+    "note": "IDs, slugs, names and relationships are copied verbatim from the running frontend data layer. Nothing is generated, renamed, merged or invented.",
+    "producedBy": "src/config/employeeRoles.js, src/config/employeePermissions.js, src/config/employeeStatus.js, src/config/adminAccess.js",
+    "enforcement": "hasPermission(employee, key) in src/services/employees/authorization.js. SUPER_ADMIN short-circuits to allow. A missing role or empty permission list is a DENY.",
+    "implications": "offers.*, attendance.*, leave.* and performance.* keys are implied by their matching *.manage key."
+  },
+  "actorTypes": [
+    {
+      "id": "CUSTOMER",
+      "session": "pratikshya_auth",
+      "portal": "storefront",
+      "permissionModel": "none — identity only; no permission keys exist for customers"
+    },
+    {
+      "id": "EMPLOYEE",
+      "session": "pratikshya_employee_auth",
+      "portal": "/employee/*",
+      "permissionModel": "role default permissions, individually overridable"
+    },
+    {
+      "id": "ADMIN",
+      "session": "pratikshya_admin_auth",
+      "portal": "/admin/*",
+      "permissionModel": "ADMIN_ROLES.SUPER_ADMIN only; full grant"
+    }
+  ],
+  "adminRoles": [
+    "SUPER_ADMIN"
+  ],
+  "adminStatuses": [
+    "ACTIVE",
+    "SUSPENDED"
+  ],
+  "employeeStatuses": [
+    {
+      "id": "ACTIVE",
+      "label": "Active",
+      "canLogin": true,
+      "description": null
+    },
+    {
+      "id": "PENDING",
+      "label": "Pending",
+      "canLogin": true,
+      "description": null
+    },
+    {
+      "id": "ON_LEAVE",
+      "label": "On leave",
+      "canLogin": true,
+      "description": null
+    },
+    {
+      "id": "SUSPENDED",
+      "label": "Suspended",
+      "canLogin": false,
+      "description": null
+    },
+    {
+      "id": "INACTIVE",
+      "label": "Inactive",
+      "canLogin": false,
+      "description": null
+    }
+  ],
+  "permissionCount": 82,
+  "permissions": [
+    {
+      "constant": "DASHBOARD_VIEW",
+      "key": "dashboard.view"
+    },
+    {
+      "constant": "PRODUCTS_VIEW",
+      "key": "products.view"
+    },
+    {
+      "constant": "PRODUCTS_MANAGE",
+      "key": "products.manage"
+    },
+    {
+      "constant": "CATEGORIES_VIEW",
+      "key": "categories.view"
+    },
+    {
+      "constant": "CATEGORIES_CREATE",
+      "key": "categories.create"
+    },
+    {
+      "constant": "CATEGORIES_EDIT",
+      "key": "categories.edit"
+    },
+    {
+      "constant": "CATEGORIES_ARCHIVE",
+      "key": "categories.archive"
+    },
+    {
+      "constant": "COLLECTIONS_VIEW",
+      "key": "collections.view"
+    },
+    {
+      "constant": "COLLECTIONS_CREATE",
+      "key": "collections.create"
+    },
+    {
+      "constant": "COLLECTIONS_EDIT",
+      "key": "collections.edit"
+    },
+    {
+      "constant": "COLLECTIONS_ASSIGN",
+      "key": "collections.assign"
+    },
+    {
+      "constant": "COLLECTIONS_ARCHIVE",
+      "key": "collections.archive"
+    },
+    {
+      "constant": "ORDERS_VIEW",
+      "key": "orders.view"
+    },
+    {
+      "constant": "ORDERS_CREATE",
+      "key": "orders.create"
+    },
+    {
+      "constant": "ORDERS_MANAGE",
+      "key": "orders.manage"
+    },
+    {
+      "constant": "ORDERS_FULFILL",
+      "key": "orders.fulfill"
+    },
+    {
+      "constant": "ORDERS_PICK",
+      "key": "orders.pick"
+    },
+    {
+      "constant": "ORDERS_PACK",
+      "key": "orders.pack"
+    },
+    {
+      "constant": "ORDERS_DISPATCH",
+      "key": "orders.dispatch"
+    },
+    {
+      "constant": "ORDERS_CANCEL",
+      "key": "orders.cancel"
+    },
+    {
+      "constant": "ORDERS_RETURN",
+      "key": "orders.return"
+    },
+    {
+      "constant": "ORDERS_REFUND",
+      "key": "orders.refund"
+    },
+    {
+      "constant": "CUSTOMERS_VIEW",
+      "key": "customers.view"
+    },
+    {
+      "constant": "CUSTOMERS_MANAGE",
+      "key": "customers.manage"
+    },
+    {
+      "constant": "INVENTORY_VIEW",
+      "key": "inventory.view"
+    },
+    {
+      "constant": "INVENTORY_RECEIVE",
+      "key": "inventory.receive"
+    },
+    {
+      "constant": "INVENTORY_ADJUST",
+      "key": "inventory.adjust"
+    },
+    {
+      "constant": "INVENTORY_TRANSFER",
+      "key": "inventory.transfer"
+    },
+    {
+      "constant": "INVENTORY_MANAGE",
+      "key": "inventory.manage"
+    },
+    {
+      "constant": "INVENTORY_AUDIT",
+      "key": "inventory.audit"
+    },
+    {
+      "constant": "WAREHOUSE_VIEW",
+      "key": "warehouse.view"
+    },
+    {
+      "constant": "WAREHOUSE_PICK",
+      "key": "warehouse.pick"
+    },
+    {
+      "constant": "RETURNS_VIEW",
+      "key": "returns.view"
+    },
+    {
+      "constant": "RETURNS_MANAGE",
+      "key": "returns.manage"
+    },
+    {
+      "constant": "OFFERS_VIEW",
+      "key": "offers.view"
+    },
+    {
+      "constant": "OFFERS_CREATE",
+      "key": "offers.create"
+    },
+    {
+      "constant": "OFFERS_EDIT",
+      "key": "offers.edit"
+    },
+    {
+      "constant": "OFFERS_ACTIVATE",
+      "key": "offers.activate"
+    },
+    {
+      "constant": "OFFERS_PAUSE",
+      "key": "offers.pause"
+    },
+    {
+      "constant": "OFFERS_ARCHIVE",
+      "key": "offers.archive"
+    },
+    {
+      "constant": "OFFERS_MANAGE",
+      "key": "offers.manage"
+    },
+    {
+      "constant": "MEDIA_VIEW",
+      "key": "media.view"
+    },
+    {
+      "constant": "MEDIA_UPLOAD",
+      "key": "media.upload"
+    },
+    {
+      "constant": "MEDIA_EDIT",
+      "key": "media.edit"
+    },
+    {
+      "constant": "MEDIA_DELETE",
+      "key": "media.delete"
+    },
+    {
+      "constant": "MEDIA_ASSIGN",
+      "key": "media.assign"
+    },
+    {
+      "constant": "MEDIA_MANAGE",
+      "key": "media.manage"
+    },
+    {
+      "constant": "EMPLOYEES_VIEW",
+      "key": "employees.view"
+    },
+    {
+      "constant": "EMPLOYEES_CREATE",
+      "key": "employees.create"
+    },
+    {
+      "constant": "EMPLOYEES_EDIT",
+      "key": "employees.edit"
+    },
+    {
+      "constant": "EMPLOYEES_SUSPEND",
+      "key": "employees.suspend"
+    },
+    {
+      "constant": "EMPLOYEES_RESET_PASSWORD",
+      "key": "employees.resetPassword"
+    },
+    {
+      "constant": "EMPLOYEES_MANAGE_PERMISSIONS",
+      "key": "employees.managePermissions"
+    },
+    {
+      "constant": "EMPLOYEES_MANAGE",
+      "key": "employees.manage"
+    },
+    {
+      "constant": "ANALYTICS_VIEW",
+      "key": "analytics.view"
+    },
+    {
+      "constant": "ANALYTICS_SALES",
+      "key": "analytics.sales"
+    },
+    {
+      "constant": "ANALYTICS_PRODUCTS",
+      "key": "analytics.products"
+    },
+    {
+      "constant": "ANALYTICS_CUSTOMERS",
+      "key": "analytics.customers"
+    },
+    {
+      "constant": "ANALYTICS_INVENTORY",
+      "key": "analytics.inventory"
+    },
+    {
+      "constant": "ANALYTICS_RETURNS",
+      "key": "analytics.returns"
+    },
+    {
+      "constant": "ANALYTICS_OFFERS",
+      "key": "analytics.offers"
+    },
+    {
+      "constant": "ANALYTICS_EMPLOYEES",
+      "key": "analytics.employees"
+    },
+    {
+      "constant": "PROFILE_VIEW",
+      "key": "profile.view"
+    },
+    {
+      "constant": "PROFILE_EDIT",
+      "key": "profile.edit"
+    },
+    {
+      "constant": "ATTENDANCE_VIEW",
+      "key": "attendance.view"
+    },
+    {
+      "constant": "ATTENDANCE_CHECKIN",
+      "key": "attendance.checkin"
+    },
+    {
+      "constant": "ATTENDANCE_CHECKOUT",
+      "key": "attendance.checkout"
+    },
+    {
+      "constant": "ATTENDANCE_MANAGE",
+      "key": "attendance.manage"
+    },
+    {
+      "constant": "ATTENDANCE_CORRECT",
+      "key": "attendance.correct"
+    },
+    {
+      "constant": "LEAVE_CREATE",
+      "key": "leave.create"
+    },
+    {
+      "constant": "LEAVE_VIEW",
+      "key": "leave.view"
+    },
+    {
+      "constant": "LEAVE_APPROVE",
+      "key": "leave.approve"
+    },
+    {
+      "constant": "LEAVE_REJECT",
+      "key": "leave.reject"
+    },
+    {
+      "constant": "LEAVE_MANAGE",
+      "key": "leave.manage"
+    },
+    {
+      "constant": "PERFORMANCE_VIEW",
+      "key": "performance.view"
+    },
+    {
+      "constant": "PERFORMANCE_MANAGE",
+      "key": "performance.manage"
+    },
+    {
+      "constant": "PERFORMANCE_REVIEW",
+      "key": "performance.review"
+    },
+    {
+      "constant": "TEAM_VIEW",
+      "key": "team.view"
+    },
+    {
+      "constant": "SUPPORT_VIEW",
+      "key": "support.view"
+    },
+    {
+      "constant": "SUPPORT_MANAGE",
+      "key": "support.manage"
+    },
+    {
+      "constant": "STYLING_VIEW",
+      "key": "styling.view"
+    },
+    {
+      "constant": "STYLING_MANAGE",
+      "key": "styling.manage"
+    }
+  ],
+  "permissionCatalogue": [
+    {
+      "group": "Workspace",
+      "items": [
+        {
+          "key": "dashboard.view",
+          "label": "View dashboard"
+        },
+        {
+          "key": "profile.view",
+          "label": "View profile"
+        },
+        {
+          "key": "profile.edit",
+          "label": "Edit own profile"
+        },
+        {
+          "key": "attendance.view",
+          "label": "View attendance"
+        },
+        {
+          "key": "attendance.checkin",
+          "label": "Check in"
+        },
+        {
+          "key": "attendance.checkout",
+          "label": "Check out"
+        },
+        {
+          "key": "leave.view",
+          "label": "View leave"
+        },
+        {
+          "key": "leave.create",
+          "label": "Request leave"
+        },
+        {
+          "key": "performance.view",
+          "label": "View performance"
+        }
+      ]
+    },
+    {
+      "group": "Selling floor",
+      "items": [
+        {
+          "key": "products.view",
+          "label": "View products"
+        },
+        {
+          "key": "products.manage",
+          "label": "Manage products"
+        },
+        {
+          "key": "categories.view",
+          "label": "View category taxonomy"
+        },
+        {
+          "key": "categories.create",
+          "label": "Create categories"
+        },
+        {
+          "key": "categories.edit",
+          "label": "Edit categories"
+        },
+        {
+          "key": "categories.archive",
+          "label": "Archive categories"
+        },
+        {
+          "key": "collections.view",
+          "label": "View collections"
+        },
+        {
+          "key": "collections.create",
+          "label": "Create collections"
+        },
+        {
+          "key": "collections.edit",
+          "label": "Edit collections"
+        },
+        {
+          "key": "collections.assign",
+          "label": "Assign collection products"
+        },
+        {
+          "key": "collections.archive",
+          "label": "Archive collections"
+        },
+        {
+          "key": "orders.view",
+          "label": "View orders"
+        },
+        {
+          "key": "orders.create",
+          "label": "Create assisted orders"
+        },
+        {
+          "key": "orders.manage",
+          "label": "Manage orders"
+        },
+        {
+          "key": "orders.fulfill",
+          "label": "Fulfill orders"
+        },
+        {
+          "key": "orders.pick",
+          "label": "Pick orders"
+        },
+        {
+          "key": "orders.pack",
+          "label": "Pack orders"
+        },
+        {
+          "key": "orders.dispatch",
+          "label": "Dispatch orders"
+        },
+        {
+          "key": "orders.cancel",
+          "label": "Cancel orders"
+        },
+        {
+          "key": "orders.return",
+          "label": "Manage returns"
+        },
+        {
+          "key": "orders.refund",
+          "label": "Manage refunds"
+        },
+        {
+          "key": "customers.view",
+          "label": "View customers"
+        },
+        {
+          "key": "customers.manage",
+          "label": "Manage customers"
+        },
+        {
+          "key": "offers.view",
+          "label": "View offers"
+        },
+        {
+          "key": "offers.create",
+          "label": "Create offers"
+        },
+        {
+          "key": "offers.edit",
+          "label": "Edit offers"
+        },
+        {
+          "key": "offers.activate",
+          "label": "Activate offers"
+        },
+        {
+          "key": "offers.pause",
+          "label": "Pause offers"
+        },
+        {
+          "key": "offers.archive",
+          "label": "Archive offers"
+        },
+        {
+          "key": "offers.manage",
+          "label": "Manage offers"
+        }
+      ]
+    },
+    {
+      "group": "Media",
+      "items": [
+        {
+          "key": "media.view",
+          "label": "View media library"
+        },
+        {
+          "key": "media.upload",
+          "label": "Add media"
+        },
+        {
+          "key": "media.edit",
+          "label": "Edit media details"
+        },
+        {
+          "key": "media.delete",
+          "label": "Remove media"
+        },
+        {
+          "key": "media.assign",
+          "label": "Assign media & set covers"
+        },
+        {
+          "key": "media.manage",
+          "label": "Manage marketing placements"
+        }
+      ]
+    },
+    {
+      "group": "Inventory & warehouse",
+      "items": [
+        {
+          "key": "inventory.view",
+          "label": "View inventory"
+        },
+        {
+          "key": "inventory.receive",
+          "label": "Receive stock"
+        },
+        {
+          "key": "inventory.adjust",
+          "label": "Adjust stock"
+        },
+        {
+          "key": "inventory.transfer",
+          "label": "Transfer stock"
+        },
+        {
+          "key": "inventory.manage",
+          "label": "Manage inventory settings"
+        },
+        {
+          "key": "inventory.audit",
+          "label": "Audit stock movements"
+        },
+        {
+          "key": "warehouse.view",
+          "label": "View warehouse"
+        },
+        {
+          "key": "warehouse.pick",
+          "label": "Pick & pack"
+        }
+      ]
+    },
+    {
+      "group": "Care & styling",
+      "items": [
+        {
+          "key": "returns.view",
+          "label": "View returns"
+        },
+        {
+          "key": "returns.manage",
+          "label": "Manage returns"
+        },
+        {
+          "key": "support.view",
+          "label": "View support cases"
+        },
+        {
+          "key": "support.manage",
+          "label": "Manage support cases"
+        },
+        {
+          "key": "styling.view",
+          "label": "View styling work"
+        },
+        {
+          "key": "styling.manage",
+          "label": "Manage styling work"
+        }
+      ]
+    },
+    {
+      "group": "People & reports",
+      "items": [
+        {
+          "key": "team.view",
+          "label": "View assigned team"
+        },
+        {
+          "key": "analytics.view",
+          "label": "View store reports"
+        },
+        {
+          "key": "analytics.sales",
+          "label": "View sales analytics"
+        },
+        {
+          "key": "analytics.products",
+          "label": "View product analytics"
+        },
+        {
+          "key": "analytics.customers",
+          "label": "View customer analytics"
+        },
+        {
+          "key": "analytics.inventory",
+          "label": "View inventory analytics"
+        },
+        {
+          "key": "analytics.returns",
+          "label": "View return analytics"
+        },
+        {
+          "key": "analytics.offers",
+          "label": "View offer analytics"
+        },
+        {
+          "key": "analytics.employees",
+          "label": "View employee analytics"
+        },
+        {
+          "key": "employees.view",
+          "label": "View employees"
+        },
+        {
+          "key": "employees.create",
+          "label": "Create employees"
+        },
+        {
+          "key": "employees.edit",
+          "label": "Edit employees"
+        },
+        {
+          "key": "employees.suspend",
+          "label": "Suspend employees"
+        },
+        {
+          "key": "employees.resetPassword",
+          "label": "Reset employee passwords"
+        },
+        {
+          "key": "employees.managePermissions",
+          "label": "Manage permissions"
+        },
+        {
+          "key": "employees.manage",
+          "label": "Manage employee accounts"
+        }
+      ]
+    }
+  ],
+  "roleCount": 8,
+  "roles": [
+    {
+      "id": "SUPER_ADMIN",
+      "label": "Super Admin",
+      "description": "Full employee-portal access and people administration.",
+      "idPrefix": "ADM",
+      "defaultPermissionCount": 75,
+      "defaultPermissions": [
+        "dashboard.view",
+        "profile.view",
+        "profile.edit",
+        "attendance.view",
+        "attendance.checkin",
+        "attendance.checkout",
+        "leave.view",
+        "leave.create",
+        "performance.view",
+        "products.view",
+        "products.manage",
+        "categories.view",
+        "categories.create",
+        "categories.edit",
+        "categories.archive",
+        "collections.view",
+        "collections.create",
+        "collections.edit",
+        "collections.assign",
+        "collections.archive",
+        "orders.view",
+        "orders.create",
+        "orders.manage",
+        "orders.fulfill",
+        "orders.pick",
+        "orders.pack",
+        "orders.dispatch",
+        "orders.cancel",
+        "orders.return",
+        "orders.refund",
+        "customers.view",
+        "customers.manage",
+        "offers.view",
+        "offers.create",
+        "offers.edit",
+        "offers.activate",
+        "offers.pause",
+        "offers.archive",
+        "offers.manage",
+        "media.view",
+        "media.upload",
+        "media.edit",
+        "media.delete",
+        "media.assign",
+        "media.manage",
+        "inventory.view",
+        "inventory.receive",
+        "inventory.adjust",
+        "inventory.transfer",
+        "inventory.manage",
+        "inventory.audit",
+        "warehouse.view",
+        "warehouse.pick",
+        "returns.view",
+        "returns.manage",
+        "support.view",
+        "support.manage",
+        "styling.view",
+        "styling.manage",
+        "team.view",
+        "analytics.view",
+        "analytics.sales",
+        "analytics.products",
+        "analytics.customers",
+        "analytics.inventory",
+        "analytics.returns",
+        "analytics.offers",
+        "analytics.employees",
+        "employees.view",
+        "employees.create",
+        "employees.edit",
+        "employees.suspend",
+        "employees.resetPassword",
+        "employees.managePermissions",
+        "employees.manage"
+      ]
+    },
+    {
+      "id": "STORE_MANAGER",
+      "label": "Store Manager",
+      "description": "Floor leadership across sales, customers, inventory visibility and team.",
+      "idPrefix": "MGR",
+      "defaultPermissionCount": 68,
+      "defaultPermissions": [
+        "dashboard.view",
+        "products.view",
+        "products.manage",
+        "categories.view",
+        "categories.create",
+        "categories.edit",
+        "categories.archive",
+        "collections.view",
+        "collections.create",
+        "collections.edit",
+        "collections.assign",
+        "collections.archive",
+        "orders.view",
+        "orders.manage",
+        "orders.fulfill",
+        "orders.pick",
+        "orders.pack",
+        "orders.dispatch",
+        "orders.cancel",
+        "orders.return",
+        "orders.refund",
+        "customers.view",
+        "inventory.view",
+        "inventory.receive",
+        "inventory.adjust",
+        "inventory.transfer",
+        "inventory.audit",
+        "returns.view",
+        "returns.manage",
+        "offers.view",
+        "offers.create",
+        "offers.edit",
+        "offers.activate",
+        "offers.pause",
+        "media.view",
+        "media.upload",
+        "media.edit",
+        "media.assign",
+        "media.manage",
+        "analytics.view",
+        "analytics.sales",
+        "analytics.products",
+        "analytics.customers",
+        "analytics.inventory",
+        "analytics.returns",
+        "analytics.offers",
+        "analytics.employees",
+        "profile.view",
+        "profile.edit",
+        "attendance.view",
+        "attendance.checkin",
+        "attendance.checkout",
+        "attendance.manage",
+        "attendance.correct",
+        "leave.view",
+        "leave.create",
+        "leave.approve",
+        "leave.reject",
+        "leave.manage",
+        "performance.view",
+        "performance.review",
+        "performance.manage",
+        "team.view",
+        "employees.view",
+        "support.view",
+        "styling.view",
+        "warehouse.view",
+        "warehouse.pick"
+      ]
+    },
+    {
+      "id": "SALES_EXECUTIVE",
+      "label": "Sales Executive",
+      "description": "Assisted shopping, customer care on the floor, and order creation.",
+      "idPrefix": "SLS",
+      "defaultPermissionCount": 17,
+      "defaultPermissions": [
+        "dashboard.view",
+        "products.view",
+        "categories.view",
+        "collections.view",
+        "orders.view",
+        "orders.create",
+        "customers.view",
+        "offers.view",
+        "inventory.view",
+        "profile.view",
+        "profile.edit",
+        "attendance.view",
+        "attendance.checkin",
+        "attendance.checkout",
+        "leave.view",
+        "leave.create",
+        "performance.view"
+      ]
+    },
+    {
+      "id": "INVENTORY_MANAGER",
+      "label": "Inventory Manager",
+      "description": "Stock health, receiving, adjustments, transfers and inventory reports.",
+      "idPrefix": "INV",
+      "defaultPermissionCount": 26,
+      "defaultPermissions": [
+        "dashboard.view",
+        "products.view",
+        "categories.view",
+        "collections.view",
+        "inventory.view",
+        "inventory.receive",
+        "inventory.adjust",
+        "inventory.transfer",
+        "inventory.manage",
+        "inventory.audit",
+        "warehouse.view",
+        "media.view",
+        "analytics.view",
+        "analytics.inventory",
+        "analytics.products",
+        "orders.view",
+        "orders.fulfill",
+        "profile.view",
+        "profile.edit",
+        "attendance.view",
+        "attendance.checkin",
+        "attendance.checkout",
+        "leave.view",
+        "leave.create",
+        "performance.view",
+        "team.view"
+      ]
+    },
+    {
+      "id": "INVENTORY_STAFF",
+      "label": "Inventory Staff",
+      "description": "Receive, adjust and raise transfer requests on the floor.",
+      "idPrefix": "INV",
+      "defaultPermissionCount": 17,
+      "defaultPermissions": [
+        "dashboard.view",
+        "products.view",
+        "categories.view",
+        "collections.view",
+        "inventory.view",
+        "inventory.receive",
+        "inventory.adjust",
+        "inventory.transfer",
+        "inventory.audit",
+        "profile.view",
+        "profile.edit",
+        "attendance.view",
+        "attendance.checkin",
+        "attendance.checkout",
+        "leave.view",
+        "leave.create",
+        "performance.view"
+      ]
+    },
+    {
+      "id": "WAREHOUSE_STAFF",
+      "label": "Warehouse Staff",
+      "description": "Incoming, outgoing, pick & pack, transfers and damaged stock.",
+      "idPrefix": "WHS",
+      "defaultPermissionCount": 24,
+      "defaultPermissions": [
+        "dashboard.view",
+        "warehouse.view",
+        "warehouse.pick",
+        "products.view",
+        "categories.view",
+        "collections.view",
+        "inventory.view",
+        "inventory.receive",
+        "inventory.transfer",
+        "inventory.audit",
+        "media.view",
+        "orders.view",
+        "orders.fulfill",
+        "orders.pick",
+        "orders.pack",
+        "orders.dispatch",
+        "profile.view",
+        "profile.edit",
+        "attendance.view",
+        "attendance.checkin",
+        "attendance.checkout",
+        "leave.view",
+        "leave.create",
+        "performance.view"
+      ]
+    },
+    {
+      "id": "CUSTOMER_SUPPORT",
+      "label": "Customer Support",
+      "description": "Customer care, orders, returns and feedback.",
+      "idPrefix": "CS",
+      "defaultPermissionCount": 26,
+      "defaultPermissions": [
+        "dashboard.view",
+        "customers.view",
+        "orders.view",
+        "orders.cancel",
+        "orders.return",
+        "orders.refund",
+        "returns.view",
+        "returns.manage",
+        "support.view",
+        "support.manage",
+        "offers.view",
+        "products.view",
+        "categories.view",
+        "collections.view",
+        "inventory.view",
+        "profile.view",
+        "profile.edit",
+        "attendance.view",
+        "attendance.checkin",
+        "attendance.checkout",
+        "leave.view",
+        "leave.create",
+        "performance.view",
+        "analytics.view",
+        "analytics.customers",
+        "analytics.returns"
+      ]
+    },
+    {
+      "id": "FASHION_STYLIST",
+      "label": "Fashion Stylist",
+      "description": "Consultations, appointments, recommendations and bridal styling.",
+      "idPrefix": "STY",
+      "defaultPermissionCount": 19,
+      "defaultPermissions": [
+        "dashboard.view",
+        "customers.view",
+        "products.view",
+        "categories.view",
+        "collections.view",
+        "styling.view",
+        "styling.manage",
+        "media.view",
+        "media.upload",
+        "offers.view",
+        "inventory.view",
+        "profile.view",
+        "profile.edit",
+        "attendance.view",
+        "attendance.checkin",
+        "attendance.checkout",
+        "leave.view",
+        "leave.create",
+        "performance.view"
+      ]
+    }
+  ],
+  "productIdPrefixes": {
+    "byCategory": {
+      "kidswear": "KID",
+      "menswear": "MEN",
+      "sarees": "SAR",
+      "lehengas": "LEH",
+      "bridal-couture": "BRD",
+      "kurtis-and-suits": "KUR",
+      "innerwear": "INN",
+      "dupattas": "DUP",
+      "bangles": "BAN",
+      "jewellery": "JEW"
+    },
+    "default": "PRD"
+  }
+}

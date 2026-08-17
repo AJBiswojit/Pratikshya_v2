@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+/**
+ * PRATIKSHYA FASHON — Atelier theme.
+ *
+ * These custom properties are the CSS mirror of `src/design-system/tokens.js`
+ * and `src/design-system/typography.js`. Keep the two in sync: the JS modules
+ * are the documentation, this block is what Tailwind compiles utilities from.
+ */
+@theme {
+  /* Typefaces */
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-ui: "Instrument Sans", system-ui, sans-serif;
+
+  /* Surfaces */
+  --color-canvas: #f7f4f0;
+  --color-canvas-deep: #efeae3;
+  --color-surface: #f0ebe6;
+  --color-ivory: #fdf8f3;
+
+  /* Ink */
+  --color-ink: #2a2015;
+  --color-graphite: #555555;
+  --color-taupe: #777777;
+  --color-cocoa: #6a4e38;
+  --color-brass: #8a6e4a;
+
+  /* Accents */
+  --color-accent: #8a3e22;
+  --color-accent-deep: #5a2a18;
+  --color-gold: #c9a44c;
+  --color-blush: #e8d5c4;
+  --color-blush-deep: #e8c8b8;
+
+  /* Lines */
+  --color-pearl: #dddddd;
+  --color-mist: #ddd8cf;
+  --color-ink-line: #3a2a1e;
+
+  /* Neutrals on dark surfaces */
+  --color-ash: #aaaaaa;
+  --color-ash-deep: #666666;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: "Instrument Sans", system-ui, sans-serif;
+  background-color: #fdf8f3;
+  color: #1a1a1a;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: #c9a44c;
+  color: #fff;
+}
+
+/* A restrained editorial dissolve used when the home-page featured edit changes. */
+@keyframes edit-fade {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+
+/*
+ * The Saree Edit no longer uses keyframe entrances — its slides crossfade in
+ * layered AnimatePresence rendering (see SareeEditCarousel.jsx), which keeps
+ * the outgoing slide mounted until the incoming one is visible.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * Print — invoice preview only.
+ *
+ * The invoice opens as an overlay, so a naive print would carry the whole
+ * page behind it. Printing hides the app and lets the invoice flow onto
+ * paper as a plain document.
+ */
+@media print {
+  body > *:not([data-invoice-overlay]) {
+    display: none !important;
+  }
+
+  [data-invoice-overlay] {
+    position: static !important;
+    overflow: visible !important;
+    background: none !important;
+    padding: 0 !important;
+    backdrop-filter: none !important;
+  }
+
+  [data-invoice-overlay] [role="dialog"] {
+    max-width: none !important;
+    margin: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}
