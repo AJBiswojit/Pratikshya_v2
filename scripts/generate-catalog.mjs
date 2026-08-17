@@ -13,13 +13,16 @@
  *   · names are grounded in the product's own imagery (dominant colour,
  *     analysed from the actual pixels), its folder taxonomy and its product
  *     id — no invented fabrics, prices or specifications
+ *   · commercial data (MRP, selling price, description) is NEVER generated:
+ *     it is entered by an administrator in Admin → Product Management, and
+ *     whatever has already been completed is preserved on regeneration
  *
  * Usage:  node scripts/generate-catalog.mjs
  * Requires ImageMagick (`convert`) for the colour analysis.
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname;
@@ -752,9 +755,59 @@ const buildCollections = () => {
 /* Emit                                                                */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Commercial fields already completed by an administrator, read back from the
+ * current catalogue file so a regeneration never blanks them.
+ *
+ * The generator owns identity, taxonomy and media (those are derived from the
+ * folder structure). It has never owned MRP, selling price or the description
+ * — those are entered by a human in Admin → Product Management. Preserving
+ * them here keeps regeneration safe without inventing anything.
+ */
+const existingCommercialData = () => {
+  const byId = new Map();
+  const file = join(OUT_DIR, "products.js");
+  if (!existsSync(file)) return byId;
+  try {
+    const source = readFileSync(file, "utf8");
+    const marker = "export const products = ";
+    const start = source.indexOf(marker);
+    if (start < 0) return byId;
+    const open = source.indexOf("[", start);
+    let depth = 0;
+    let end = -1;
+    for (let i = open; i < source.length; i += 1) {
+      if (source[i] === "[") depth += 1;
+      else if (source[i] === "]") {
+        depth -= 1;
+        if (depth === 0) {
+          end = i + 1;
+          break;
+        }
+      }
+    }
+    if (end < 0) return byId;
+    const records = JSON.parse(source.slice(open, end).replace(/,\s*\]$/, "]"));
+    for (const record of records) {
+      if (!record || !record.id) continue;
+      byId.set(String(record.id), {
+        description: record.description ?? "",
+        price: record.price ?? null,
+        compareAtPrice: record.compareAtPrice ?? null,
+        pricing: record.pricing ?? null,
+        status: record.status ?? "draft",
+      });
+    }
+  } catch {
+    /* An unreadable previous file simply means nothing to preserve. */
+  }
+  return byId;
+};
+
 const emit = () => {
   const folders = scanProductFolders();
   const products = buildProducts(folders);
+  const completed = existingCommercialData();
   const { departments, routes } = buildTaxonomy(folders);
   const collections = buildCollections();
 
@@ -772,6 +825,8 @@ const emit = () => {
 
   const productRows = products
     .map((product) => {
+      /* Administrator-completed commercial data survives regeneration. */
+      const prior = completed.get(String(product.id)) ?? null;
       const record = {
         id: product.id,
         sku: product.sku,
@@ -781,11 +836,12 @@ const emit = () => {
         subcategory: product.subcategory,
         style: product.style,
         gender: product.gender,
-        description: product.description,
-        price: null,
-        compareAtPrice: null,
+        description: prior?.description ?? product.description,
+        price: prior?.price ?? null,
+        compareAtPrice: prior?.compareAtPrice ?? null,
+        ...(prior?.pricing ? { pricing: prior.pricing } : {}),
         media: product.media,
-        status: "draft",
+        status: prior?.status ?? "draft",
       };
       return JSON.stringify(record, null, 2)
         .replace(/\n  \{/g, "\n    {")
@@ -803,9 +859,11 @@ const emit = () => {
  * customer-facing name grounded in its own imagery (dominant colour),
  * its folder taxonomy and its product id.
  *
- * Commercial fields (price, compare-at, descriptions) are intentionally
- * absent — nothing here invents product facts. Records stay \`draft\` until
- * a human completes them, so incomplete pieces never auto-publish.
+ * Commercial fields (MRP, selling price, description) are never generated
+ * here — an administrator enters them through Admin → Product Management and
+ * they are preserved verbatim across regenerations. Records stay \`draft\`
+ * regardless, so completing the data never auto-publishes a piece: it only
+ * makes it eligible for DRAFT → SUBMITTED → APPROVED → PUBLISHED.
  */
 
 export const products = [
