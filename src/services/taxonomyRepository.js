@@ -51,30 +51,30 @@ const normaliseSlug = (value, fallback = "") => slugify(cleanName(value) || fall
 const asArray = (value) => (Array.isArray(value) ? value.filter(Boolean).map(String) : []);
 
 const CATEGORY_SEEDS = [
-  { id: "sarees", name: "Sarees", slug: "sarees", eyebrow: "Six Yards", description: "Handloom, silk and pato sarees woven across Odisha and Banaras.", image: "saree-silk", featured: true, sortOrder: 10 },
-  { id: "lehengas", name: "Lehengas", slug: "lehengas", eyebrow: "The Ceremony", description: "Bridal, festive and designer lehengas cut for the long celebration.", image: "lehenga-bridal", featured: true, sortOrder: 20 },
-  { id: "bridal-couture", name: "Bridal Couture", slug: "bridal", eyebrow: "The Trousseau", description: "Reception gowns, sangeet sets and trousseau pieces made to order.", image: "women-bridal-wear", featured: true, sortOrder: 30 },
-  { id: "kurtis-and-suits", name: "Kurtis + Suits", slug: "kurtis-and-suits", eyebrow: "Everyday", description: "Quiet daily ethnic wear in cotton, linen and light silk.", image: "women-contemporary", sortOrder: 40 },
-  { id: "innerwear", name: "Innerwear", slug: "innerwear", eyebrow: "The Foundation", description: "Petticoats, blouses and shapewear finished to the same standard.", image: "fabric-cotton", sortOrder: 50 },
-  { id: "dupattas", name: "Dupattas + Stoles", slug: "dupattas", eyebrow: "The Drape", description: "Woven and embroidered drapes that finish a look.", image: "accessory-dupattas", sortOrder: 60 },
-  { id: "bangles", name: "Bangles", slug: "bangles", eyebrow: "The Stack", description: "Bridal sets, gold-finish bangles, kada and cuffs.", image: "bridal-bangles", featured: true, sortOrder: 70 },
-  { id: "jewellery", name: "Jewellery", slug: "jewellery", eyebrow: "Adornment", description: "Temple, kundan and polki pieces for the whole ceremony.", image: "bridal-jewellery", featured: true, sortOrder: 80 },
-  { id: "menswear", name: "Men's Wear", slug: "men", eyebrow: "The Groom", description: "Kurta, sherwani and Nehru jackets tailored in-house.", image: "men-sherwani", featured: true, sortOrder: 90 },
-  { id: "kidswear", name: "Kids Wear", slug: "kids", eyebrow: "Little Heirlooms", description: "Everyday sets, dresses and casual coordinates for children.", image: "kids-festive-wear", featured: true, sortOrder: 100 },
+  { id: "sarees", name: "Sarees", slug: "sarees", eyebrow: "Six Yards", description: "Handloom, silk and pato sarees woven across Odisha and Banaras.", image: null, featured: true, sortOrder: 10 },
+  { id: "lehengas", name: "Lehengas", slug: "lehengas", eyebrow: "The Ceremony", description: "Bridal, festive and designer lehengas cut for the long celebration.", image: null, featured: true, sortOrder: 20 },
+  { id: "bridal-couture", name: "Bridal Couture", slug: "bridal", eyebrow: "The Trousseau", description: "Reception gowns, sangeet sets and trousseau pieces made to order.", image: null, featured: true, sortOrder: 30 },
+  { id: "kurtis-and-suits", name: "Kurtis + Suits", slug: "kurtis-and-suits", eyebrow: "Everyday", description: "Quiet daily ethnic wear in cotton, linen and light silk.", image: null, sortOrder: 40 },
+  { id: "innerwear", name: "Innerwear", slug: "innerwear", eyebrow: "The Foundation", description: "Petticoats, blouses and shapewear finished to the same standard.", image: null, sortOrder: 50 },
+  { id: "dupattas", name: "Dupattas + Stoles", slug: "dupattas", eyebrow: "The Drape", description: "Woven and embroidered drapes that finish a look.", image: null, sortOrder: 60 },
+  { id: "bangles", name: "Bangles", slug: "bangles", eyebrow: "The Stack", description: "Bridal sets, gold-finish bangles, kada and cuffs.", image: null, featured: true, sortOrder: 70 },
+  { id: "jewellery", name: "Jewellery", slug: "jewellery", eyebrow: "Adornment", description: "Temple, kundan and polki pieces for the whole ceremony.", image: null, featured: true, sortOrder: 80 },
+  { id: "menswear", name: "Men's Wear", slug: "men", eyebrow: "The Groom", description: "Kurta, sherwani and Nehru jackets tailored in-house.", image: null, featured: true, sortOrder: 90 },
+  { id: "kidswear", name: "Kids Wear", slug: "kids", eyebrow: "Little Heirlooms", description: "Everyday sets, dresses and casual coordinates for children.", image: null, featured: true, sortOrder: 100 },
 ];
 
 const COLLECTION_SEEDS = [
-  { id: "new-arrivals", name: "New Arrivals", slug: "new-arrivals", eyebrow: "Just In", description: "The pieces that reached the atelier floor this month.", image: "saree-ivory-silk", type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, featured: true, sortOrder: 5, rule: { flag: "isNew" } },
-  { id: "featured", name: "Featured", slug: "featured", eyebrow: "House Selection", description: "Chosen by the atelier — the pieces we would put on you ourselves.", image: "women-bridal-wear", type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, featured: true, sortOrder: 8, rule: { flag: "isFeatured" } },
-  { id: "heritage-weaves", name: "Heritage Weaves", slug: "heritage-weaves", description: "Looms of Odisha and Banaras, documented and preserved.", image: "saree-banarasi", featured: true, sortOrder: 10 },
-  { id: "festive-edit", name: "Festive Edit", slug: "festive", eyebrow: "Season of Light", description: "The season of light, dressed.", image: "lehenga-party", featured: true, sortOrder: 20 },
-  { id: "handloom-stories", name: "Handloom Stories", slug: "handloom-stories", description: "Cloth traced back to the weaver who made it.", image: "saree-cotton", sortOrder: 30 },
-  { id: "bridal-trousseau", name: "Bridal Trousseau", slug: "bridal", eyebrow: "The Trousseau", description: "Every ceremony, considered as one wardrobe.", image: "women-bridal-wear", featured: true, sortOrder: 40 },
-  { id: "everyday-atelier", name: "Everyday Atelier", slug: "everyday-atelier", description: "Ethnic wear light enough for a Tuesday.", image: "women-contemporary", sortOrder: 50 },
-  { id: "groom-atelier", name: "Groom Atelier", slug: "groom-atelier", description: "Tailoring for the other half of the mandap.", image: "groom-sherwani", sortOrder: 60 },
-  { id: "little-heirlooms", name: "Little Heirlooms", slug: "little-heirlooms", description: "Made small, kept for good.", image: "kids-festive-wear", sortOrder: 70 },
-  { id: "silk", name: "Silk", slug: "silk", description: "Silk sarees, lehengas and heirloom weaves across the atelier.", image: "fabric-silk", type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, sortOrder: 80, rule: { fabricIncludes: "silk" } },
-  { id: "wedding", name: "Wedding", slug: "wedding", eyebrow: "The Long Celebration", description: "One wardrobe for every ceremony in the calendar.", image: "lehenga-wine", type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, featured: true, sortOrder: 90, rule: { occasion: "Wedding" } },
+  { id: "new-arrivals", name: "New Arrivals", slug: "new-arrivals", eyebrow: "Just In", description: "The pieces that reached the atelier floor this month.", image: null, type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, featured: true, sortOrder: 5, rule: { flag: "isNew" } },
+  { id: "featured", name: "Featured", slug: "featured", eyebrow: "House Selection", description: "Chosen by the atelier — the pieces we would put on you ourselves.", image: null, type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, featured: true, sortOrder: 8, rule: { flag: "isFeatured" } },
+  { id: "heritage-weaves", name: "Heritage Weaves", slug: "heritage-weaves", description: "Looms of Odisha and Banaras, documented and preserved.", image: null, featured: true, sortOrder: 10 },
+  { id: "festive-edit", name: "Festive Edit", slug: "festive", eyebrow: "Season of Light", description: "The season of light, dressed.", image: null, featured: true, sortOrder: 20 },
+  { id: "handloom-stories", name: "Handloom Stories", slug: "handloom-stories", description: "Cloth traced back to the weaver who made it.", image: null, sortOrder: 30 },
+  { id: "bridal-trousseau", name: "Bridal Trousseau", slug: "bridal", eyebrow: "The Trousseau", description: "Every ceremony, considered as one wardrobe.", image: null, featured: true, sortOrder: 40 },
+  { id: "everyday-atelier", name: "Everyday Atelier", slug: "everyday-atelier", description: "Ethnic wear light enough for a Tuesday.", image: null, sortOrder: 50 },
+  { id: "groom-atelier", name: "Groom Atelier", slug: "groom-atelier", description: "Tailoring for the other half of the mandap.", image: null, sortOrder: 60 },
+  { id: "little-heirlooms", name: "Little Heirlooms", slug: "little-heirlooms", description: "Made small, kept for good.", image: null, sortOrder: 70 },
+  { id: "silk", name: "Silk", slug: "silk", description: "Silk sarees, lehengas and heirloom weaves across the atelier.", image: null, type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, sortOrder: 80, rule: { fabricIncludes: "silk" } },
+  { id: "wedding", name: "Wedding", slug: "wedding", eyebrow: "The Long Celebration", description: "One wardrobe for every ceremony in the calendar.", image: null, type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, featured: true, sortOrder: 90, rule: { occasion: "Wedding" } },
 ];
 
 let memoryStorage = null;

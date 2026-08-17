@@ -26,7 +26,7 @@ const edits = [
     title: "Pieces created for moments you'll remember forever.",
     shortTitle: "The bridal edit",
     categoryId: "bridal-couture",
-    image: "women-bridal-wear",
+    image: null,
   },
   {
     id: "groom",
@@ -35,7 +35,7 @@ const edits = [
     title: "Considered ceremonial dressing, tailored for the occasion.",
     shortTitle: "The ceremony edit",
     categoryId: "menswear",
-    image: "groom-sherwani",
+    image: null,
   },
   {
     id: "festive",
@@ -44,7 +44,7 @@ const edits = [
     title: "Festive silhouettes with a contemporary soul.",
     shortTitle: "Made to celebrate",
     categoryId: "sarees",
-    image: "saree-printed",
+    image: null,
   },
   {
     id: "heritage",
@@ -53,7 +53,7 @@ const edits = [
     title: "Craft, colour and stories woven into every piece.",
     shortTitle: "Woven for generations",
     categoryId: "sarees",
-    image: "saree-banarasi",
+    image: null,
   },
 ];
 

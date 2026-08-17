@@ -66,7 +66,7 @@ export const primaryNavigation = [
       },
     ],
     feature: {
-      image: "saree-banarasi",
+      image: null,
       eyebrow: "Heritage Weaves",
       title: "The Saree Edit",
       caption: "Pato · cotton · silk · Banarasi · festive.",
@@ -107,7 +107,7 @@ export const primaryNavigation = [
       },
     ],
     feature: {
-      image: "lehenga-bridal",
+      image: null,
       eyebrow: "Wedding Atelier",
       title: "The Celebration Edit",
       caption: "For the promises that become heirlooms.",
@@ -140,7 +140,7 @@ export const primaryNavigation = [
       },
     ],
     feature: {
-      image: "men-kurta",
+      image: null,
       eyebrow: "Ceremonial Wardrobe",
       title: "The Groom Edit",
       caption: "A considered ceremonial wardrobe.",
@@ -171,7 +171,7 @@ export const primaryNavigation = [
       },
     ],
     feature: {
-      image: "kids-festive-wear",
+      image: null,
       eyebrow: "Little Heirlooms",
       title: "The Kids Edit",
       caption: "Everyday coordinates for the youngest guests.",
@@ -212,7 +212,7 @@ export const primaryNavigation = [
       },
     ],
     feature: {
-      image: "bridal-bangles",
+      image: null,
       eyebrow: "Heirloom Metalwork",
       title: "The Jewellery Edit",
       caption: "The finishing language of an occasion.",
@@ -247,7 +247,7 @@ export const primaryNavigation = [
       },
     ],
     feature: {
-      image: "fabric-embroidered",
+      image: null,
       eyebrow: "Fabric Stories",
       title: "Heritage Weaves",
       caption: "Woven, finished and chosen with intention.",
@@ -338,35 +338,35 @@ export const standalonePages = [
     label: "Explore",
     eyebrow: "Explore PRATIKSHYA",
     description: "Discover pieces across every collection.",
-    image: "hero-atelier",
+    image: null,
   },
   {
     to: "/search",
     label: "Search",
     eyebrow: "Find Your Piece",
     description: "Search the atelier by fabric, occasion or silhouette.",
-    image: "fabric-silk",
+    image: null,
   },
   {
     to: "/account/wishlist",
     label: "Wishlist",
     eyebrow: "Saved Pieces",
     description: "The pieces you have set aside to return to.",
-    image: "saree-silk",
+    image: null,
   },
   {
     to: "/account",
     label: "Account",
     eyebrow: "Your Atelier",
     description: "Orders, addresses and preferences, kept in one place.",
-    image: "fabric-linen",
+    image: null,
   },
   {
     to: "/cart",
     label: "Bag",
     eyebrow: "Your Selection",
     description: "The pieces you are ready to take home.",
-    image: "fabric-cotton",
+    image: null,
   },
   {
     to: "/about",
@@ -374,28 +374,28 @@ export const standalonePages = [
     eyebrow: "Our Story",
     description:
       "PRATIKSHYA FASHON brings together the richness of textile craft and the joy of dressing for life's most meaningful occasions.",
-    image: "fabric-embroidered",
+    image: null,
   },
   {
     to: "/contact",
     label: "Policies + Contact",
     eyebrow: "Customer Care",
     description: "Reach the atelier, or read how we ship, exchange and care.",
-    image: "accessory-dupattas",
+    image: null,
   },
   {
     to: "/privacy",
     label: "Privacy",
     eyebrow: "Policies",
     description: "How PRATIKSHYA FASHON handles the information you share.",
-    image: "fabric-chiffon",
+    image: null,
   },
   {
     to: "/terms",
     label: "Terms",
     eyebrow: "Policies",
     description: "The terms under which the atelier serves you.",
-    image: "fabric-printed",
+    image: null,
   },
 ];
 
