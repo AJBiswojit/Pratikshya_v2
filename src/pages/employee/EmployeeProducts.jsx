@@ -276,7 +276,7 @@ function ProductSearch() {
           id="product-search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Silk saree, Banarasi, PF-SARE..."
+          placeholder="Name, SKU, or identifier…"
           className={employeeInputClass()}
         />
       </div>

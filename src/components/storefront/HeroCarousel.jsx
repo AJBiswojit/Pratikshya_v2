@@ -142,17 +142,14 @@ export default function HeroCarousel({ heroMedia }) {
         source: m.source,
         sortOrder: m.sortOrder,
       }));
-      /* Assert the resolver delivers exactly five distinct plates. */
-      const expected = ["hero001.avif", "hero002.avif", "hero003.avif", "hero004.avif", "hero005.avif"];
       const names = resolved.map((m) => m.fileName || m.currentFilename || null);
-      const ok = resolved.length === 5 && expected.every((n, i) => names[i] === n);
       // eslint-disable-next-line no-console
       console.log(
         [
           "%cHERO RUNTIME MEDIA",
           `count: ${resolved.length}`,
           ...names.map((n, i) => `  ${i + 1}. ${n}`),
-          ok ? "RESOLVED: 5/5 (OK)" : `MISMATCH — expected 5 hero001-005, got ${resolved.length}`,
+          `RESOLVED: ${resolved.length} assigned hero asset${resolved.length === 1 ? "" : "s"}`,
         ].join("\n"),
         "color:#b08d57;font-weight:bold"
       );

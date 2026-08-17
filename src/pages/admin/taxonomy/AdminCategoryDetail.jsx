@@ -95,7 +95,7 @@ export default function AdminCategoryDetail() {
 
           <AdminPanel eyebrow="Subcategory management" title={`Subcategories (${subcategories.length})`}>
             <form onSubmit={createSubcategory} className="mb-6 grid gap-3 md:grid-cols-[1fr_1fr_120px_120px]">
-              <input className={inputClass} value={subDraft.name} onChange={(event) => setSubDraft((current) => ({ ...current, name: event.target.value, slug: current.slug || slugify(event.target.value) }))} placeholder="Banarasi Sarees" aria-label="Subcategory name" />
+              <input className={inputClass} value={subDraft.name} onChange={(event) => setSubDraft((current) => ({ ...current, name: event.target.value, slug: current.slug || slugify(event.target.value) }))} placeholder="Subcategory name" aria-label="Subcategory name" />
               <input className={inputClass} value={subDraft.slug} onChange={(event) => setSubDraft((current) => ({ ...current, slug: slugify(event.target.value) }))} placeholder="banarasi-sarees" aria-label="Subcategory slug" />
               <input type="number" className={inputClass} value={subDraft.sortOrder} onChange={(event) => setSubDraft((current) => ({ ...current, sortOrder: event.target.value }))} aria-label="Sort order" />
               <AtelierButton type="submit" size="chip">Create</AtelierButton>

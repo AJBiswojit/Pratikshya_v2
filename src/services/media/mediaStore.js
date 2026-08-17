@@ -30,6 +30,8 @@ import { resolveLegacyMediaUrl } from "./mediaPaths";
 
 /** Namespaced, in line with every other PRATIKSHYA FASHON storage key. */
 export const MEDIA_STORAGE_KEY = "pratikshya_media";
+/** One-time client migration: removes the retired demo register, not future uploads. */
+export const MEDIA_RESET_KEY = "pratikshya_media_reset_2026_08_17";
 
 /** Broadcast so every open surface re-reads after a write. */
 export const MEDIA_CHANGED_EVENT = "pratikshya-media-changed";
@@ -294,6 +296,13 @@ export const readMedia = () => {
     return memoryMedia;
   }
   try {
+    /* Existing installations can hold the old seeded/ingested demo register.
+       Remove it once as part of this explicit media reset; subsequent uploads
+       are retained normally because the marker is then present. */
+    if (!window.localStorage.getItem(MEDIA_RESET_KEY)) {
+      window.localStorage.removeItem(MEDIA_STORAGE_KEY);
+      window.localStorage.setItem(MEDIA_RESET_KEY, "complete");
+    }
     const stored = JSON.parse(window.localStorage.getItem(MEDIA_STORAGE_KEY));
     if (!Array.isArray(stored)) {
       const seededOnce = seeded();

@@ -20,9 +20,6 @@
  * display a catalogue product.
  */
 
-import { imageRef } from "../pratikshyaImageManifest";
-import { resolveLegacyMediaUrl } from "../../services/media/mediaPaths";
-import catalogue from "./catalogue";
 import catalogRepository, { productsRegisterRaw, slugify } from "../../services/catalogRepository";
 import {
   getCareInstructions,
@@ -55,28 +52,12 @@ const percentOff = (price, originalPrice) =>
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : null;
 
-/** True for addresses rather than manifest ids. */
-const isUrl = (value) =>
-  typeof value === "string" &&
-  (value.startsWith("http") || value.startsWith("/") || value.startsWith("data:"));
-
 /**
- * Imagery authored as a manifest id resolves through the manifest; a stored
- * address (an uploaded plate) is shaped into the same object so the gallery
- * and cards render either without caring which. Early rows that persisted a
- * whole plate object heal here too.
+ * Product media is intentionally not authored in catalogue fixtures. The
+ * media repository owns the real files and their product assignments; this
+ * shape is the stable contract before the first photo is uploaded.
  */
-const resolveImage = (value, name) => {
-  if (!value) return imageRef("hero-atelier");
-  if (typeof value === "object") {
-    return value.src ? value : imageRef(value.id ?? "hero-atelier");
-  }
-  if (isUrl(value)) {
-    const src = resolveLegacyMediaUrl(value) || value;
-    return { id: value, src, alt: name, category: "default" };
-  }
-  return imageRef(value);
-};
+const emptyImages = () => ({ primary: null, gallery: [], thumbnail: null });
 
 /**
  * The free-text haystack search matches against.
@@ -139,11 +120,9 @@ export const toStorefrontProduct = (product, index = 0) => {
 
   const discount = percentOff(product.price, product.originalPrice);
   const badges = product.badges ?? [];
-  /* Product-owned plates only. Authored hoverImage and category-wide
-     gallery pads are not owned by this product and must not appear here —
-     the canonical media set decides hover and gallery later. */
-  const galleryIds = [product.image, ...(product.additionalImages ?? [])].filter(Boolean);
-  const images = [...new Set(galleryIds)].map((entry) => resolveImage(entry, product.name));
+  /* Files are assigned through the canonical media repository, never from
+     catalogue data. Product UI resolves those assignments at render time. */
+  const images = emptyImages();
 
   const collection = product.collection ?? product.collections?.[0] ?? "";
   const productCollections = taxonomyRepository.collectionsForProduct(product);
@@ -173,9 +152,9 @@ export const toStorefrontProduct = (product, index = 0) => {
     discount,
     currency: "INR",
 
-    /* Imagery — manifest refs or stored addresses, never raw strings. */
-    image: resolveImage(product.image, product.name),
-    hoverImage: product.hoverImage ? resolveImage(product.hoverImage, product.name) : undefined,
+    /* Media contract — populated only by assigned product-media records. */
+    image: null,
+    hoverImage: undefined,
     images,
 
     /* Attributes and variants */
@@ -244,11 +223,6 @@ const withSearchText = (product) => ({
   searchText: normaliseSearchText((product.tags ?? []).join(" ")),
 });
 
-/** Every product in the authored catalogue, normalised. */
-const seededProducts = catalogue.map((product, index) =>
-  withSearchText(toStorefrontProduct(product, index))
-);
-
 /**
  * The shared admin register, when a browser session has saved one. Records
  * may be authored catalogue rows, Phase 11 minimal rows or Phase 13 complete
@@ -271,7 +245,7 @@ const isCustomerVisible = (record) => {
 let liveCache = null;
 
 export const getLiveStorefrontProducts = () => {
-  const fingerprint = productsRegisterRaw() ?? "seed";
+  const fingerprint = productsRegisterRaw() ?? "empty";
   if (liveCache && liveCache.fingerprint === fingerprint) return liveCache.list;
 
   let list = null;
@@ -290,9 +264,9 @@ export const getLiveStorefrontProducts = () => {
         });
     }
   } catch {
-    /* fallback to seeded */
+    /* An unavailable source renders the same controlled empty catalogue. */
   }
-  if (!list) list = seededProducts;
+  if (!list) list = [];
   liveCache = { fingerprint, list };
   return list;
 };

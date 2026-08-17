@@ -1,8 +1,8 @@
-# Application media library
+# Product media storage
 
-The single canonical commercial media root (Phases 21.4 / 21.6 / 21.11).
+This directory intentionally contains no seeded or demo photography.
 
-- Customer surfaces never read `public/images` or `public/media`.
-- Filenames follow the Phase 21.6 convention and are deterministic.
-- House fallback plates live here as `house-*.jpg`. They are not products.
-- Application code resolves addresses through `mediaResolver` / `productMediaSet` / `imageRef`.
+Product imagery is added through Media Management and assigned to a product.
+The canonical product shape is `images: { primary, gallery, thumbnail }`; all
+three values are empty until real product photography is supplied. Do not add
+stock, placeholder, or unassigned campaign artwork here.

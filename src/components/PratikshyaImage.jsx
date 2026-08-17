@@ -1,68 +1,60 @@
 import { useEffect, useMemo, useState } from "react";
-import { categoryFallbacks, getImage } from "../data/pratikshyaImageManifest";
 import { resolveLegacyMediaUrl } from "../services/media/mediaPaths";
 
-const resolveImage = (image, category) => {
-  if (typeof image === "string") {
-    const manifestImage = getImage(image);
-    return {
-      ...manifestImage,
-      fallback: manifestImage.fallback || categoryFallbacks[category || manifestImage.category || "default"],
-    };
-  }
-
-  const fallbackCategory = category || image.category || "default";
-  return {
-    ...image,
-    src: resolveLegacyMediaUrl(image.src) || categoryFallbacks[fallbackCategory] || categoryFallbacks.default,
-    fallback: resolveLegacyMediaUrl(image.fallback) || categoryFallbacks[fallbackCategory] || categoryFallbacks.default,
-  };
+/**
+ * Shared product-media renderer. It never invents or requests a fallback
+ * image: absent and failed media stays a quiet Atelier empty plate.
+ */
+const sourceOf = (image) => {
+  if (typeof image === "string") return resolveLegacyMediaUrl(image);
+  return resolveLegacyMediaUrl(image?.src || image?.url || "");
 };
 
-function SafeImage({ image, category, alt, className, loading = "lazy", fetchPriority = "auto", decoding = "async", sizes, srcSet, width, height, objectPosition }) {
-  const resolved = useMemo(() => resolveImage(image, category), [image, category]);
-  const [currentSrc, setCurrentSrc] = useState(resolved.src || categoryFallbacks.default);
+function EmptyMedia({ className, label = "Product media coming soon" }) {
+  return (
+    <div
+      role="img"
+      aria-label={label}
+      className={`flex h-full w-full items-center justify-center bg-[#eee9e1] text-center font-ui text-[9px] uppercase tracking-[0.22em] text-taupe/80 ${className}`}
+    >
+      <span className="border border-taupe/25 px-3 py-2">PRATIKSHYA FASHON</span>
+    </div>
+  );
+}
 
-  useEffect(() => {
-    setCurrentSrc(resolved.src || categoryFallbacks.default);
-  }, [resolved.src]);
+function SafeImage({ image, alt, className, loading = "lazy", fetchPriority = "auto", decoding = "async", sizes, srcSet, width, height, objectPosition }) {
+  const src = useMemo(() => sourceOf(image), [image]);
+  const [currentSrc, setCurrentSrc] = useState(src);
 
-  const handleError = () => {
-    const fallback = resolved.fallback || categoryFallbacks[resolved.category || "default"] || categoryFallbacks.default;
-    setCurrentSrc((current) => (current === fallback ? categoryFallbacks.default : fallback));
-  };
+  useEffect(() => setCurrentSrc(src), [src]);
+
+  if (!currentSrc) return <EmptyMedia className={className} label={alt || undefined} />;
 
   return (
     <img
       src={currentSrc}
-      alt={alt ?? resolved.alt ?? "PRATIKSHYA FASHON premium fashion imagery"}
+      alt={alt || image?.alt || "Product image"}
       className={className}
       loading={loading}
       decoding={decoding}
       fetchPriority={fetchPriority}
       sizes={sizes}
-      srcSet={srcSet || resolved.srcSet}
-      width={width || resolved.width}
-      height={height || resolved.height}
-      onError={handleError}
-      style={{ objectPosition: objectPosition || resolved.objectPosition || "center" }}
+      srcSet={srcSet || image?.srcSet}
+      width={width || image?.width}
+      height={height || image?.height}
+      onError={() => setCurrentSrc("")}
+      style={{ objectPosition: objectPosition || image?.objectPosition || "center" }}
     />
   );
 }
 
 export default function PratikshyaImage({ hoverImage, className = "", ...props }) {
-  if (!hoverImage) {
-    return <SafeImage {...props} className={className} />;
-  }
+  if (!hoverImage || !sourceOf(hoverImage)) return <SafeImage {...props} className={className} />;
 
   return (
     <span className={`relative block overflow-hidden ${className}`}>
       <SafeImage {...props} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 group-hover:opacity-0" />
-      <SafeImage
-        {...props}
-        image={hoverImage}
-        className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-      />
+      <SafeImage {...props} image={hoverImage} className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
     </span>
   );
 }
