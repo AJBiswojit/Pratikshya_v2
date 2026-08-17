@@ -100,11 +100,15 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
   const [busy, setBusy] = useState(null);
   const [returnReason, setReturnReason] = useState("");
   const [returnArmed, setReturnArmed] = useState(false);
+  /* Workflow command results render at the action bar itself — a blocked
+     approve/publish must be visible exactly where the reviewer clicked. */
+  const [actionNotice, setActionNotice] = useState(null);
 
   useEffect(() => {
     setReturnReason("");
     setReturnArmed(false);
     setBusy(null);
+    setActionNotice(null);
   }, [productId]);
 
   const state = useMemo(() => getProductWorkflowState(product), [product]);
@@ -123,26 +127,27 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
   const run = useCallback((key, action) => {
     if (busy) return;
     setBusy(key);
+    setActionNotice(null);
     setTimeout(() => {
       const result = action();
       setBusy(null);
       if (result?.ok) return;
-      onNotice?.({
+      setActionNotice({
         tone: "warn",
         text: `${product?.id ?? "Product"}: ${(result?.errors ?? [result?.error ?? "Action failed."]).join(" ")}`,
       });
     }, 0);
-  }, [busy, onNotice, product]);
+  }, [busy, product]);
 
   const approve = useCallback(() => run("approve", () => {
     const result = approveProduct(product.id, actor);
     if (result.ok && !result.alreadyApproved && !result.alreadyPublished) {
-      onNotice?.({ tone: "ok", text: `${product.id} approved — publish it when you are ready.` });
+      setActionNotice({ tone: "ok", text: `${product.id} approved — publish it when you are ready.` });
     } else if (result.ok) {
-      onNotice?.({ tone: "ok", text: `${product.id} is already approved.` });
+      setActionNotice({ tone: "ok", text: `${product.id} is already approved.` });
     }
     return result;
-  }), [run, product, actor, onNotice]);
+  }), [run, product, actor]);
 
   const doReturn = useCallback(() => {
     const reason = returnReason.trim();
@@ -152,44 +157,44 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
       if (result.ok) {
         setReturnReason("");
         setReturnArmed(false);
-        onNotice?.({ tone: "ok", text: `${product.id} returned for rework — the reason is recorded.` });
+        setActionNotice({ tone: "ok", text: `${product.id} returned for rework — the reason is recorded.` });
       }
       return result;
     });
-  }, [run, product, actor, returnReason, onNotice]);
+  }, [run, product, actor, returnReason]);
 
   const publish = useCallback(() => run("publish", () => {
     const result = publishProduct(product.id, actor);
     if (result.ok && !result.alreadyPublished) {
-      onNotice?.({ tone: "ok", text: `${product.id} published to the storefront.` });
+      setActionNotice({ tone: "ok", text: `${product.id} published to the storefront.` });
     } else if (result.ok) {
-      onNotice?.({ tone: "ok", text: `${product.id} is already published.` });
+      setActionNotice({ tone: "ok", text: `${product.id} is already published.` });
     }
     return result;
-  }), [run, product, actor, onNotice]);
+  }), [run, product, actor]);
 
   const submit = useCallback(() => run("submit", () => {
     const result = submitProductForReview(product.id, actor);
-    if (result.ok) onNotice?.({ tone: "ok", text: `${product.id} submitted for review.` });
+    if (result.ok) setActionNotice({ tone: "ok", text: `${product.id} submitted for review.` });
     return result;
-  }), [run, product, actor, onNotice]);
+  }), [run, product, actor]);
 
   const archive = useCallback(() => run("archive", () => {
     const result = archiveProduct(product.id, actor);
-    if (result.ok && !result.alreadyArchived) onNotice?.({ tone: "ok", text: `${product.id} archived.` });
+    if (result.ok && !result.alreadyArchived) setActionNotice({ tone: "ok", text: `${product.id} archived.` });
     return result;
-  }), [run, product, actor, onNotice]);
+  }), [run, product, actor]);
 
   const assign = useCallback((employeeId) => run("assign", () => {
     const result = assignProductToEmployee(product.id, employeeId || null, actor);
     if (result.ok) {
-      onNotice?.({
+      setActionNotice({
         tone: "ok",
         text: employeeId ? `${product.id} assigned to ${employeeId}.` : `${product.id} unassigned.`,
       });
     }
     return result;
-  }), [run, product, actor, onNotice]);
+  }), [run, product, actor]);
 
   if (!product) {
     return <p className="py-8 text-center font-ui text-sm text-taupe">Product not found in the register.</p>;
@@ -261,6 +266,15 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
             <p className="font-ui text-[11px] text-taupe">No lifecycle action is available at the {state.label} stage.</p>
           ) : null}
         </div>
+        {actionNotice ? (
+          <p
+            role="status"
+            aria-live="polite"
+            className={`mt-3 border px-3 py-2 font-ui text-[11px] leading-relaxed ${actionNotice.tone === "warn" ? "border-accent/60 bg-accent/5 text-accent" : "border-mist bg-ivory/60 text-ink"}`}
+          >
+            {actionNotice.text}
+          </p>
+        ) : null}
         <p className="mt-2 font-ui text-[10px] text-taupe">
           Approve ≠ Publish — approval records the Admin decision only; publishing is a separate
           canonical command that re-runs the full validation.
