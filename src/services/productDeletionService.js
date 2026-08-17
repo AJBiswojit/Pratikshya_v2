@@ -15,13 +15,12 @@
  *   · no inventory records or stock movements reference it
  *   · no customer reviews stand against it
  *   · no business lifecycle history (submit/approve/publish/archive)
- *   · it is not one of the confirmed Kids identities (KID-001…KID-021)
  *   · the caller re-types the Product ID as an explicit confirmation
  *
  * Media is never physically deleted by deleting a product. Owned media
  * records are detached back to the UNASSIGNED library so the photographs
  * remain available and no other product can silently inherit them.
- * Marketing media and confirmed Kids plates are never touched.
+ * Marketing media is never touched.
  *
  * Everything else — publishing, archiving, restoring — stays with the
  * canonical workflow command service. This module adds no second
@@ -33,7 +32,6 @@ import catalogRepository, { PRODUCT_STATUS } from "./catalogRepository.js";
 import mediaRepository from "./media/mediaRepository.js";
 import { unassignMediaFromProduct } from "./media/mediaOwnershipService.js";
 import { MEDIA_SCOPES } from "../config/mediaTypes.js";
-import { isConfirmedKidsProductId } from "./kidsProductIdentity.js";
 import { resolvePrincipal } from "./workflow/productWorkflowCommands.js";
 import { ORDERS_STORAGE_KEY } from "./orders/orderService.js";
 import { INVENTORY_STORAGE_KEYS } from "./inventory/inventoryRepository.js";
@@ -153,7 +151,6 @@ export const getProductDependencies = (productId) => {
     inventoryMovements: inventory.movements.length,
     reviews: Number(product.reviewCount ?? 0),
     lifecycleEvents: activity.length,
-    confirmedKids: isConfirmedKidsProductId(product.id),
     ownedMedia: ownedMedia.map((media) => ({
       id: media.id,
       fileName:
@@ -201,9 +198,6 @@ export const getProductLifecycleOptions = (productId) => {
     blockers.push(
       `${deps.lifecycleEvents} workflow/business event(s) are recorded for this product — archive only.`
     );
-  }
-  if (deps.confirmedKids) {
-    blockers.push("This is a confirmed Kids identity (KID-001…KID-021) — it is never deleted.");
   }
 
   return {

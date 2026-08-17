@@ -19,6 +19,7 @@ import catalogRepository, { getPublishIssues } from "../../services/catalogRepos
 import inventoryRepository from "../../services/inventory/inventoryRepository";
 import { computePricing } from "../../utils/pricing";
 import { PRODUCT_STATUSES, REVIEW_STATES } from "../../config/productCatalogConfig";
+import { departmentForProduct } from "../../data/products/departments";
 import { SectionBasics, SectionAttributes } from "./editorSectionsBasics";
 import { SectionPricing, SectionVariants } from "./editorSectionsCommerce";
 import { SectionContent, SectionMedia, SectionSeo, SectionPublishing } from "./editorSectionsContent";
@@ -31,6 +32,7 @@ import { cn } from "../../utils/cn";
 const emptyDraft = () => ({
   id: null,
   exists: false,
+  department: "",
   name: "",
   sku: "",
   brand: "Pratikshya Fashon",
@@ -95,6 +97,7 @@ const draftFromProduct = (product) => ({
   ...product,
   exists: true,
   id: product.id,
+  department: departmentForProduct(product) || "",
   image: product.image?.src || product.image || "",
   pricing: {
     mrp: product.pricing?.mrp ?? product.originalPrice ?? product.price ?? "",

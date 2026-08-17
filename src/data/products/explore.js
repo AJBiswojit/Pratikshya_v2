@@ -15,7 +15,6 @@ import { getLiveStorefrontProducts } from "./index";
 import { queryCatalogue } from "./query";
 import { getProductCardMedia, getProductMediaSet } from "../../services/media/productMediaSet";
 import offerRepository from "../../services/offers/offerRepository";
-import { KIDS_PRODUCT_IDS } from "../../services/kidsProductIdentity";
 
 /** Products revealed by one press of Load More on Explore. */
 export const EXPLORE_PAGE_SIZE = 20;
@@ -134,9 +133,9 @@ export const buildExploreStream = (products = []) => {
 
 export const getExploreOffers = () => offerRepository.listCustomerVisible().slice(0, 4);
 
-/** Kids drafts (KID-001…KID-021) must stay out of Explore until published. */
-export const unpublishedKidsIds = () =>
-  KIDS_PRODUCT_IDS.filter((id) => !getExploreProductIds().includes(id));
+/** Kids products stay out of Explore until published — handled by the generic
+    storefront filter (DRAFT / PENDING_REVIEW records are never visible). */
+export const unpublishedKidsIds = () => [];
 
 export const inspectExploreMedia = (product) => {
   const set = getProductMediaSet(product);

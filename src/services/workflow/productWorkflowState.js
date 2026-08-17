@@ -110,7 +110,7 @@ export const employeeReviewStartedAtOf = (product) =>
  * @param {object|null} product a normalized product record (compat shape)
  * @returns {object} {
  *   stage, label, presentation, returned, rejectionReason,
- *   editable, assignee, pendingStatus, reviewState, isKids
+ *   editable, assignee, pendingStatus, reviewState
  * }
  */
 export const getProductWorkflowState = (product) => {
@@ -125,7 +125,6 @@ export const getProductWorkflowState = (product) => {
       assignee: null,
       pendingStatus: false,
       reviewState: null,
-      isKids: false,
     };
   }
 
@@ -133,14 +132,12 @@ export const getProductWorkflowState = (product) => {
   const reviewState = String(product.review?.state ?? "NONE").toUpperCase();
   const assignee = product.assignedEmployeeId ?? null;
   const rejectionReason = product.review?.rejectionReason ?? null;
-  const isKids = /^KID-\d{3}$/.test(String(product.id ?? "")) || product.category === "kidswear";
 
   const base = {
     pendingStatus: isPendingStatus(status),
     reviewState,
     assignee,
     rejectionReason,
-    isKids,
     label: null,
     stage: null,
     presentation: null,

@@ -8,8 +8,7 @@
  *   1. authenticate the actor (admin principal — register lookup)
  *   2. authorize the operation (Super Admin for ownership changes)
  *   3. validate source and target products
- *   4. apply identity locks (confirmed Kids plates KID-001…KID-021)
- *   5. enforce marketing ↔ product scope isolation
+ *   4. enforce marketing ↔ product scope isolation
  *   6. require an explicit transfer confirmation for contested reassignment
  *   7. update ownership (one owner per asset)
  *   8. clean stale previous-owner authored claims
@@ -32,7 +31,6 @@ import {
   PRODUCT_MEDIA_ROLES,
   isVideo,
 } from "../../config/mediaTypes.js";
-import { isConfirmedKidsProductId, kidsProductIdForFile, kidsMediaFileForProductId } from "../kidsProductIdentity.js";
 import { checkCategoryMediaSafety, isMarketingFileName } from "./mediaCategorySafety.js";
 import { getProductMediaSet } from "./productMediaSet.js";
 import { validateProductForPublish } from "../workflow/productPublishValidator.js";
@@ -157,29 +155,6 @@ const validateOwnershipChange = ({ media, targetProductId, product, confirm, op 
     }
   }
 
-  /* Confirmed Kids plate lock — kids-002.webp may never become KID-001's
-     media, and a KID product can only own its own plate. */
-  const confirmedOwner = kidsProductIdForFile(fileNameOf(media));
-  if (
-    confirmedOwner &&
-    String(targetProductId ?? "").toUpperCase() !== confirmedOwner
-  ) {
-    return {
-      ok: false,
-      error: `${fileNameOf(media)} is the confirmed media of ${confirmedOwner} — it cannot be transferred to ${targetProductId}.`,
-      confirmedOwnerProductId: confirmedOwner,
-    };
-  }
-  if (targetProductId && isConfirmedKidsProductId(targetProductId)) {
-    const expected = kidsMediaFileForProductId(targetProductId);
-    if (expected && fileNameOf(media) !== expected) {
-      return {
-        ok: false,
-        error: `${targetProductId} may only own its confirmed plate ${expected}, not ${fileNameOf(media)}.`,
-      };
-    }
-  }
-
   /* Contested reassignment requires explicit confirmation. */
   if (
     op === "transfer" &&
@@ -203,8 +178,8 @@ const validateOwnershipChange = ({ media, targetProductId, product, confirm, op 
 
 /**
  * Phase 3C — READ-ONLY preflight for a transfer. Runs exactly the same
- * ownership rules the transfer command runs (Kids plate lock, marketing
- * isolation, contested confirmation) but writes nothing, so a caller that
+ * ownership rules the transfer command runs (marketing isolation,
+ * contested confirmation) but writes nothing, so a caller that
  * must move several assets atomically — e.g. a Product ID rename — can
  * refuse the whole operation before any part of it persists.
  *
@@ -326,7 +301,7 @@ export const transferMediaOwnership = ({
 
 /**
  * Initial mapping: attaches UNASSIGNED media to a product. Admin-only.
- * Refuses marketing media and confirmed Kids cross-plate assignments.
+ * Refuses marketing media assignments.
  */
 export const assignMediaToProduct = ({
   mediaId,

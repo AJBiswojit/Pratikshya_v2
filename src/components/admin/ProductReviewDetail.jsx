@@ -36,23 +36,8 @@ import {
   isEditableStage,
   isApprovableStage,
 } from "../../services/workflow/productWorkflowState";
-import { isKidsProduct } from "../../services/workflow/kidsValidator";
-import {
-  KIDS_CHECKLIST_ITEMS,
-  getKidsFinalizationRows,
-  getKidsPublishBlockers,
-  kidsHoverState,
-  kidsInventoryValid,
-  kidsMediaOwnershipIssues,
-} from "../../services/kidsProductFinalization";
-import { kidsSubcategoryValid } from "../../services/workflow/kidsValidator";
-import {
-  isConfirmedKidsProductId,
-  kidsMediaFileForProductId,
-  kidsFileNameOf,
-  kidsNameLooksForeign,
-  kidsSubcategoryLooksForeign,
-} from "../../services/kidsProductIdentity";
+import { getUnifiedReviewRow } from "../../services/unifiedProductReview";
+import { kidsFileNameOf } from "../../services/kidsProductIdentity";
 import {
   approveProduct,
   archiveProduct,
@@ -85,7 +70,6 @@ const FLAG_FIX_HINTS = {
   NEEDS_MEDIA: "Assign media in Media Management — ownership moves through the media ownership service.",
   MEDIA_OWNERSHIP_REVIEW: "Resolve ownership in Media Management — ownership moves through the media ownership service.",
   CONFLICT_UNRESOLVED: "Resolve the media conflict explicitly in the editing desk below.",
-  KIDS_MIGRATION_REVIEW: "Confirm the Kids details in the Kids validation section below.",
 };
 
 const DEFAULT_FLAG_WHY = "A human must resolve this flag before publishing — it blocks the canonical publish validation.";
@@ -127,16 +111,6 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
   const validation = useMemo(() => (product ? validateProductForPublish(product) : null), [product]);
   const mediaSet = useMemo(() => (product ? getProductMediaSet(product) : null), [product]);
   const pricing = useMemo(() => computePricing(product?.pricing), [product]);
-  const isKids = Boolean(product && isKidsProduct(product));
-
-  /* Kids facts — read-only projections from the retained Kids services. */
-  const kidsRow = useMemo(() => {
-    if (!isKids) return null;
-    return getKidsFinalizationRows().find((row) => row.productId === product.id) ?? null;
-  }, [isKids, product]);
-  const kidsBlockers = useMemo(() => (isKids ? getKidsPublishBlockers(product) : []), [isKids, product]);
-  const kidsOwnershipIssues = useMemo(() => (isKids ? kidsMediaOwnershipIssues(product) : []), [isKids, product]);
-  const kidsHover = useMemo(() => (isKids ? kidsHoverState(product) : null), [isKids, product]);
 
   const blockingIssues = validation?.blocking ?? [];
   const flagIssues = useMemo(
@@ -229,9 +203,7 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
   const canArchive = stage !== WORKFLOW_STAGES.PUBLISHED && stage !== WORKFLOW_STAGES.ARCHIVED;
   const employees = eligibleEmployees();
 
-  const expectedPlate = kidsMediaFileForProductId(product.id);
   const primaryFile = mediaSet?.primary ? kidsFileNameOf(mediaSet.primary) : null;
-  const confirmedKids = isConfirmedKidsProductId(product.id);
 
   return (
     <div className="space-y-4">
@@ -249,7 +221,6 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge label={state.label ?? state.stage ?? "Unknown"} tone={statusTone[product.status] ?? "quiet"} />
-          {isKids ? <StatusBadge label="Kids" tone="ink" /> : null}
           {state.returned ? <StatusBadge label="Returned" tone="danger" /> : null}
           <Link to={`/admin/products/${product.id}`} className="font-ui text-[11px] text-accent underline-offset-2 hover:underline">
             Open full record →
@@ -348,7 +319,6 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
               <p className="font-ui text-[11px] text-taupe">
                 Gallery: {mediaSet?.gallery?.length ?? 0} asset{(mediaSet?.gallery?.length ?? 0) === 1 ? "" : "s"}
                 {mediaSet?.hover ? ` · hover: ${kidsFileNameOf(mediaSet.hover) || mediaSet.hover.src}` : ""}
-                {isKids && kidsHover ? ` · hover ${kidsHover.changesOnHover ? `changes to ${kidsHover.hoverFile}` : "does not change (single image)"}` : ""}
               </p>
               {mediaSet?.gallery?.length ? (
                 <ul className="flex flex-wrap gap-1.5">
@@ -467,103 +437,6 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
           </div>
         )}
       </Section>
-
-      {/* KIDS VALIDATION — conditional category section ---------------- */}
-      {isKids ? (
-        <Section title="Kids validation" eyebrow="Category rules · applies because this product is Kids">
-          <div className="space-y-3">
-            <p className="flex flex-wrap items-center gap-2 border border-mist bg-ivory/60 px-3 py-2 font-ui text-[11px] text-ink/80">
-              <ShieldCheck size={13} className="text-accent" aria-hidden="true" />
-              Kids is a category-specific validation layer inside the universal workflow — the same
-              approve / return / publish commands apply. Nothing here is a separate Kids lifecycle.
-            </p>
-
-            <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div>
-                <dt className={labelClass}>Identity confirmation</dt>
-                <dd>{kidsRow?.identityConfirmed ? <StatusBadge label="Separate product · confirmed" tone="ink" /> : <StatusBadge label="Identity unconfirmed" tone="alert" />}</dd>
-              </div>
-              <div>
-                <dt className={labelClass}>21-plate lock</dt>
-                <dd>{confirmedKids && kidsRow?.identityConfirmed ? <StatusBadge label="Locked — can never be merged" tone="ink" /> : confirmedKids ? <StatusBadge label="Confirmed plate · decision pending" tone="alert" /> : <StatusBadge label="Not a confirmed legacy plate" tone="quiet" />}</dd>
-              </div>
-              <div>
-                <dt className={labelClass}>Assigned Kids plate</dt>
-                <dd className="font-ui text-[12px] text-ink/80">{expectedPlate ?? "No legacy plate expected"}</dd>
-              </div>
-              <div>
-                <dt className={labelClass}>Media ownership</dt>
-                <dd className="font-ui text-[12px] text-ink/80">
-                  {kidsOwnershipIssues.length
-                    ? `${kidsOwnershipIssues.length} issue${kidsOwnershipIssues.length === 1 ? "" : "s"}`
-                    : mediaSet?.primary
-                      ? `${product.id} owns ${primaryFile ?? "its plate"}`
-                      : "no media"}
-                </dd>
-              </div>
-              <div>
-                <dt className={labelClass}>Subcategory</dt>
-                <dd className="font-ui text-[12px] text-ink/80">{kidsSubcategoryValid(product) ? `Valid — ${product.subcategory}` : "Review required"}</dd>
-              </div>
-              <div>
-                <dt className={labelClass}>Inventory requirement</dt>
-                <dd className="font-ui text-[12px] text-ink/80">{kidsInventoryValid(product) ? `Satisfied — stock ${Number(product.stock ?? 0)}${product.availability === "made-to-order" ? " (made-to-order)" : ""}` : "Stock quantity or made-to-order required"}</dd>
-              </div>
-            </dl>
-
-            {kidsNameLooksForeign(product.name) || kidsSubcategoryLooksForeign(product.subcategory) ? (
-              <div className="border border-accent/40 bg-accent/5 px-3 py-2">
-                <p className="font-ui text-[10px] uppercase tracking-[.16em] text-accent">Foreign metadata warnings</p>
-                <ul className="mt-1 list-disc pl-4 font-ui text-[11px] text-ink/80">
-                  {kidsNameLooksForeign(product.name) ? <li>The name reads like another department's product, not a Kids product.</li> : null}
-                  {kidsSubcategoryLooksForeign(product.subcategory) ? <li>The subcategory belongs to another department's taxonomy.</li> : null}
-                </ul>
-              </div>
-            ) : null}
-
-            {conflicts.length || kidsOwnershipIssues.length ? (
-              <div className="border border-accent/40 bg-accent/5 px-3 py-2">
-                <p className="font-ui text-[10px] uppercase tracking-[.16em] text-accent">Merge &amp; ownership warnings</p>
-                <ul className="mt-1 list-disc pl-4 font-ui text-[11px] text-ink/80">
-                  {conflicts.map((conflict) => (
-                    <li key={`${conflict.mediaId ?? conflict.file}-conflict`}>
-                      {conflict.file ?? conflict.mediaId} is already assigned{conflict.ownerProductId ? ` to ${conflict.ownerProductId}` : ""} — resolve explicitly in the editing desk; nothing is transferred silently.
-                    </li>
-                  ))}
-                  {kidsOwnershipIssues.map((issue) => (
-                    <li key={`${issue.kind ?? "issue"}-${issue.file ?? issue.message}`}>{issue.message}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-
-            {kidsRow ? (
-              <div>
-                <p className={labelClass}>Finalization checklist · {kidsRow.checklist.doneCount}/{kidsRow.checklist.total}</p>
-                <ul className="flex flex-wrap gap-1.5">
-                  {KIDS_CHECKLIST_ITEMS.map((item) => {
-                    const entry = kidsRow.checklist.items.find((candidate) => candidate.id === item.id);
-                    return (
-                      <li key={item.id} title={entry?.reason ?? item.label} className={`border px-2 py-1 font-ui text-[10px] uppercase tracking-[.1em] ${entry?.done ? "border-ink/40 bg-ink text-ivory" : "border-mist bg-canvas text-taupe"}`}>
-                        {item.label} {entry?.done ? "✓" : ""}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ) : null}
-
-            {kidsBlockers.length && product.status !== "PUBLISHED" ? (
-              <div>
-                <p className={labelClass}>Kids publish blockers</p>
-                <ul className="list-disc pl-4 font-ui text-[11px] text-accent">
-                  {kidsBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-        </Section>
-      ) : null}
 
       {/* EDITING DESK — conditional, canonical edit surface ------------- */}
       {isEditableStage(stage) ? (

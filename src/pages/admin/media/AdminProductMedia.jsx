@@ -271,9 +271,9 @@ export default function AdminProductMedia() {
           </ul>
         ) : (
           <div className="border border-mist/80 bg-surface/30 px-5 py-14 text-center">
-            <p className="font-ui text-sm text-taupe">
-              No media has been added for this product yet. It still shows its catalogue plates on
-              the storefront.
+            <p className="font-display text-lg font-light text-ink">No product media yet</p>
+            <p className="mt-2 font-ui text-sm text-taupe">
+              Product media will appear here once media is uploaded and assigned to this product.
             </p>
           </div>
         )}

@@ -464,7 +464,22 @@ export default function AdminProducts() {
         </div>
 
         {!filtered.length ? (
-          <p className="py-12 text-center font-ui text-sm text-taupe">No products match your current filters.</p>
+          items.length === 0 ? (
+            <div className="py-16 text-center">
+              <p className="font-display text-2xl font-light text-ink">No products yet</p>
+              <p className="mt-2 font-ui text-sm text-taupe">
+                Start building the PRATIKSHYA FASHON catalog by adding your first product.
+              </p>
+              <Link
+                to="/admin/products/new"
+                className="mt-5 inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2.5 font-ui text-[10px] uppercase tracking-[.14em] text-ivory transition-colors hover:bg-ink/90"
+              >
+                <Plus size={13} aria-hidden="true" /> Create product
+              </Link>
+            </div>
+          ) : (
+            <p className="py-12 text-center font-ui text-sm text-taupe">No products match your current filters.</p>
+          )
         ) : null}
       </AdminPanel>
     </AdminPage>

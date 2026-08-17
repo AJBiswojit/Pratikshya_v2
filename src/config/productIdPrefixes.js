@@ -1,18 +1,55 @@
 /**
- * PRATIKSHYA FASHON — Stable Product ID prefixes (Phase 22, Phase 23).
+ * PRATIKSHYA FASHON — Stable Product ID convention.
  *
- * The permanent, category-based Product ID prefixes. A new draft product
- * created from media receives an id like `KID-007`, `SAR-001`, `MEN-001` —
- * never a random id, never an array index. The id is persisted in the
- * product register and is never derived from the editable product name.
+ * The permanent, department-aware Product ID convention:
  *
- * This is a LEAF module on purpose: the catalogue repository and the
- * catalogue reconciliation service both import it, and neither may pull in
- * the taxonomy repository transitively without creating an import cycle.
- * The richer `productCatalogConfig` re-exports these values for the editor
- * and workflow layers.
+ *     PF-{DEPT}-{CAT}-{SUB}-{NNNN}
+ *
+ * Examples:
+ *     PF-W-SAR-PATO-0001    Women → Sarees → Pato Sarees
+ *     PF-W-LEH-BRI-0001     Women → Lehengas → Bridal Lehengas
+ *     PF-BR-COUT-BSR-0001   Bridal → Bridal Couture → Bridal Sarees
+ *     PF-M-ETH-KUR-0001     Men → Ethnic Wear → Kurta
+ *     PF-M-GRM-SHW-0001     Men → Groom → Sherwani
+ *     PF-K-GRL-GDR-0001     Kids → Girls → Dresses
+ *     PF-K-BYS-BTS-0001     Kids → Boys → T-Shirt & Shorts
+ *
+ * Legacy prefixes (KID, MEN, SAR, etc.) are still recognised on read for
+ * backward compatibility but are no longer generated for new records.
+ *
+ * This is a LEAF module: no imports from the taxonomy repository or the
+ * catalogue repository.
  */
 
+/**
+ * Department codes used in the product ID.
+ */
+export const PRODUCT_ID_DEPT_CODES = {
+  women: "W",
+  bridal: "BR",
+  men: "M",
+  kids: "K",
+};
+
+/**
+ * Category codes used in the product ID.
+ */
+export const PRODUCT_ID_CATEGORY_CODES = {
+  sarees: "SAR",
+  lehengas: "LEH",
+  "bridal-couture": "COUT",
+  "kurtis-and-suits": "KUR",
+  innerwear: "INN",
+  dupattas: "DUP",
+  bangles: "BAN",
+  jewellery: "JEW",
+  menswear: "ETH",
+  kidswear: "KID",
+};
+
+/**
+ * Legacy prefixes — still recognised on read, never generated for new products.
+ */
 export const PRODUCT_ID_PREFIXES = {
   kidswear: "KID",
   menswear: "MEN",
@@ -27,5 +64,28 @@ export const PRODUCT_ID_PREFIXES = {
 };
 
 export const DEFAULT_PRODUCT_ID_PREFIX = "PRD";
+
+/**
+ * Build a product ID prefix from department, category and subcategory.
+ * Returns the string portion before the serial number.
+ *
+ * e.g. buildProductIdPrefix("women", "sarees", "Pato Saree")
+ *   → "PF-W-SAR-PATO"
+ */
+export const buildProductIdPrefix = (department, category, subcategory) => {
+  const deptCode = PRODUCT_ID_DEPT_CODES[department] || "X";
+  const catCode = PRODUCT_ID_CATEGORY_CODES[category] || "GEN";
+  if (subcategory) {
+    /* Use first 3-4 chars of subcategory, uppercased, no spaces/specials */
+    const subCode = String(subcategory)
+      .replace(/[^a-zA-Z0-9 ]/g, "")
+      .split(/\s+/)
+      .map((w) => w.charAt(0).toUpperCase())
+      .join("")
+      .slice(0, 4);
+    return `PF-${deptCode}-${catCode}-${subCode || "GEN"}`;
+  }
+  return `PF-${deptCode}-${catCode}`;
+};
 
 export default { PRODUCT_ID_PREFIXES, DEFAULT_PRODUCT_ID_PREFIX };

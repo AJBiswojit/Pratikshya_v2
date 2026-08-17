@@ -509,7 +509,7 @@ export default function AdminMediaLibrary() {
               <p className="font-ui text-sm text-taupe">
                 {media.length
                   ? "No media matches these filters."
-                  : "The register is empty. Click '+ Upload Media' to begin."}
+                  : "No product media yet. Product media will appear here once products are added."}
               </p>
             </div>
           )}

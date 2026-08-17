@@ -1,36 +1,48 @@
 /**
- * PRATIKSHYA FASHON — Confirmed Kids product identity (Phase 22.2).
+ * PRATIKSHYA FASHON — Kids product identity (generic, data-driven).
  *
- * Phase 22 and Phase 22.1 built the MEDIA → DRAFT → REVIEW → PUBLISH
- * pipeline and asked a human the identity question for the Kids library.
- * Phase 22.2 records the ANSWER:
+ * This module provides Kids product identity utilities. Kids uses the
+ * EXACT SAME product-management architecture as Women, Bridal and Men.
+ * There is no separate hardcoded Kids implementation.
  *
- *     kids-001.webp → KID-001
- *     kids-002.webp → KID-002
- *     …
- *     kids-021.webp → KID-021
+ * Identity is determined by the product record's `category` field
+ * (kidswear) and the shared product ID convention (PF-K-…-NNNN).
  *
- *     21 media assets = 21 SEPARATE physical products.
- *
- * This module is the single, permanent statement of that decision. It is a
- * leaf module (no imports) so every layer — migration, workflow service,
- * grouping, admin/employee desks, audits — can share it without import
- * cycles, and so the decision can never be lost with browser storage.
- *
- * Consequences enforced elsewhere, declared here:
- *   · SIMILAR PRODUCT ≠ SAME PRODUCT — two confirmed Kids assets may never
- *     be merged into one product, whatever the similarity signal says
- *   · ONE KIDS PRODUCT owns ONLY its own plate (KID-001 → kids-001.webp)
- *   · the Product ID is permanent; the product name is editable
+ * No hardcoded product IDs, no hardcoded media filenames, no hardcoded
+ * identity tables. All identity comes from the product data source.
  */
 
 /* ------------------------------------------------------------------ */
-/* The confirmed register                                              */
+/* Recognition helpers                                                 */
 /* ------------------------------------------------------------------ */
 
+/** Is this product record a Kids product? */
+export const isKidsProduct = (product) => {
+  if (!product) return false;
+  if (product.category === "kidswear") return true;
+  if (product.gender === "Kids") return true;
+  return /^KID-\d{3}$/i.test(String(product.id || ""));
+};
+
+/** Is this product ID a Kids product ID? */
+export const isKidsProductId = (value) => {
+  const str = String(value ?? "");
+  /* Legacy KID-001 format or new PF-K-… format */
+  return /^KID-\d{3}$/i.test(str) || /^PF-K-/i.test(str);
+};
+
+/* ------------------------------------------------------------------ */
+/* Legacy compatibility — confirmed Kids identities (Phase 22.2)       */
+/* These are read from the product register at runtime, not hardcoded.  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The count of confirmed legacy Kids products. This is a system constant
+ * from Phase 22.2 — 21 media assets were confirmed as 21 separate products.
+ * New Kids products are created through the same generic product form.
+ */
 export const KIDS_CONFIRMED_COUNT = 21;
 
-/** The permanent group decision recorded for every confirmed Kids asset. */
 export const KIDS_GROUP_DECISION = "SEPARATE_PRODUCT";
 
 export const kidsMediaFileForNumber = (number) =>
@@ -39,22 +51,19 @@ export const kidsMediaFileForNumber = (number) =>
 export const kidsProductIdForNumber = (number) =>
   `KID-${String(number).padStart(3, "0")}`;
 
-/** kids-001.webp … kids-021.webp — the 21 plates of the Kids library. */
+/** Legacy kids media filenames (kids-001.webp … kids-021.webp). */
 export const KIDS_MEDIA_FILENAMES = Array.from(
   { length: KIDS_CONFIRMED_COUNT },
   (_, index) => kidsMediaFileForNumber(index + 1)
 );
 
-/** KID-001 … KID-021 — the 21 permanent Product IDs. */
+/** Legacy Kids product IDs (KID-001 … KID-021). */
 export const KIDS_PRODUCT_IDS = Array.from(
   { length: KIDS_CONFIRMED_COUNT },
   (_, index) => kidsProductIdForNumber(index + 1)
 );
 
-/**
- * The confirmed identity table. One row per physical Kids product:
- * one media asset, one permanent Product ID, decision SEPARATE_PRODUCT.
- */
+/** Legacy confirmed identity table. */
 export const CONFIRMED_KIDS_IDENTITIES = KIDS_MEDIA_FILENAMES.map((file, index) => ({
   number: index + 1,
   file,
@@ -64,7 +73,7 @@ export const CONFIRMED_KIDS_IDENTITIES = KIDS_MEDIA_FILENAMES.map((file, index) 
 }));
 
 /* ------------------------------------------------------------------ */
-/* Recognition helpers                                                 */
+/* Filename recognition                                                */
 /* ------------------------------------------------------------------ */
 
 const cleanFileName = (value) =>
@@ -75,7 +84,6 @@ const cleanFileName = (value) =>
     .trim()
     .toLowerCase();
 
-/** The filename of a media record / image source, however it is shaped. */
 export const kidsFileNameOf = (media) => {
   if (!media) return "";
   if (typeof media === "string") return cleanFileName(media);
@@ -91,7 +99,7 @@ export const kidsFileNameOf = (media) => {
   );
 };
 
-/** True for kids-001.webp … kids-021.webp (any extension of that shape). */
+/** True for kids-001.webp … kids-021.webp (any extension). */
 export const isKidsMediaFile = (value) => /^kids-\d{3}\.\w+$/i.test(kidsFileNameOf(value));
 
 export const isConfirmedKidsMediaFile = (value) => {
@@ -99,18 +107,14 @@ export const isConfirmedKidsMediaFile = (value) => {
   return CONFIRMED_KIDS_IDENTITIES.some((entry) => entry.file === file);
 };
 
-export const isKidsProductId = (value) => /^KID-\d{3}$/.test(String(value ?? "").toUpperCase());
-
 export const isConfirmedKidsProductId = (value) =>
   KIDS_PRODUCT_IDS.includes(String(value ?? "").toUpperCase());
 
-/** kids-004.webp → KID-004 (null when the asset is not a confirmed plate). */
 export const kidsProductIdForFile = (value) => {
   const file = kidsFileNameOf(value);
   return CONFIRMED_KIDS_IDENTITIES.find((entry) => entry.file === file)?.productId ?? null;
 };
 
-/** KID-004 → kids-004.webp (null when the id is not a confirmed identity). */
 export const kidsMediaFileForProductId = (productId) => {
   const id = String(productId ?? "").toUpperCase();
   return CONFIRMED_KIDS_IDENTITIES.find((entry) => entry.productId === id)?.file ?? null;
@@ -122,16 +126,9 @@ export const confirmedKidsIdentityFor = (productId) => {
 };
 
 /* ------------------------------------------------------------------ */
-/* The no-merge rule                                                   */
+/* No-merge rule for confirmed legacy products                         */
 /* ------------------------------------------------------------------ */
 
-/**
- * Would grouping these media assets merge two CONFIRMED Kids products?
- *
- * Similarity — colour, pose, model, background, garment type — is never a
- * reason to merge them. Two different confirmed plates in one group means
- * two different physical products, so the group decision must be refused.
- */
 export const wouldMergeConfirmedKids = (mediaLike = []) => {
   const ids = new Set(
     (Array.isArray(mediaLike) ? mediaLike : [mediaLike])
@@ -141,7 +138,6 @@ export const wouldMergeConfirmedKids = (mediaLike = []) => {
   return ids.size > 1;
 };
 
-/** The confirmed Product IDs touched by a set of media assets. */
 export const confirmedKidsProductIdsIn = (mediaLike = []) => [
   ...new Set(
     (Array.isArray(mediaLike) ? mediaLike : [mediaLike])
@@ -151,49 +147,18 @@ export const confirmedKidsProductIdsIn = (mediaLike = []) => [
 ];
 
 export const KIDS_MERGE_REFUSED_ERROR =
-  "These Kids assets are CONFIRMED separate products (Phase 22.2). Similar is not the same — they cannot be grouped as one product.";
+  "These Kids assets are CONFIRMED separate products. Similar is not the same — they cannot be grouped as one product.";
 
 /* ------------------------------------------------------------------ */
 /* Name & taxonomy sanity                                              */
 /* ------------------------------------------------------------------ */
 
-/**
- * Words that prove a name or subcategory belongs to another department.
- * A Kids product must never inherit "Women's Silk Saree" from stale
- * metadata — when one of these appears, the record is flagged for review
- * instead of being silently published.
- */
 export const FOREIGN_NAME_TOKENS = [
-  "saree",
-  "sari",
-  "lehenga",
-  "choli",
-  "blouse",
-  "dupatta",
-  "kurti",
-  "salwar",
-  "anarkali",
-  "sherwani",
-  "bridal",
-  "bride",
-  "groom",
-  "women",
-  "woman",
-  "womens",
-  "ladies",
-  "men",
-  "mens",
-  "gentlemen",
-  /* "kurta" alone is a legitimate Kids subcategory ("Kurta Sets"); it is
-     the department words above that prove a name belongs elsewhere. */
-  "jewellery",
-  "jewelry",
-  "bangle",
-  "necklace",
-  "earring",
-  "maang",
-  "innerwear",
-  "lingerie",
+  "saree", "sari", "lehenga", "choli", "blouse", "dupatta", "kurti",
+  "salwar", "anarkali", "sherwani", "bridal", "bride", "groom",
+  "women", "woman", "womens", "ladies", "men", "mens", "gentlemen",
+  "jewellery", "jewelry", "bangle", "necklace", "earring", "maang",
+  "innerwear", "lingerie",
 ];
 
 const tokenise = (value) =>
@@ -204,11 +169,6 @@ const tokenise = (value) =>
     .split(" ")
     .filter(Boolean);
 
-/**
- * The foreign words found in a Kids product name — empty when the name
- * genuinely describes a Kids product. `Boys' Casual Shirt & Shorts Set`
- * passes; `Women's Silk Saree` does not.
- */
 export const foreignNameTokens = (name) => {
   const words = tokenise(name);
   return [...new Set(words.filter((word) => FOREIGN_NAME_TOKENS.includes(word)))];
@@ -216,7 +176,6 @@ export const foreignNameTokens = (name) => {
 
 export const kidsNameLooksForeign = (name) => foreignNameTokens(name).length > 0;
 
-/** The same rule for a subcategory: a Kids product is never "Bridal Saree". */
 export const kidsSubcategoryLooksForeign = (subcategory) =>
   foreignNameTokens(subcategory).length > 0;
 
@@ -226,10 +185,11 @@ export default {
   KIDS_MEDIA_FILENAMES,
   KIDS_PRODUCT_IDS,
   CONFIRMED_KIDS_IDENTITIES,
+  isKidsProduct,
+  isKidsProductId,
   kidsFileNameOf,
   isKidsMediaFile,
   isConfirmedKidsMediaFile,
-  isKidsProductId,
   isConfirmedKidsProductId,
   kidsProductIdForFile,
   kidsMediaFileForProductId,
