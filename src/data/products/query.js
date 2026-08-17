@@ -72,8 +72,10 @@ export const isProductOnSale = (product) => {
 };
 
 const matchers = {
+  department: (product, value) => product.department === value,
   category: (product, value) => product.category === resolveCategoryFilter(value),
   subcategory: (product, value) => product.subcategory === value,
+  style: (product, value) => product.style === value,
   gender: (product, value) => product.gender === value,
   fabric: (product, value) => product.fabric === value,
   material: (product, value) => product.material === value,

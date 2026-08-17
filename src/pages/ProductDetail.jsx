@@ -85,6 +85,11 @@ export default function ProductDetail() {
     [product]
   );
 
+  /* A record that is not yet published is an atelier preview — visible by
+     direct product id, honestly labelled, never offered for purchase. */
+  const isAtelierPreview =
+    isPreview || product?.status === "DRAFT" || product?.published === false;
+
   const { user } = useAuth();
 
   useEffect(() => {
@@ -97,10 +102,10 @@ export default function ProductDetail() {
   }, [product]);
 
   useEffect(() => {
-    if (!product || isPreview) return undefined;
+    if (!product || isAtelierPreview) return undefined;
     recordRecentlyViewed(product.id, user?.id ?? null);
     return undefined;
-  }, [product, isPreview, user?.id]);
+  }, [product, isAtelierPreview, user?.id]);
 
   if (!product) return <ProductNotFound />;
 
@@ -114,9 +119,19 @@ export default function ProductDetail() {
     { label: product.name },
   ];
 
+  /* The story line is assembled from whatever the record actually carries —
+     never from invented cloth or collection names. */
+  const storyLine = (() => {
+    const home = product.collection || (category ? `the ${category.name} atelier` : "the atelier");
+    const cloth = [product.fabric, product.material].filter(Boolean);
+    const parts = [`From ${home}`];
+    if (cloth.length) parts.push(`a study in ${cloth.join(" and ").toLowerCase()}`);
+    return `${parts.join(", ")}.`;
+  })();
+
   return (
     <main className="pb-20 md:pb-0">
-      {isPreview ? (
+      {isAtelierPreview ? (
         <div
           role="status"
           className="fixed inset-x-0 top-0 z-50 bg-ink px-4 py-2 text-center font-ui text-[10px] uppercase tracking-[.22em] text-ivory"
@@ -144,7 +159,7 @@ export default function ProductDetail() {
               as="h2"
               size="subsection"
               eyebrow="About the Piece"
-              description={`From ${product.collection}, a study in ${product.fabric.toLowerCase()} and ${product.material.toLowerCase()}.`}
+              description={storyLine}
               descriptionClassName="max-w-sm font-display text-xl leading-relaxed text-graphite"
               rule
               spacing={{ eyebrow: "mb-4", title: "mb-5", rule: "mb-6" }}

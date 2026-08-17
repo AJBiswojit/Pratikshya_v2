@@ -38,12 +38,15 @@ const CATEGORY_GROUPS = [
   {
     id: "women",
     label: "Women",
-    categories: ["sarees", "lehengas", "bridal-couture", "kurtis-and-suits", "dupattas"],
+    categories: ["sarees", "lehengas", "essentials"],
   },
-  { id: "men", label: "Men", categories: ["menswear"] },
-  { id: "kids", label: "Kids", categories: ["kidswear"] },
-  { id: "accessories", label: "Accessories", categories: ["bangles", "jewellery"] },
-  { id: "innerwear", label: "Innerwear", categories: ["innerwear"] },
+  {
+    id: "bridal",
+    label: "Bridal",
+    categories: ["the-bride", "celebrations", "finishing-touches"],
+  },
+  { id: "men", label: "Men", categories: ["ethnic-wear", "groom"] },
+  { id: "kids", label: "Kids", categories: ["girls", "boys"] },
 ];
 
 const byOrder = (a, b) =>
@@ -80,8 +83,11 @@ export default function ShopByCategory({ excludeIds = null }) {
   }).filter((group) => group.cards.length > 0);
 
   /* An ACTIVE category the presentation groups don't mention still appears,
-     so a future category reaches the homepage without any JSX change. */
-  const remainder = active.filter((category) => !groupedIds.has(category.id));
+     so a future category reaches the homepage without any JSX change — but
+     only when it can resolve a real plate. */
+  const remainder = active.filter(
+    (category) => !groupedIds.has(category.id) && Boolean(resolveCategoryCover(category)?.src)
+  );
   if (remainder.length > 0) {
     groups.push({
       id: "more",

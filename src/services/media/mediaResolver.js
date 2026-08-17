@@ -24,6 +24,8 @@ import {
   USAGE_ROLES,
 } from "../../config/mediaTypes";
 import { imageRef } from "../../data/pratikshyaImageManifest";
+import { products as catalogueSeedProducts } from "../../data/catalog/products";
+import { collectionPlates as catalogueCollectionPlates } from "../../data/catalog/collections";
 import { getLiveStorefrontProducts, productHref } from "../../data/products";
 import taxonomyRepository from "../taxonomyRepository";
 import { getAll, getById, getMarketingMedia, getProductMedia } from "./mediaRepository";
@@ -108,8 +110,33 @@ export const FALLBACK_REASONS = {
   PRODUCT_GALLERY: "PRODUCT_GALLERY",
   TAXONOMY_PRODUCT: "TAXONOMY_PRODUCT",
   RELATED_TAXONOMY: "RELATED_TAXONOMY",
+  STATIC_CATALOG: "STATIC_CATALOG",
   HOUSE_FALLBACK: "HOUSE_FALLBACK",
   NO_SOURCE_MEDIA: "NO_SOURCE_MEDIA",
+};
+
+/** A plate authored in the static frontend catalogue (src/data/catalog). */
+const staticPlate = (product, id = null) => {
+  const src = product?.media?.primary;
+  if (!src) return null;
+  return {
+    id: id ?? product.id,
+    src,
+    alt: product.name ? `${product.name} — PRATIKSHYA FASHON` : "PRATIKSHYA FASHON",
+    category: product.category ?? "default",
+  };
+};
+
+const staticCollectionPlate = (collection) => {
+  const plate = catalogueCollectionPlates[collection.id] ?? catalogueCollectionPlates[collection.slug];
+  const src = plate?.media?.primary;
+  if (!src) return null;
+  return {
+    id: plate.id,
+    src,
+    alt: `${plate.name} — PRATIKSHYA FASHON`,
+    category: "collections",
+  };
 };
 
 const withReason = (source, reason) => (source ? { ...source, reason } : null);
@@ -779,6 +806,15 @@ export const resolveCategoryCover = (category, usedIds = null) => {
   );
   if (member) return withReason(asSource(member, category.id), FALLBACK_REASONS.TAXONOMY_PRODUCT);
 
+  /* Authored catalogue plate — a member product's own primary photography
+     from the static frontend catalogue. */
+  const staticMember = (catalogueSeedProducts ?? []).find(
+    (product) => product.category === category.id && product.media?.primary
+  );
+  if (staticMember) {
+    return withReason(staticPlate(staticMember), FALLBACK_REASONS.STATIC_CATALOG);
+  }
+
   const related = selectMedia({
     categoryId: category.id,
     usedIds,
@@ -823,6 +859,12 @@ export const resolveCollectionCover = (collection, usedIds = null) => {
     usedIds
   );
   if (member) return withReason(asSource(member, collection.id), FALLBACK_REASONS.TAXONOMY_PRODUCT);
+
+  /* Storytelling plates authored in the static collection catalogue. */
+  const staticPlateForCollection = staticCollectionPlate(collection);
+  if (staticPlateForCollection) {
+    return withReason(staticPlateForCollection, FALLBACK_REASONS.STATIC_CATALOG);
+  }
 
   return withReason(imageRef(collection.image || "hero-atelier"), FALLBACK_REASONS.NO_SOURCE_MEDIA);
 };
@@ -871,6 +913,33 @@ export const resolveThemeImage = (theme, usedIds = null) => {
     excludeHouse: true,
   })[0];
   if (selected) return withReason(asSource(selected, config.categoryId), FALLBACK_REASONS.DIRECT);
+
+  /* Editorial themes fall back to their authored collection plates, then to
+     a member product's own catalogue photography. */
+  const THEME_COLLECTIONS = {
+    festive: "festive-edit",
+    heritage: "heritage-weaves",
+    arrivals: "new-arrivals",
+  };
+  const themeCollection = catalogueCollectionPlates[THEME_COLLECTIONS[theme]];
+  if (themeCollection?.media?.primary) {
+    return withReason(
+      {
+        id: themeCollection.id,
+        src: themeCollection.media.primary,
+        alt: `${themeCollection.name} — PRATIKSHYA FASHON`,
+        category: "collections",
+      },
+      FALLBACK_REASONS.STATIC_CATALOG
+    );
+  }
+  const staticMember = (catalogueSeedProducts ?? []).find(
+    (product) => product.category === config.categoryId && product.media?.primary
+  );
+  if (staticMember) {
+    return withReason(staticPlate(staticMember), FALLBACK_REASONS.STATIC_CATALOG);
+  }
+
   return withReason(imageRef(config.fallback), FALLBACK_REASONS.HOUSE_FALLBACK);
 };
 

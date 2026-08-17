@@ -20,7 +20,8 @@
  * display a catalogue product.
  */
 
-import catalogRepository, { productsRegisterRaw, slugify } from "../../services/catalogRepository";
+import catalogRepository, { catalogueSeedFingerprint, productsRegisterRaw, slugify } from "../../services/catalogRepository";
+import { PRODUCT_MEDIA_ROLES } from "../../config/mediaTypes";
 import {
   getCareInstructions,
   getDeliveryInfo,
@@ -53,11 +54,39 @@ const percentOff = (price, originalPrice) =>
     : null;
 
 /**
- * Product media is intentionally not authored in catalogue fixtures. The
- * media repository owns the real files and their product assignments; this
- * shape is the stable contract before the first photo is uploaded.
+ * Authored catalogue media — the `media` object a catalogue record carries
+ * (`primary` + `gallery`). The media repository can still override these
+ * plates later; this shape is the stable contract until then.
  */
 const emptyImages = () => ({ primary: null, gallery: [], thumbnail: null });
+
+const authoredPrimary = (product, id) => {
+  const source = product?.media?.primary;
+  if (!source) return null;
+  return {
+    id: `${id}-primary`,
+    src: source,
+    alt: `${product.name} — primary view`,
+    role: PRODUCT_MEDIA_ROLES.COVER,
+    view: "front",
+  };
+};
+
+const authoredGallery = (product, id) =>
+  (product?.media?.gallery ?? [])
+    .filter(Boolean)
+    .map((src, index) => ({
+      id: `${id}-plate-${String(index + 1).padStart(2, "0")}`,
+      src,
+      alt: `${product.name} — view ${index + 1}`,
+      role: PRODUCT_MEDIA_ROLES.GALLERY,
+    }));
+
+const authoredImages = (product, id) => {
+  const primary = authoredPrimary(product, id);
+  const gallery = authoredGallery(product, id);
+  return { primary, gallery, thumbnail: primary };
+};
 
 /**
  * The free-text haystack search matches against.
@@ -67,9 +96,13 @@ const emptyImages = () => ({ primary: null, gallery: [], thumbnail: null });
  */
 const buildTags = (product) =>
   [
+    product.id,
     product.name,
     product.sku,
+    product.department,
+    product.category,
     product.subcategory,
+    product.style,
     taxonomyRepository.getCategoryLabel(product.category),
     product.gender,
     taxonomyRepository.getCollectionLabel(product.collection),
@@ -120,9 +153,13 @@ export const toStorefrontProduct = (product, index = 0) => {
 
   const discount = percentOff(product.price, product.originalPrice);
   const badges = product.badges ?? [];
-  /* Files are assigned through the canonical media repository, never from
-     catalogue data. Product UI resolves those assignments at render time. */
-  const images = emptyImages();
+  /* Authored catalogue plates first; the canonical media repository can
+     override them through the product media set at render time. */
+  const images = product.media?.primary
+    ? authoredImages(product, id)
+    : emptyImages();
+  const image = images.primary;
+  const additionalImages = images.gallery;
 
   const collection = product.collection ?? product.collections?.[0] ?? "";
   const productCollections = taxonomyRepository.collectionsForProduct(product);
@@ -152,10 +189,11 @@ export const toStorefrontProduct = (product, index = 0) => {
     discount,
     currency: "INR",
 
-    /* Media contract — populated only by assigned product-media records. */
-    image: null,
+    /* Media contract — authored plates, overridable by assigned media. */
+    image,
     hoverImage: undefined,
     images,
+    additionalImages,
 
     /* Attributes and variants */
     colors,
@@ -245,7 +283,7 @@ const isCustomerVisible = (record) => {
 let liveCache = null;
 
 export const getLiveStorefrontProducts = () => {
-  const fingerprint = productsRegisterRaw() ?? "empty";
+  const fingerprint = productsRegisterRaw() ?? `seed:${catalogueSeedFingerprint()}`;
   if (liveCache && liveCache.fingerprint === fingerprint) return liveCache.list;
 
   let list = null;
@@ -282,6 +320,11 @@ export const getProductBySlug = (slug) => {
   return current.find((p) => p.slug === slug) ?? null;
 };
 
+/**
+ * Resolves a published product by its permanent id. Unpublished records are
+ * deliberately invisible here — staff review them through the explicit
+ * `?preview=1` seam on the same detail route.
+ */
 export const getProductById = (id) => {
   const current = getLiveStorefrontProducts();
   return current.find((p) => String(p.id) === String(id)) ?? null;
@@ -292,8 +335,8 @@ export const getProductByIdentifier = (value) => {
   return current.find((p) => p.slug === value || String(p.id) === String(value)) ?? null;
 };
 
-/** Canonical URL for the reusable product-detail route. */
-export const productHref = (product) => `/product/${product.slug}`;
+/** Canonical URL for the reusable product-detail route — the product id. */
+export const productHref = (product) => `/product/${product.id}`;
 
 /* ------------------------------------------------------------------ */
 /* Derived vocabularies                                                */
@@ -316,7 +359,9 @@ const distinct = (field, { multiple = false } = {}) => {
 };
 
 export const catalogueValues = {
+  department: distinct("department").sort((a, b) => a.localeCompare(b)),
   subcategory: distinct("subcategory").sort((a, b) => a.localeCompare(b)),
+  style: distinct("style").sort((a, b) => a.localeCompare(b)),
   fabric: distinct("fabric").sort((a, b) => a.localeCompare(b)),
   material: distinct("material").sort((a, b) => a.localeCompare(b)),
   occasion: distinct("occasion", { multiple: true }),

@@ -19,10 +19,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import PratikshyaImage from "../PratikshyaImage";
 import {
+  HOMEPAGE_HERO_THEMES,
   resolveHeroSlideImage,
   resolveHomepageHeroMedia,
 } from "../../services/media/mediaResolver";
-import { resolveCategoryRoute, resolveCollectionRoute } from "../../services/taxonomyRouting";
 import { AtelierButton, header as headerSpacing } from "../../design-system";
 import { cn } from "../../utils/cn";
 
@@ -31,69 +31,33 @@ const AUTOPLAY_INTERVAL_MS = 5500;
 const CROSSFADE_MS = 900;
 
 /**
- * Editorial copy and CTAs remain unchanged. Each `image` is resolved by its
- * stable slide theme from the ordered HOME_HERO register, so the carousel and
- * the media audit consume the same canonical five-record set.
+ * The slideshow consumes the structured slide data from
+ * `src/data/catalog/hero.js` — image addresses, copy and CTAs are all
+ * authored there, never inside this component. When the media register
+ * later publishes HOME_HERO records, those plates take precedence over the
+ * authored ones for the matching theme, preserving the admin override path.
  */
-const buildSlides = (heroMedia) => {
+const buildSlides = (slides = [], heroMedia = null) => {
   const usedIds = new Set();
-  const festiveEditHref = resolveCollectionRoute("festive-edit")?.href ?? "/collections/festive-edit";
-  const lehengasHref = resolveCategoryRoute("lehengas")?.href ?? "/women/bridal-lehengas";
-  const sareesHref = resolveCategoryRoute("sarees")?.href ?? "/women/silk-sarees";
-  const bridalHref = resolveCategoryRoute("bridal-couture")?.href ?? "/bridal";
-  const newArrivalsHref = resolveCollectionRoute("new-arrivals")?.href ?? "/collections/new-arrivals";
-  return [
-    {
-      id: "festive-edit",
-      eyebrow: "New Collection",
-      title: "The Festive Edit",
-      body: "Timeless silhouettes crafted for the celebrations that matter most.",
-      cta: { label: "Explore Edit", href: festiveEditHref },
-      image: resolveHeroSlideImage("festive", { heroMedia, usedIds }),
-      objectPosition: "52% center",
-      tone: "light",
-    },
-    {
-      id: "bridal",
-      eyebrow: "Bridal Couture",
-      title: "Made for Your Moment",
-      body: "Statement craftsmanship and heirloom detail for the day you'll always remember.",
-      cta: { label: "Shop Lehengas", href: lehengasHref },
-      image: resolveHeroSlideImage("bridal", { heroMedia, usedIds }),
-      objectPosition: "48% center",
-      tone: "dark",
-    },
-    {
-      id: "heritage-saree",
-      eyebrow: "Heritage Weaves",
-      title: "The Art of the Saree",
-      body: "Banarasi, Pato and silk — traditional craft, reimagined for today.",
-      cta: { label: "Shop Sarees", href: sareesHref },
-      image: resolveHeroSlideImage("heritage", { heroMedia, usedIds }),
-      objectPosition: "58% center",
-      tone: "light",
-    },
-    {
-      id: "couple",
-      eyebrow: "The Celebration Edit",
-      title: "Dressed, Together",
-      body: "Coordinated festive wardrobes for weddings, receptions and every gathering around them.",
-      cta: { label: "Shop Bridal", href: bridalHref },
-      image: resolveHeroSlideImage("celebration", { heroMedia, usedIds }),
-      objectPosition: "52% center",
-      tone: "dark",
-    },
-    {
-      id: "new-arrivals",
-      eyebrow: "New Arrivals",
-      title: "Your Next Signature Look",
-      body: "The latest pieces to arrive from the PRATIKSHYA atelier.",
-      cta: { label: "Discover Now", href: newArrivalsHref },
-      image: resolveHeroSlideImage("arrivals", { heroMedia, usedIds }),
-      objectPosition: "62% center",
-      tone: "dark",
-    },
-  ];
+  return slides.map((slide, index) => {
+    const registered = resolveHeroSlideImage(HOMEPAGE_HERO_THEMES[index], {
+      heroMedia,
+      usedIds,
+    });
+    const registeredSrc =
+      registered && (registered.src || registered.fallback);
+    const image = registeredSrc
+      ? registered
+      : slide.image
+        ? {
+            id: slide.id,
+            src: slide.image,
+            alt: `${slide.title} — PRATIKSHYA FASHON`,
+            category: "hero",
+          }
+        : null;
+    return { ...slide, image };
+  });
 };
 
 const usePrefersReducedMotion = () => {
@@ -116,8 +80,8 @@ const resolveImageSrc = (image) => {
   return image.src || image.fallback || null;
 };
 
-export default function HeroCarousel({ heroMedia }) {
-  const slides = useMemo(() => buildSlides(heroMedia), [heroMedia]);
+export default function HeroCarousel({ slides: slideData = [], heroMedia }) {
+  const slides = useMemo(() => buildSlides(slideData, heroMedia), [slideData, heroMedia]);
   const count = slides.length;
 
   /* ------------------------------------------------------------------ */

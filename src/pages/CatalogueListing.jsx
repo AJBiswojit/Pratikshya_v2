@@ -107,7 +107,9 @@ export default function CatalogueListing({ variant }) {
   /* The editorial plate resolves through the central media resolver, so
      category and collection pages show the same centralized media the rest
      of the storefront uses — managed banner first, then library media, then
-     the authored artwork. Navigation paths keep their authored plate. */
+     the authored artwork. Navigation paths that represent a catalogue
+     category resolve that category's cover; everything else keeps its
+     authored plate. */
   const heroImage = (() => {
     if (variant === "category") {
       const category = taxonomyRepository.findCategory(scope.id);
@@ -115,6 +117,12 @@ export default function CatalogueListing({ variant }) {
     } else if (variant === "collection") {
       const collection = taxonomyRepository.findCollection(scope.id);
       if (collection) return resolveCollectionCover(collection);
+    }
+    const categoryId = scope.filters?.category;
+    if (categoryId) {
+      const category = taxonomyRepository.findCategory(categoryId);
+      const cover = category ? resolveCategoryCover(category) : null;
+      if (cover?.src) return cover;
     }
     return imageRef(scope.image);
   })();
@@ -130,7 +138,7 @@ export default function CatalogueListing({ variant }) {
       />
 
       {/* Editorial plate — establishes the edit before the grid begins. */}
-      {scope.image ? (
+      {heroImage?.src ? (
         <AtelierSection rhythm="none" width="wide" className="pb-16 md:pb-24">
           <MediaFrame
             image={heroImage}

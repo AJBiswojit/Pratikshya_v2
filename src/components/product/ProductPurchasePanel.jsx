@@ -124,6 +124,9 @@ export default function ProductPurchasePanel({ product }) {
   const cart = useCart();
   const inventory = useInventory();
   const navigate = useNavigate();
+  /* A piece without an authored price is not purchasable yet — the atelier
+     is asked, nothing is invented and nothing is silently sold for free. */
+  const purchasable = typeof product.price === "number" && product.price > 0;
   const requiresSize = !isFreeSizeOnly(product.sizes);
   const availableColors = product.colors.filter((color) => !product.unavailableColors.includes(color));
   const [color, setColor] = useState(availableColors[0] ?? null);
@@ -176,6 +179,13 @@ export default function ProductPurchasePanel({ product }) {
   const selection = { color, size: selectedSize, quantity };
 
   const validate = () => {
+    if (!purchasable) {
+      setFeedback({
+        message: "This piece is being prepared — the atelier will share its price shortly.",
+        kind: "error",
+      });
+      return false;
+    }
     if (unavailable) {
       setFeedback({ message: "This piece is currently unavailable.", kind: "error" });
       return false;
@@ -251,17 +261,21 @@ export default function ProductPurchasePanel({ product }) {
       </a>
 
       <div className="mt-7 flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-mist/80 pb-7">
-        <span className="font-display text-3xl text-ink">{formatPrice(product.price)}</span>
-        {product.originalPrice ? (
+        <span className="font-display text-3xl text-ink">
+          {purchasable ? formatPrice(product.price) : "Price on request"}
+        </span>
+        {purchasable && product.originalPrice ? (
           <span className="font-ui text-sm text-taupe line-through">{formatPrice(product.originalPrice)}</span>
         ) : null}
         {discount ? (
           <span className="font-ui text-[10px] uppercase tracking-[.16em] text-accent">{discount}% off</span>
         ) : null}
         <span className="w-full font-ui text-[10px] text-taupe">
-          {product.pricing?.taxMode === "EXCLUSIVE" && Number(product.pricing?.taxRate) > 0
-            ? `Exclusive of ${product.pricing.taxRate}% GST`
-            : "Inclusive of all taxes"}
+          {purchasable
+            ? product.pricing?.taxMode === "EXCLUSIVE" && Number(product.pricing?.taxRate) > 0
+              ? `Exclusive of ${product.pricing.taxRate}% GST`
+              : "Inclusive of all taxes"
+            : "The atelier will confirm pricing and availability with you."}
         </span>
       </div>
 
@@ -380,7 +394,7 @@ export default function ProductPurchasePanel({ product }) {
       <div className="mt-7 grid grid-cols-2 gap-3">
         <AtelierButton
           onClick={addToCart}
-          disabled={unavailable}
+          disabled={!purchasable || unavailable}
           variant="primary"
           size="md"
           className="col-span-2 justify-center disabled:cursor-not-allowed disabled:bg-taupe"
@@ -399,7 +413,7 @@ export default function ProductPurchasePanel({ product }) {
         ) : null}
         <AtelierButton
           onClick={buyNow}
-          disabled={unavailable}
+          disabled={!purchasable || unavailable}
           variant="outline"
           size="md"
           className="justify-center px-3 disabled:cursor-not-allowed disabled:opacity-40"
