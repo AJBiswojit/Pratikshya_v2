@@ -30,24 +30,11 @@ export const getCategory = (id) => taxonomyRepository.findCategory(id);
 /* Facet vocabularies                                                  */
 /* ------------------------------------------------------------------ */
 
-export const genders = ["Women", "Men", "Kids", "Unisex"];
+export const genders = [];
+export const fabrics = [];
+export const materials = [];
 
-export const fabrics = [
-  "Pato Silk", "Mulberry Silk", "Tussar Silk", "Banarasi Silk", "Katan Silk",
-  "Cotton", "Cotton Silk", "Linen", "Chiffon", "Georgette", "Velvet", "Organza",
-  "Raw Silk", "Brocade", "Modal", "Brass Alloy", "Silver Alloy",
-];
-
-export const materials = [
-  "Handloom", "Powerloom", "Zari Work", "Zardozi", "Mirror Work", "Sequin",
-  "Thread Embroidery", "Block Print", "Ikat", "Kundan", "Polki", "Gold Plated",
-  "Oxidised Silver", "Pearl",
-];
-
-export const occasions = [
-  "Bridal", "Wedding", "Reception", "Sangeet", "Mehendi", "Haldi", "Festive",
-  "Puja", "Party", "Everyday", "Play", "Office", "Gifting",
-];
+export const occasions = [];
 
 export const collections = activeCollections().map((collection) => ({
   ...collection,
@@ -60,24 +47,9 @@ export const collectionLabels = new Proxy({}, {
   getOwnPropertyDescriptor: () => ({ enumerable: true, configurable: true }),
 });
 
-export const colorSwatches = {
-  Ivory: "#f2ece2", Gold: "#c9a44c", Maroon: "#6d1f2a", Wine: "#5c1f33",
-  Red: "#9b2226", Rust: "#8a3e22", Saffron: "#d98324", Mustard: "#c9992c",
-  Emerald: "#1f5741", Teal: "#1f5560", Navy: "#20304d", Indigo: "#33406b",
-  Blush: "#e8d5c4", Rose: "#b76e79", Black: "#1c1a18", Silver: "#b8bcc0",
-  Beige: "#d8c9b4", Sage: "#8a9a80",
-  /* Kidswear remap — the colours the 21 library plates actually carry. */
-  Cream: "#f3ead9", Tan: "#c9a87c", Brown: "#7d5a38", Yellow: "#dfb93e",
-  Blue: "#3b6ea5", White: "#f6f4ef", "Sky Blue": "#a9cce0", Olive: "#7a7c4c",
-  Charcoal: "#3c4043", Grey: "#9b9ea3", Terracotta: "#c07a54", Peach: "#e8b28c",
-};
-
-export const colors = Object.keys(colorSwatches);
-
-export const sizes = [
-  "Free Size", "XS", "S", "M", "L", "XL", "XXL", "2.4", "2.6", "2.8", "2.10",
-  "38", "40", "42", "44", "2-3Y", "4-5Y", "6-7Y", "8-9Y", "10-12Y",
-];
+export const colorSwatches = {};
+export const colors = [];
+export const sizes = [];
 
 export const availabilityOptions = [
   { id: "in-stock", label: "In Stock" },

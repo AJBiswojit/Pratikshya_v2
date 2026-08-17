@@ -224,46 +224,8 @@ const seedRecord = (product, locationId, onHand, options = {}) => {
   });
 };
 
-/** Small deterministic demo register using real catalogue identities. */
-const buildSeedRecords = () => {
-  const products = catalogRepository.all();
-  const specs = [
-    ["Sambalpuri Pato", 12, 30, { department: "Sarees", section: "Silk", rack: "S-12", shelf: "B" }, { reserved: 2, sold: 6 }],
-    ["Handloom Cotton Saree", 8, 25, { department: "Sarees", section: "Cotton", rack: "C-04", shelf: "A" }, { sold: 11 }],
-    ["Banarasi Katan", 4, 0, { department: "Sarees", section: "Banarasi", rack: "B-01", shelf: "A" }, { threshold: 5, sold: 3 }],
-    ["Wine Velvet Bridal", 4, 8, { department: "Bridal Couture", section: "Bridal Suite", rack: "BR-02", shelf: "A" }, { reserved: 1 }],
-    ["White Cotton Kurta", 15, 40, { department: "Men's Fashion", section: "Kurta", rack: "M-10", shelf: "C" }, { sold: 8 }],
-    ["Girls' Festive Lehenga", 7, 18, { department: "Kids", section: "Girls Festive", rack: "K-05", shelf: "B" }, { sold: 4 }],
-    ["Meenakari Bangles", 35, 10, { department: "Bangles", section: "Jewellery Counter", rack: "J-02", bin: "J02-04" }, { damaged: 1, maximumStock: 30 }],
-    ["Kundan Bridal Necklace", 0, 0, { department: "Jewellery", section: "Jewellery Counter", rack: "J-01", bin: "J01-02" }, {}],
-    ["Cotton Saree Petticoat", 20, 45, { department: "Inner Wear", section: "Essentials", rack: "I-03", shelf: "D" }, { damaged: 2, returned: 2, sold: 12 }],
-  ];
-
-  return specs.flatMap(([needle, storeQty, warehouseQty, placement, quantities]) => {
-    const product = findProductLike(products, needle);
-    if (!product) return [];
-    const warehousePlacement = {
-      department: placement.department,
-      zone: placement.department === "Jewellery" || placement.department === "Bangles" ? "Secure Zone" : "Zone A",
-      rack: placement.rack.replace(/^[A-Z]+-?/, "A-"),
-      bin: placement.bin || `${placement.rack.replace(/[^0-9]/g, "") || "01"}-03`,
-    };
-    return [
-      seedRecord(product, "loc-main-store", storeQty, {
-        ...quantities,
-        placement,
-        updatedAt: "2026-08-11T10:15:00.000Z",
-        lastMovementAt: "2026-08-11T10:15:00.000Z",
-      }),
-      seedRecord(product, "loc-main-warehouse", warehouseQty, {
-        placement: warehousePlacement,
-        threshold: quantities.threshold,
-        updatedAt: "2026-08-10T16:30:00.000Z",
-        lastMovementAt: "2026-08-10T16:30:00.000Z",
-      }),
-    ].filter(Boolean);
-  });
-};
+/** Inventory starts empty until operator-created product records are stocked. */
+const buildSeedRecords = () => [];
 
 const buildSeedMovements = (records) => {
   const movements = [];

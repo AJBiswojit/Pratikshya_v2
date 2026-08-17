@@ -26,7 +26,6 @@
  *   · Product version counter for downstream memoization.
  */
 
-import catalogue from "../data/products/catalogue.js";
 import { getProductMediaSummary } from "./media/mediaRepository";
 import { getProductMediaSet } from "./media/productMediaSet";
 import {
@@ -62,109 +61,13 @@ export const slugify = (value) =>
 const KEY = "pratikshya_products";
 export const PRODUCTS_CHANGED_EVENT = "pratikshya-products-changed";
 
-/* ------------------------------------------------------------------ */
-/* Kidswear remap sync                                                 */
-/* ------------------------------------------------------------------ */
-
 /**
- * One-time repair for browsers that persisted a product register before
- * the Kidswear media-to-product remap. Those registers carry the
- * misclassified kidswear rows (festive/ethnic names on casual plates,
- * women's-style pricing, wrong media) and — because a stored register
- * otherwise wins forever — would keep showing them to returning shoppers.
- *
- * On the first read after the remap, stored kidswear rows that are known
- * pre-remap rows are replaced with the freshly authored kidswear records.
- * A marker key guarantees the repair runs exactly once, so later Admin /
- * Employee edits to any kids product persist normally.
+ * One-time catalogue reset. Existing browser registers may contain the
+ * retired frontend demo catalogue; clear that snapshot once, then preserve
+ * every product subsequently created through the product workflow.
  */
-export const CATALOGUE_SYNC_VERSION = 2;
-const CATALOGUE_SYNC_KEY = "pratikshya_catalogue_sync_version";
-
-/** Every kidswear product name published before the remap (pre-fix + prior fix). */
-const LEGACY_KIDSWEAR_NAMES = new Set(
-  [
-    "Girls' Festive Lehenga Set in Rose",
-    "Girls' Silk Lehenga in Emerald",
-    "Girls' Ethnic Set in Marigold",
-    "Girls' Festive Frock in Blush",
-    "Boys' Cotton Kurta Set in Ivory",
-    "Boys' Silk Kurta Set in Navy",
-    "Boys' Wedding Sherwani in Gold",
-    "Boys' Festive Shirt in Sage",
-    "Girls' Blue Gingham Check Dress",
-    "Girls' Blue Gingham Check Two-Piece Set",
-    "Boys' Giraffe Graphic T-Shirt & Shorts Set",
-    "Girls' Blue Embroidered Palm Sundress",
-    "Boys' Easter Bunny Print Shirt & Shorts Set",
-    "Boys' Tropical Palm Print Beach Set",
-    "Boys' Dinosaur Graphic T-Shirt Set",
-    "Girls' Floral & Butterfly Sundress",
-    "Boys' Red Heart Print Shirt & Shorts Set",
-    "Boys' Teal Textured Stripe Beach Set",
-    "Girls' Floral Garden Tiered Sundress",
-    "Boys' Palm Embroidered Summer Set",
-    "Girls' Graphic T-Shirt & Yellow Shorts Set",
-    "Girls' Dinosaur Graphic Top & Denim Jeans",
-    "Boys' Summer Beach Print Shirt Set",
-    "Boys' Black Script Logo T-Shirt Set",
-    "Boys' Yellow & Green Stripe Beach Set",
-    "Girls' Butterfly Print Ruffle Top & Denim Shorts",
-    "Girls' White Ruffle Top & Embroidered Pants Set",
-    "Boys' Wild Street Graphic Tee & Denim Overalls",
-    "Boys' Blue Stitch-Border Beach Shirt Set",
-  ].map((name) => name.toLowerCase())
-);
-
-const authoredIdAt = (index) => `pf-${String(index + 1).padStart(3, "0")}`;
-
-const freshKidswearRows = () =>
-  catalogue
-    .map((product, index) => ({ ...product, id: product.id || authoredIdAt(index) }))
-    .filter((product) => product.category === "kidswear");
-
-/**
- * Pure repair: drop stored kidswear rows that are known pre-remap rows
- * (matched by authored-range id or legacy name) and append the freshly
- * authored kidswear records. Exported so the remap behaviour is testable
- * without a browser storage shim.
- */
-export const replaceStaleKidswearRows = (items) => {
-  const fresh = freshKidswearRows();
-  const freshIds = new Set(fresh.map((product) => String(product.id)));
-  const next = (items || []).filter((record) => {
-    if (!record || typeof record !== "object") return true;
-    if (record.category !== "kidswear") return true;
-    const id = String(record.id || "");
-    if (freshIds.has(id)) return false;
-    return !LEGACY_KIDSWEAR_NAMES.has(String(record.name || "").toLowerCase());
-  });
-  next.push(...fresh);
-  return next;
-};
-
-const syncKidswearRegister = (items) => {
-  const storage = typeof localStorage !== "undefined" ? localStorage : null;
-  if (!storage) return items;
-
-  let storedVersion = 0;
-  try {
-    storedVersion = Number(storage.getItem(CATALOGUE_SYNC_KEY) || 0);
-  } catch {
-    /* storage read failure — leave the register untouched */
-  }
-  if (storedVersion >= CATALOGUE_SYNC_VERSION) return items;
-
-  const next = replaceStaleKidswearRows(items);
-
-  try {
-    storage.setItem(CATALOGUE_SYNC_KEY, String(CATALOGUE_SYNC_VERSION));
-    storage.setItem(KEY, JSON.stringify(next));
-  } catch {
-    /* storage failure must never reset products */
-  }
-  return next;
-};
+export const CATALOGUE_RESET_KEY = "pratikshya_catalogue_reset_2026_08_17";
+export const replaceStaleKidswearRows = (items) => Array.isArray(items) ? items : [];
 
 export const PRODUCT_STATUS = {
   DRAFT: "DRAFT",
@@ -247,6 +150,10 @@ const read = () => {
   try {
     let raw = null;
     if (typeof localStorage !== "undefined") {
+      if (!localStorage.getItem(CATALOGUE_RESET_KEY)) {
+        localStorage.removeItem(KEY);
+        localStorage.setItem(CATALOGUE_RESET_KEY, "complete");
+      }
       raw = localStorage.getItem(KEY);
     } else {
       raw = memoryStorage;
@@ -302,43 +209,25 @@ export const getCatalogFingerprint = () => {
 const healRead = (raw) => {
   try {
     const value = raw ? JSON.parse(raw) : null;
-    if (Array.isArray(value) && value.length) {
-      /* Heals early rows that persisted plate objects or had no explicit id.
-         Authored products are matched by name so an inserted workspace row
-         can never shift the catalogue identity inventory already references. */
-      return value.map((record, index) => {
-        if (!record || typeof record !== "object") return record;
-        const authoredIndex = catalogue.findIndex((product) => product.name === record.name);
-        const id = record.id || (authoredIndex >= 0
-          ? `pf-${String(authoredIndex + 1).padStart(3, "0")}`
-          : `pf-legacy-${String(index + 1).padStart(3, "0")}`);
-        return {
-          ...record,
-          id,
-          image: imageIdOf(record.image),
-          hoverImage: imageIdOf(record.hoverImage),
-          variants: Array.isArray(record.variants)
-            ? record.variants.map((variant, variantIndex) => ({
-                ...variant,
-                id: variant.id || `${id}-var-${String(variantIndex + 1).padStart(2, "0")}`,
-              }))
-            : record.variants,
-        };
-      });
-    }
-    return catalogue.map((p, i) => ({
-      ...p,
-      id: p.id || `pf-${String(i + 1).padStart(3, "0")}`,
-      image: imageIdOf(p.image),
-      hoverImage: imageIdOf(p.hoverImage),
-      additionalImages: Array.isArray(p.additionalImages) ? p.additionalImages.map(imageIdOf) : p.additionalImages,
-      status: "PUBLISHED",
-      published: true,
-      sku: p.sku || `PF-${String(i + 1).padStart(5, "0")}`,
-      updatedAt: new Date().toISOString(),
-    }));
+    if (!Array.isArray(value)) return [];
+    return value.map((record, index) => {
+      if (!record || typeof record !== "object") return record;
+      const id = record.id || `product-${String(index + 1).padStart(3, "0")}`;
+      return {
+        ...record,
+        id,
+        image: imageIdOf(record.image),
+        hoverImage: imageIdOf(record.hoverImage),
+        variants: Array.isArray(record.variants)
+          ? record.variants.map((variant, variantIndex) => ({
+              ...variant,
+              id: variant.id || `${id}-var-${String(variantIndex + 1).padStart(2, "0")}`,
+            }))
+          : record.variants,
+      };
+    });
   } catch {
-    return catalogue;
+    return [];
   }
 };
 

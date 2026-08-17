@@ -39,86 +39,19 @@ import {
  * Category keywords resolve onto the real taxonomy ids used by
  * `taxonomyRepository` seeds (sarees, lehengas, bridal-couture, …).
  */
-export const CATEGORY_KEYWORDS = [
-  { id: "sarees", label: "saree", keywords: ["saree", "sarees", "sari", "saris"] },
-  { id: "lehengas", label: "lehenga", keywords: ["lehenga", "lehengas", "lehanga", "ghagra", "chaniya", "ghaghra"] },
-  { id: "bridal-couture", label: "bridal couture", keywords: ["gown", "gowns", "reception gown", "couture"] },
-  { id: "kurtis-and-suits", label: "kurta", keywords: ["kurta", "kurtas", "kurti", "kurtis", "suit", "suits", "anarkali", "sharara", "salwar"] },
-  { id: "menswear", label: "menswear", keywords: ["sherwani", "kurta for men", "menswear", "men s wear", "groom", "nehru jacket", "bandhgala"] },
-  { id: "kidswear", label: "kids wear", keywords: ["kids", "kid", "children", "child", "little one", "little girl", "little boy"] },
-  { id: "dupattas", label: "dupatta", keywords: ["dupatta", "dupattas", "stole", "stoles", "chunni"] },
-  { id: "bangles", label: "bangles", keywords: ["bangle", "bangles", "kada", "chudi"] },
-  { id: "jewellery", label: "jewellery", keywords: ["jewellery", "jewelry", "necklace", "earring", "earrings", "jhumka", "kundan", "polki", "temple jewellery"] },
-  { id: "innerwear", label: "innerwear", keywords: ["blouse", "petticoat", "shapewear", "innerwear"] },
-];
+export const CATEGORY_KEYWORDS = [];
 
-export const FABRIC_KEYWORDS = [
-  { id: "Pato Silk", keywords: ["pato", "pato silk", "sambalpuri", "bomkai", "ikat"] },
-  { id: "Katan Silk", keywords: ["katan", "katan silk"] },
-  { id: "Banarasi Silk", keywords: ["banarasi", "banarsi", "brocade saree"] },
-  { id: "Mulberry Silk", keywords: ["mulberry", "kanjivaram", "kanjeevaram"] },
-  { id: "Tussar Silk", keywords: ["tussar", "tassar"] },
-  { id: "Raw Silk", keywords: ["raw silk"] },
-  { id: "Cotton Silk", keywords: ["cotton silk"] },
-  { id: "Cotton", keywords: ["cotton", "handloom cotton", "kotpad"] },
-  { id: "Linen", keywords: ["linen"] },
-  { id: "Chiffon", keywords: ["chiffon"] },
-  { id: "Georgette", keywords: ["georgette"] },
-  { id: "Velvet", keywords: ["velvet"] },
-  { id: "Organza", keywords: ["organza"] },
-  { id: "Brocade", keywords: ["brocade"] },
-  { id: "Modal", keywords: ["modal"] },
-  { id: "Silk", keywords: ["silk"] },
-];
+export const FABRIC_KEYWORDS = [];
 
 /**
  * Colour language resolves onto the catalogue swatch names. Aliases map a
  * shopper's word onto every stocked shade that can honestly answer it.
  */
-export const COLOUR_KEYWORDS = [
-  { id: "Red", keywords: ["red"], aliases: ["Red", "Maroon"] },
-  { id: "Maroon", keywords: ["maroon", "burgundy", "deep red"], aliases: ["Maroon", "Wine"] },
-  { id: "Wine", keywords: ["wine"], aliases: ["Wine", "Maroon"] },
-  { id: "Gold", keywords: ["gold", "golden", "gold toned"], aliases: ["Gold"] },
-  { id: "Silver", keywords: ["silver"], aliases: ["Silver"] },
-  { id: "Ivory", keywords: ["ivory", "white", "cream", "off white"], aliases: ["Ivory", "Beige"] },
-  { id: "Beige", keywords: ["beige", "nude", "tan"], aliases: ["Beige", "Ivory"] },
-  { id: "Blush", keywords: ["blush", "pale pink", "powder pink"], aliases: ["Blush", "Rose"] },
-  { id: "Rose", keywords: ["rose", "pink", "rose pink"], aliases: ["Rose", "Blush"] },
-  { id: "Emerald", keywords: ["emerald", "green", "bottle green"], aliases: ["Emerald", "Sage"] },
-  { id: "Sage", keywords: ["sage", "olive", "pastel green"], aliases: ["Sage"] },
-  { id: "Teal", keywords: ["teal"], aliases: ["Teal"] },
-  { id: "Navy", keywords: ["navy", "dark blue"], aliases: ["Navy", "Indigo"] },
-  { id: "Indigo", keywords: ["indigo", "blue"], aliases: ["Indigo", "Navy"] },
-  { id: "Mustard", keywords: ["mustard", "haldi yellow"], aliases: ["Mustard", "Saffron"] },
-  { id: "Saffron", keywords: ["saffron", "orange", "kesari"], aliases: ["Saffron", "Mustard"] },
-  { id: "Rust", keywords: ["rust", "terracotta", "burnt orange"], aliases: ["Rust"] },
-  { id: "Black", keywords: ["black", "kaala"], aliases: ["Black"] },
-];
+export const COLOUR_KEYWORDS = [];
 
-export const OCCASION_KEYWORDS = [
-  { id: "Bridal", keywords: ["bridal", "bride", "my wedding", "my own wedding"] },
-  { id: "Wedding", keywords: ["wedding", "shaadi", "shadi", "marriage", "sister s wedding", "brother s wedding", "cousin s wedding"] },
-  { id: "Reception", keywords: ["reception"] },
-  { id: "Sangeet", keywords: ["sangeet"] },
-  { id: "Mehendi", keywords: ["mehendi", "mehndi", "haldi"] },
-  { id: "Festive", keywords: ["festive", "festival", "diwali", "durga puja", "navratri", "eid", "onam", "pongol", "celebration"] },
-  { id: "Puja", keywords: ["puja", "pooja"] },
-  { id: "Party", keywords: ["party", "cocktail", "evening event", "celebration dinner"] },
-  { id: "Office", keywords: ["office", "work", "corporate", "meeting"] },
-  { id: "Everyday", keywords: ["everyday", "daily", "casual", "regular wear"] },
-  { id: "Gifting", keywords: ["gift", "gifting", "gift for"] },
-];
+export const OCCASION_KEYWORDS = [];
 
-export const COLLECTION_KEYWORDS = [
-  { id: "bridal-trousseau", keywords: ["bridal trousseau", "trousseau"] },
-  { id: "festive-edit", keywords: ["festive edit"] },
-  { id: "heritage-weaves", keywords: ["heritage weaves", "heritage"] },
-  { id: "handloom-stories", keywords: ["handloom stories"] },
-  { id: "everyday-atelier", keywords: ["everyday atelier"] },
-  { id: "groom-atelier", keywords: ["groom atelier"] },
-  { id: "little-heirlooms", keywords: ["little heirlooms"] },
-];
+export const COLLECTION_KEYWORDS = [];
 
 /** Categories that count as full apparel looks for outfit building. */
 export const OUTFIT_MAIN_CATEGORY_IDS = new Set([

@@ -46,7 +46,7 @@ export function SectionContent({ draft, patch }) {
             rows={2}
             value={draft.shortDescription}
             onChange={(event) => patch({ shortDescription: event.target.value })}
-            placeholder="A handloom Banarasi silk saree in rich tones with delicate gold zari."
+            placeholder="Describe this product"
           />
         </Field>
 
@@ -76,7 +76,7 @@ export function SectionContent({ draft, patch }) {
           ariaLabel="Product highlights"
           value={draft.highlights}
           onChange={(highlights) => patch({ highlights })}
-          placeholder="Pure Banarasi Silk, handwoven border…"
+          placeholder="Product details"
         />
       </Field>
 

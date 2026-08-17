@@ -88,10 +88,7 @@ const desks = {
         </>
       ),
       description: "Pieces the floor should not promise freely.",
-      rows: stock.lowItems.length ? stock.lowItems : [
-        { id: "ls-1", name: "Temple-work bangle set", sku: "PF-JWL-021", availabilityLabel: "Low stock", stock: 2, price: 6400 },
-        { id: "ls-2", name: "Ivory silk kurta · 40", sku: "PF-KURT-011", availabilityLabel: "Low stock", stock: 3, price: 8900 },
-      ],
+      rows: stock.lowItems,
       columns: [
         { id: "name", label: "Piece" },
         { id: "sku", label: "SKU" },
@@ -110,9 +107,7 @@ const desks = {
         </>
       ),
       description: "Unavailable pieces. Do not write an assisted ticket against these.",
-      rows: stock.outItems.length ? stock.outItems : [
-        { id: "os-1", name: "Printed chiffon saree · garden", sku: "PF-SARE-088", availabilityLabel: "Unavailable", stock: 0, price: 7200 },
-      ],
+      rows: stock.outItems,
       columns: [
         { id: "name", label: "Piece" },
         { id: "sku", label: "SKU" },

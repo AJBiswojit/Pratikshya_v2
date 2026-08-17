@@ -20,7 +20,6 @@
  * display a catalogue product.
  */
 
-import catalogue from "./catalogue";
 import catalogRepository, { productsRegisterRaw, slugify } from "../../services/catalogRepository";
 import {
   getCareInstructions,
@@ -224,11 +223,6 @@ const withSearchText = (product) => ({
   searchText: normaliseSearchText((product.tags ?? []).join(" ")),
 });
 
-/** Every product in the authored catalogue, normalised. */
-const seededProducts = catalogue.map((product, index) =>
-  withSearchText(toStorefrontProduct(product, index))
-);
-
 /**
  * The shared admin register, when a browser session has saved one. Records
  * may be authored catalogue rows, Phase 11 minimal rows or Phase 13 complete
@@ -251,7 +245,7 @@ const isCustomerVisible = (record) => {
 let liveCache = null;
 
 export const getLiveStorefrontProducts = () => {
-  const fingerprint = productsRegisterRaw() ?? "seed";
+  const fingerprint = productsRegisterRaw() ?? "empty";
   if (liveCache && liveCache.fingerprint === fingerprint) return liveCache.list;
 
   let list = null;
@@ -270,9 +264,9 @@ export const getLiveStorefrontProducts = () => {
         });
     }
   } catch {
-    /* fallback to seeded */
+    /* An unavailable source renders the same controlled empty catalogue. */
   }
-  if (!list) list = seededProducts;
+  if (!list) list = [];
   liveCache = { fingerprint, list };
   return list;
 };

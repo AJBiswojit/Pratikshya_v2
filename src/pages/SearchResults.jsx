@@ -70,7 +70,7 @@ export default function SearchResults() {
               type="search"
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
-              placeholder="Banarasi silk, bridal lehenga, kundan…"
+              placeholder="Search the catalogue…"
               className={cn(
                 "w-full bg-transparent py-3 font-display text-2xl md:text-3xl font-light",
                 "placeholder:text-ash focus:outline-none"

@@ -46,7 +46,7 @@ export function SectionBasics({ draft, patch, errors, isNew }) {
           id="pf-name"
           value={draft.name}
           onChange={(event) => patch({ name: event.target.value })}
-          placeholder="Banarasi Silk Saree in Gold"
+          placeholder="Product name"
           autoComplete="off"
         />
       </Field>

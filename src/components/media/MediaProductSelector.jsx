@@ -128,7 +128,7 @@ export default function MediaProductSelector({
                 if (!isOpen) setIsOpen(true);
               }}
               onFocus={() => setIsOpen(true)}
-              placeholder="Search product name (e.g. Sambalpuri, Banarasi) or SKU (e.g. PF-001)..."
+              placeholder="Search product name or SKU…"
               disabled={disabled}
               className={cn(
                 "w-full border bg-canvas py-2.5 pl-9 pr-10 font-ui text-sm text-ink outline-none transition-colors focus:border-accent",
