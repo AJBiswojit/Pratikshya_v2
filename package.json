@@ -16,6 +16,8 @@
     "audit:media-products": "node --import ./scripts/node-loader/register.mjs scripts/audit-media-products.mjs",
     "audit:catalog-completeness": "node --import ./scripts/node-loader/register.mjs scripts/audit-catalog-completeness.mjs",
     "audit:storefront-coverage": "node --import ./scripts/node-loader/register.mjs scripts/audit-storefront-coverage.mjs",
+    "audit:frontend-catalog": "node --import ./scripts/node-loader/register.mjs scripts/audit-frontend-catalog.mjs",
+    "qa:storefront-catalog": "node --import ./scripts/node-loader/register-jsx.mjs scripts/qa-storefront-catalog.mjs",
     "audit:storefront-images": "node --import ./scripts/node-loader/register.mjs scripts/audit-storefront-images.mjs",
     "audit:rendered-product-media": "node --import ./scripts/node-loader/register.mjs scripts/audit-rendered-product-media.mjs",
     "audit:product-image-integrity": "node --import ./scripts/node-loader/register.mjs scripts/audit-product-image-integrity.mjs",

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { MARKETING_PLACEMENTS } from "../config/mediaTypes";
 import { useMarketingMedia } from "../hooks/useMedia";
 import { resolveHeroImageIds } from "../services/media/mediaResolver";
+import { heroSlides } from "../data/catalog/hero";
 import HeroCarousel from "../components/storefront/HeroCarousel";
 import SareeEditCarousel from "../components/storefront/SareeEditCarousel";
 import BrideGroomEdit from "../components/storefront/BrideGroomEdit";
@@ -30,7 +31,7 @@ export default function AtelierDesign() {
 
   return (
     <main id="top">
-      <HeroCarousel heroMedia={heroMedia} />
+      <HeroCarousel slides={heroSlides} heroMedia={heroMedia} />
 
       <SareeEditCarousel />
 

@@ -8,6 +8,7 @@
  */
 
 import taxonomyRepository from "../../services/taxonomyRepository";
+import { catalogueNavigationScopes, departmentNames } from "../catalog/taxonomy";
 
 const option = (id, label) => ({ id, label });
 const activeCategories = () => taxonomyRepository.activeCategories();
@@ -87,6 +88,7 @@ export const sortOptions = [
 export const defaultSort = "recommended";
 
 export const filterFacets = [
+  { id: "department", label: "Department", field: "department", kind: "list", options: () => Object.entries(departmentNames).map(([id, label]) => option(id, label)) },
   { id: "category", label: "Category", field: "category", kind: "list", options: () => activeCategories().map((c) => option(c.id, c.name)) },
   { id: "subcategory", label: "Style", field: "subcategory", kind: "list", options: null },
   { id: "gender", label: "Worn By", field: "gender", kind: "list", options: () => genders.map((g) => option(g, g)) },
@@ -150,49 +152,15 @@ export const collectionRoutes = Object.fromEntries(
   })
 );
 
+/**
+ * Every listing path the navigation knows. Department / category /
+ * subcategory paths come from the department-based catalogue taxonomy
+ * (`src/data/catalog/taxonomy.js`); collection paths and the legacy
+ * jewellery aliases are kept so existing deep links still resolve.
+ */
 export const navigationScopes = {
-  "/women": { filters: { gender: "Women" }, title: "Women" },
-  "/women/pato-sarees": { filters: { category: "sarees", subcategory: "Pato Saree" } },
-  "/women/cotton-sarees": { filters: { category: "sarees", subcategory: "Cotton Saree" } },
-  "/women/silk-sarees": { filters: { category: "sarees", subcategory: "Silk Saree" } },
-  "/women/banarasi-sarees": { filters: { category: "sarees", subcategory: "Banarasi Saree" } },
-  "/women/printed-sarees": { filters: { category: "sarees", subcategory: "Printed Saree" } },
-  "/women/designer-sarees": { filters: { category: "sarees", subcategory: "Designer Saree" } },
-  "/women/bridal-lehengas": { filters: { category: "lehengas", subcategory: "Bridal Lehenga" } },
-  "/women/party-lehengas": { filters: { category: "lehengas", subcategory: "Party Lehenga" } },
-  "/women/designer-lehengas": { filters: { category: "lehengas", subcategory: "Designer Lehenga" } },
-  "/women/kurtis-and-suits": { filters: { category: "kurtis-and-suits" } },
-  "/women/innerwear": { filters: { category: "innerwear" } },
-  "/women/dupattas-and-stoles": { filters: { category: "dupattas" } },
-  "/bridal": { filters: { occasion: "Bridal" } },
-  "/bridal/bridal-sarees": { filters: { category: "sarees", occasion: "Bridal" } },
-  "/bridal/bridal-lehengas": { filters: { category: "lehengas", subcategory: "Bridal Lehenga" } },
-  "/bridal/reception-wear": { filters: { occasion: "Reception" } },
-  "/bridal/mehendi-and-haldi": { filters: { occasion: "Mehendi" } },
-  "/bridal/sangeet-edit": { filters: { occasion: "Sangeet" } },
-  "/bridal/trousseau-edit": { filters: { collection: "Bridal Trousseau" } },
-  "/men": { filters: { gender: "Men" } },
-  "/men/kurta": { filters: { category: "menswear", subcategory: "Kurta" } },
-  "/men/kurta-pajama": { filters: { category: "menswear", subcategory: "Kurta Pajama" } },
-  "/men/nehru-jackets": { filters: { category: "menswear", subcategory: "Nehru Jacket" } },
-  "/men/groom": { filters: { gender: "Men", collection: "Groom Atelier" } },
-  "/men/sherwani": { filters: { category: "menswear", subcategory: "Sherwani" } },
-  "/men/wedding-kurta": { filters: { category: "menswear", occasion: "Wedding" } },
-  "/kids": { filters: { gender: "Kids" } },
-  "/kids/girls-dresses": { filters: { category: "kidswear", subcategory: "Girls Dress" } },
-  "/kids/girls-casual-sets": { filters: { category: "kidswear", subcategory: "Girls Casual Set" } },
-  "/kids/boys-casual-sets": { filters: { category: "kidswear", subcategory: "Boys Casual Set" } },
-  "/kids/boys-tshirt-shorts": { filters: { category: "kidswear", subcategory: "Boys T-Shirt & Shorts Set" } },
-  "/jewellery": { filters: { category: "jewellery" } },
-  "/jewellery/bridal-bangles": { filters: { category: "bangles", subcategory: "Bridal Bangles" } },
-  "/jewellery/gold-finish-bangles": { filters: { category: "bangles", subcategory: "Gold-finish Bangles" } },
-  "/jewellery/kada-and-cuffs": { filters: { category: "bangles", subcategory: "Kada + Cuffs" } },
-  "/jewellery/earrings": { filters: { category: "jewellery", subcategory: "Earrings" } },
-  "/jewellery/necklaces": { filters: { category: "jewellery", subcategory: "Necklaces" } },
-  "/jewellery/maang-tikka": { filters: { category: "jewellery", subcategory: "Maang Tikka" } },
-  "/jewellery/rings": { filters: { category: "jewellery", subcategory: "Rings" } },
-  "/jewellery/bridal-jewellery": { filters: { category: "jewellery", occasion: "Bridal" } },
-  "/jewellery/sets-and-pairings": { filters: { category: "jewellery", subcategory: "Jewellery Set" } },
+  ...catalogueNavigationScopes,
+
   "/collections": {},
   "/collections/new-arrivals": { filters: { flag: "isNew" } },
   "/collections/festive-edit": { filters: { collection: "Festive Edit" } },
@@ -202,6 +170,42 @@ export const navigationScopes = {
   "/collections/silk": { filters: { fabric: "Mulberry Silk" } },
   "/collections/linen": { filters: { fabric: "Linen" } },
   "/collections/chiffon": { filters: { fabric: "Chiffon" } },
+
+  /* Legacy jewellery paths — bridal finishing touches today. */
+  "/jewellery": { filters: { department: "bridal", category: "finishing-touches" } },
+  "/jewellery/bridal-bangles": { filters: { department: "bridal", category: "finishing-touches", subcategory: "bangles" } },
+  "/jewellery/gold-finish-bangles": { filters: { department: "bridal", category: "finishing-touches", subcategory: "bangles", style: "gold-finish-bangles" } },
+  "/jewellery/kada-and-cuffs": { filters: { department: "bridal", category: "finishing-touches", subcategory: "bangles", style: "kada-bangles" } },
+  "/jewellery/earrings": { filters: { department: "bridal", category: "finishing-touches", subcategory: "jewellery", style: "earrings" } },
+  "/jewellery/necklaces": { filters: { department: "bridal", category: "finishing-touches", subcategory: "jewellery", style: "necklace" } },
+  "/jewellery/maang-tikka": { filters: { department: "bridal", category: "finishing-touches", subcategory: "jewellery", style: "maang-tikka" } },
+  "/jewellery/rings": { filters: { department: "bridal", category: "finishing-touches", subcategory: "jewellery", style: "ring" } },
+  "/jewellery/bridal-jewellery": { filters: { department: "bridal", category: "finishing-touches", subcategory: "jewellery", style: "bridal-jewellery" } },
+  "/jewellery/sets-and-pairings": { filters: { department: "bridal", category: "finishing-touches", subcategory: "jewellery", style: "jewellery-set" } },
+
+  /* Legacy flat paths — mapped onto their catalogue equivalents. */
+  "/women/cotton-sarees": { filters: { department: "women", category: "sarees", subcategory: "cotton" } },
+  "/women/silk-sarees": { filters: { department: "women", category: "sarees", subcategory: "silk" } },
+  "/women/banarasi-sarees": { filters: { department: "women", category: "sarees", subcategory: "banarasi" } },
+  "/women/bridal-lehengas": { filters: { department: "women", category: "lehengas", subcategory: "bridal" } },
+  "/women/party-lehengas": { filters: { department: "women", category: "lehengas", subcategory: "party" } },
+  "/women/designer-lehengas": { filters: { department: "women", category: "lehengas", subcategory: "designer" } },
+  "/women/kurtis-and-suits": { filters: { department: "women", category: "essentials", subcategory: "kurtis-suits" } },
+  "/women/innerwear": { filters: { department: "women", category: "essentials", subcategory: "innerwear" } },
+  "/women/dupattas-and-stoles": { filters: { department: "women", category: "essentials", subcategory: "dupattas-stoles" } },
+  "/bridal/bridal-sarees": { filters: { department: "bridal", category: "the-bride", subcategory: "sarees" } },
+  "/bridal/bridal-lehengas": { filters: { department: "bridal", category: "the-bride", subcategory: "lehengas" } },
+  "/bridal/reception-wear": { filters: { department: "bridal", category: "the-bride", subcategory: "reception-wear" } },
+  "/bridal/mehendi-and-haldi": { filters: { department: "bridal", category: "celebrations", subcategory: "mehendi-haldi" } },
+  "/bridal/sangeet-edit": { filters: { department: "bridal", category: "celebrations", subcategory: "sangeet" } },
+  "/bridal/trousseau-edit": { filters: { department: "bridal", category: "celebrations", subcategory: "trousseau" } },
+  "/men/kurta-pajama": { filters: { department: "men", category: "ethnic-wear", subcategory: "kurta-pajama" } },
+  "/men/nehru-jackets": { filters: { department: "men", category: "ethnic-wear", subcategory: "nehru-jackets" } },
+  "/men/groom": { filters: { department: "men", category: "groom" } },
+  "/kids/girls-dresses": { filters: { department: "kids", category: "girls", subcategory: "dresses" } },
+  "/kids/girls-casual-sets": { filters: { department: "kids", category: "girls", subcategory: "casual-sets" } },
+  "/kids/boys-casual-sets": { filters: { department: "kids", category: "boys", subcategory: "casual-sets" } },
+  "/kids/boys-tshirt-shorts": { filters: { department: "kids", category: "boys", subcategory: "t-shirt-shorts" } },
 };
 
 export const hasNavigationScope = (pathname) =>

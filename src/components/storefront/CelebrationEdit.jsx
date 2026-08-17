@@ -25,7 +25,7 @@ const edits = [
     label: "Bridal Edit",
     title: "Pieces created for moments you'll remember forever.",
     shortTitle: "The bridal edit",
-    categoryId: "bridal-couture",
+    categoryId: "the-bride",
     image: null,
   },
   {
@@ -34,7 +34,7 @@ const edits = [
     label: "Groom Edit",
     title: "Considered ceremonial dressing, tailored for the occasion.",
     shortTitle: "The ceremony edit",
-    categoryId: "menswear",
+    categoryId: "groom",
     image: null,
   },
   {

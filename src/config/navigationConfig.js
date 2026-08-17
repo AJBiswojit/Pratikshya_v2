@@ -13,6 +13,8 @@
  * `src/data/pratikshyaImageManifest.js`) — never by URL.
  */
 
+import { catalogueRoutes } from "../data/catalog/taxonomy";
+
 export const brand = {
   name: "PRATIKSHYA FASHON",
   home: "/",
@@ -40,28 +42,26 @@ export const primaryNavigation = [
       {
         title: "Sarees",
         links: [
-          { label: "Pato Sarees", to: "/women/pato-sarees" },
-          { label: "Cotton Sarees", to: "/women/cotton-sarees" },
-          { label: "Silk Sarees", to: "/women/silk-sarees" },
-          { label: "Banarasi Sarees", to: "/women/banarasi-sarees" },
-          { label: "Printed Sarees", to: "/women/printed-sarees" },
-          { label: "Designer Sarees", to: "/women/designer-sarees" },
+          { label: "Banarasi Sarees", to: "/women/sarees/banarasi" },
+          { label: "Cotton Sarees", to: "/women/sarees/cotton" },
+          { label: "Silk Sarees", to: "/women/sarees/silk" },
+          { label: "All Sarees", to: "/women/sarees" },
         ],
       },
       {
         title: "Lehengas",
         links: [
-          { label: "Bridal Lehengas", to: "/women/bridal-lehengas" },
-          { label: "Party Lehengas", to: "/women/party-lehengas" },
-          { label: "Designer Lehengas", to: "/women/designer-lehengas" },
+          { label: "Bridal Lehengas", to: "/women/lehengas/bridal" },
+          { label: "Party Lehengas", to: "/women/lehengas/party" },
+          { label: "Designer Lehengas", to: "/women/lehengas/designer" },
         ],
       },
       {
         title: "Essentials",
         links: [
-          { label: "Kurtis + Suits", to: "/women/kurtis-and-suits" },
-          { label: "Innerwear", to: "/women/innerwear" },
-          { label: "Dupattas + Stoles", to: "/women/dupattas-and-stoles" },
+          { label: "Kurtis + Suits", to: "/women/essentials/kurtis-suits" },
+          { label: "Innerwear", to: "/women/essentials/innerwear" },
+          { label: "Dupattas + Stoles", to: "/women/essentials/dupattas-stoles" },
         ],
       },
     ],
@@ -69,8 +69,8 @@ export const primaryNavigation = [
       image: null,
       eyebrow: "Heritage Weaves",
       title: "The Saree Edit",
-      caption: "Pato · cotton · silk · Banarasi · festive.",
-      to: "/women/banarasi-sarees",
+      caption: "Cotton · silk · Banarasi · festive.",
+      to: "/women/sarees/silk",
     },
   },
   {
@@ -84,25 +84,25 @@ export const primaryNavigation = [
       {
         title: "The Bride",
         links: [
-          { label: "Bridal Sarees", to: "/bridal/bridal-sarees" },
-          { label: "Bridal Lehengas", to: "/bridal/bridal-lehengas" },
-          { label: "Reception Wear", to: "/bridal/reception-wear" },
+          { label: "Bridal Sarees", to: "/bridal/the-bride/sarees" },
+          { label: "Bridal Lehengas", to: "/bridal/the-bride/lehengas" },
+          { label: "Reception Wear", to: "/bridal/the-bride/reception-wear" },
         ],
       },
       {
         title: "Celebrations",
         links: [
-          { label: "Mehendi + Haldi", to: "/bridal/mehendi-and-haldi" },
-          { label: "Sangeet Edit", to: "/bridal/sangeet-edit" },
-          { label: "Trousseau Edit", to: "/bridal/trousseau-edit" },
+          { label: "Mehendi + Haldi", to: "/bridal/celebrations/mehendi-haldi" },
+          { label: "Sangeet Edit", to: "/bridal/celebrations/sangeet" },
+          { label: "Trousseau Edit", to: "/bridal/celebrations/trousseau" },
         ],
       },
       {
         title: "Finishing Touches",
         links: [
-          { label: "Bridal Jewellery", to: "/jewellery/bridal-jewellery" },
-          { label: "Bridal Bangles", to: "/jewellery/bridal-bangles" },
-          { label: "Groom Collection", to: "/men/groom" },
+          { label: "Bridal Jewellery", to: "/bridal/finishing-touches/jewellery" },
+          { label: "Bridal Bangles", to: "/bridal/finishing-touches/bangles" },
+          { label: "Groom Collection", to: "/men/groom/groom-collection" },
         ],
       },
     ],
@@ -111,7 +111,7 @@ export const primaryNavigation = [
       eyebrow: "Wedding Atelier",
       title: "The Celebration Edit",
       caption: "For the promises that become heirlooms.",
-      to: "/bridal/bridal-lehengas",
+      to: "/bridal/the-bride/lehengas",
     },
   },
   {
@@ -120,22 +120,19 @@ export const primaryNavigation = [
     to: "/men",
     eyebrow: "Men + Groom",
     description:
-      "Kurta, kurta pajama, ethnic wear and groom edits, tailored for the celebration.",
+      "Kurta pajama, Nehru jackets and groom edits, tailored for the celebration.",
     columns: [
       {
         title: "Ethnic Wear",
         links: [
-          { label: "Kurta", to: "/men/kurta" },
-          { label: "Kurta Pajama", to: "/men/kurta-pajama" },
-          { label: "Nehru Jackets", to: "/men/nehru-jackets" },
+          { label: "Kurta Pajama", to: "/men/ethnic-wear/kurta-pajama" },
+          { label: "Nehru Jackets", to: "/men/ethnic-wear/nehru-jackets" },
         ],
       },
       {
         title: "Groom",
         links: [
-          { label: "Groom Collection", to: "/men/groom" },
-          { label: "Sherwani", to: "/men/sherwani" },
-          { label: "Wedding Kurta", to: "/men/wedding-kurta" },
+          { label: "Groom Collection", to: "/men/groom/groom-collection" },
         ],
       },
     ],
@@ -144,7 +141,7 @@ export const primaryNavigation = [
       eyebrow: "Ceremonial Wardrobe",
       title: "The Groom Edit",
       caption: "A considered ceremonial wardrobe.",
-      to: "/men/groom",
+      to: "/men/groom/groom-collection",
     },
   },
   {
@@ -158,15 +155,15 @@ export const primaryNavigation = [
       {
         title: "Girls",
         links: [
-          { label: "Dresses", to: "/kids/girls-dresses" },
-          { label: "Casual Sets", to: "/kids/girls-casual-sets" },
+          { label: "Dresses", to: "/kids/girls/dresses" },
+          { label: "Casual Sets", to: "/kids/girls/casual-sets" },
         ],
       },
       {
         title: "Boys",
         links: [
-          { label: "T-Shirt & Shorts", to: "/kids/boys-tshirt-shorts" },
-          { label: "Casual Sets", to: "/kids/boys-casual-sets" },
+          { label: "T-Shirt & Shorts", to: "/kids/boys/t-shirt-shorts" },
+          { label: "Casual Sets", to: "/kids/boys/casual-sets" },
         ],
       },
     ],
@@ -176,47 +173,6 @@ export const primaryNavigation = [
       title: "The Kids Edit",
       caption: "Everyday coordinates for the youngest guests.",
       to: "/kids",
-    },
-  },
-  {
-    id: "jewellery",
-    label: "Jewellery",
-    to: "/jewellery",
-    eyebrow: "Bangles + Jewellery",
-    description:
-      "Bangles, earrings, necklaces, bracelets and rings chosen to hold the light.",
-    columns: [
-      {
-        title: "Bangles",
-        links: [
-          { label: "Bridal Bangles", to: "/jewellery/bridal-bangles" },
-          { label: "Gold-finish Bangles", to: "/jewellery/gold-finish-bangles" },
-          { label: "Kada + Cuffs", to: "/jewellery/kada-and-cuffs" },
-        ],
-      },
-      {
-        title: "Adornments",
-        links: [
-          { label: "Earrings", to: "/jewellery/earrings" },
-          { label: "Necklaces", to: "/jewellery/necklaces" },
-          { label: "Maang Tikka", to: "/jewellery/maang-tikka" },
-          { label: "Rings", to: "/jewellery/rings" },
-        ],
-      },
-      {
-        title: "Bridal",
-        links: [
-          { label: "Bridal Jewellery", to: "/jewellery/bridal-jewellery" },
-          { label: "Sets + Pairings", to: "/jewellery/sets-and-pairings" },
-        ],
-      },
-    ],
-    feature: {
-      image: null,
-      eyebrow: "Heirloom Metalwork",
-      title: "The Jewellery Edit",
-      caption: "The finishing language of an occasion.",
-      to: "/jewellery/bridal-bangles",
     },
   },
   {
@@ -291,17 +247,17 @@ export const footerNavigation = [
   {
     title: "Women",
     links: [
-      { label: "Sarees", to: "/women" },
-      { label: "Pato Sarees", to: "/women/pato-sarees" },
-      { label: "Lehengas", to: "/women/designer-lehengas" },
-      { label: "Innerwear", to: "/women/innerwear" },
+      { label: "Sarees", to: "/women/sarees" },
+      { label: "Silk Sarees", to: "/women/sarees/silk" },
+      { label: "Lehengas", to: "/women/lehengas" },
+      { label: "Innerwear", to: "/women/essentials/innerwear" },
     ],
   },
   {
     title: "Occasions",
     links: [
       { label: "Bridal", to: "/bridal" },
-      { label: "Wedding Wear", to: "/bridal/reception-wear" },
+      { label: "Wedding Wear", to: "/bridal/the-bride/lehengas" },
       { label: "Men + Groom", to: "/men/groom" },
       { label: "Kids Festive", to: "/kids" },
     ],
@@ -309,7 +265,7 @@ export const footerNavigation = [
   {
     title: "Customer Care",
     links: [
-      { label: "Bangles + Jewellery", to: "/jewellery" },
+      { label: "Bangles + Jewellery", to: "/bridal/finishing-touches/jewellery" },
       { label: "New Arrivals", to: "/collections/new-arrivals" },
       { label: "About Us", to: "/about" },
       { label: "Policies + Contact", to: "/contact" },
@@ -461,6 +417,10 @@ function buildRouteManifest() {
       breadcrumb: [{ label: page.label }],
     });
   });
+
+  /* Department / category / subcategory listing paths, generated from the
+     department-based catalogue taxonomy (src/data/catalog/taxonomy.js). */
+  catalogueRoutes.forEach((route) => push(route));
 
   return routes;
 }

@@ -20,6 +20,7 @@ import {
   categoryLabels,
 } from "./taxonomy";
 import taxonomyRepository from "../../services/taxonomyRepository";
+import { departmentNames } from "../catalog/taxonomy";
 import { countBand, countFacet } from "./query";
 
 /** Options for the facets whose values come from the catalogue itself. */
@@ -73,6 +74,11 @@ export function buildFacets(scoped, filters = {}, locked = {}) {
               order: getCategory(id) ? 0 : 1,
             }))
             .sort((a, b) => a.label.localeCompare(b.label));
+        } else if (facet.id === "department") {
+          options = derivedOptions(counts).map((option) => ({
+            ...option,
+            label: departmentNames[option.id] ?? option.label,
+          }));
         } else if (facet.id === "collection") {
           const activeNames = new Set(taxonomyRepository.activeCollections().map((collection) => collection.name));
           options = derivedOptions(counts).filter((option) => activeNames.has(option.label));
@@ -116,6 +122,7 @@ export const chipLabel = (facetId, value) => {
     return ratingOptions.find((option) => option.id === value)?.label ?? value;
   }
   if (facetId === "category") return categoryLabels[value] ?? value;
+  if (facetId === "department") return departmentNames[value] ?? value;
   if (facetId === "availability") {
     return availabilityOptions.find((option) => option.id === value)?.label ?? value;
   }

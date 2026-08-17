@@ -8,6 +8,7 @@
  */
 
 import catalogue from "../data/products/catalogue";
+import { departments as catalogueDepartments } from "../data/catalog/taxonomy";
 import catalogRepository, { slugify } from "./catalogRepository";
 import {
   ACTIVITY_ACTIONS,
@@ -191,13 +192,42 @@ export const normalizeTaxonomyRecord = (record, type = null) => {
 const buildSeed = () => {
   const categories = CATEGORY_SEEDS.map(makeCategory);
   const categoryIds = new Set(categories.map((category) => category.id));
+  const subcategoryMap = new Map();
   catalogue.forEach((product) => {
     if (!product.category || categoryIds.has(product.category)) return;
     categories.push(makeCategory({ id: product.category, name: titleCase(product.category), sortOrder: categories.length * 10 }));
     categoryIds.add(product.category);
   });
 
-  const subcategoryMap = new Map();
+  /* The department-based catalogue taxonomy is the labelled source of
+     truth for its own categories and subcategories — merged here so the
+     workspace and the storefront share one vocabulary. */
+  catalogueDepartments.forEach((department) => {
+    department.categories.forEach((category) => {
+      if (!categoryIds.has(category.id)) {
+        categories.push(makeCategory({
+          id: category.id,
+          name: category.name,
+          slug: category.slug,
+          eyebrow: category.eyebrow,
+          description: category.description,
+          sortOrder: categories.length * 10,
+        }));
+        categoryIds.add(category.id);
+      }
+      category.subcategories.forEach((subcategory) => {
+        const key = `${category.id}::${subcategory.slug}`;
+        if (subcategoryMap.has(key)) return;
+        subcategoryMap.set(key, makeSubcategory({
+          categoryId: category.id,
+          name: subcategory.name,
+          slug: subcategory.slug,
+          sortOrder: subcategoryMap.size * 10,
+        }));
+      });
+    });
+  });
+
   catalogue.forEach((product) => {
     if (!product.category || !product.subcategory) return;
     const key = `${product.category}::${String(product.subcategory).toLowerCase()}`;

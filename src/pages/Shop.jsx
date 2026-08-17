@@ -29,7 +29,7 @@ import { cn } from "../utils/cn";
  */
 
 /** The six categories offered as shortcuts, in merchandising order. */
-const SHORTCUT_ORDER = ["sarees", "lehengas", "bridal-couture", "bangles", "menswear", "kidswear"];
+const SHORTCUT_ORDER = ["sarees", "lehengas", "the-bride", "finishing-touches", "ethnic-wear", "girls"];
 
 export default function Shop() {
   const activeCategories = taxonomyRepository.activeCategories();

@@ -26,6 +26,7 @@
  *   · Product version counter for downstream memoization.
  */
 
+import { products as catalogueSeedProducts } from "../data/catalog/products";
 import { getProductMediaSummary } from "./media/mediaRepository";
 import { getProductMediaSet } from "./media/productMediaSet";
 import {
@@ -68,6 +69,34 @@ export const PRODUCTS_CHANGED_EVENT = "pratikshya-products-changed";
  */
 export const CATALOGUE_RESET_KEY = "pratikshya_catalogue_reset_2026_08_17";
 export const replaceStaleKidswearRows = (items) => Array.isArray(items) ? items : [];
+
+/* ------------------------------------------------------------------ */
+/* Frontend catalogue seed                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The static frontend catalogue — `src/data/catalog/products.js` — is the
+ * authored product source. It supplies every record while the register is
+ * empty (or missing entries), and is the seam a future product API replaces
+ * without touching a single consumer. Stored workspace records always win
+ * over the seed for the same id, so admin edits can never be overwritten.
+ */
+const CATALOGUE_SEED_RAW = JSON.stringify(catalogueSeedProducts);
+
+/** Fingerprint of the authored catalogue — invalidates read-only caches. */
+export const catalogueSeedFingerprint = () =>
+  `${catalogueSeedProducts.length}:${CATALOGUE_SEED_RAW.length}`;
+
+const mergeCatalogueSeed = (stored) => {
+  if (!Array.isArray(stored) || stored.length === 0) {
+    return healRead(CATALOGUE_SEED_RAW);
+  }
+  const present = new Set(stored.map((record) => record && String(record.id)));
+  const missing = healRead(CATALOGUE_SEED_RAW).filter(
+    (record) => !present.has(String(record.id))
+  );
+  return missing.length ? [...stored, ...missing] : stored;
+};
 
 export const PRODUCT_STATUS = {
   DRAFT: "DRAFT",
@@ -161,13 +190,15 @@ const read = () => {
     if (readCache && readCache.raw === raw && readCache.parsed) {
       return readCache.parsed;
     }
-    const healed = healRead(raw);
+    const healed = mergeCatalogueSeed(healRead(raw));
     /* Phase 3A — READ = READ ONLY. All sync/remap/reconciliation
-       operations moved to explicit runExplicitMigrations(). */
+       operations moved to explicit runExplicitMigrations(). The frontend
+       catalogue seed is merged here, at read time, so the register and the
+       authored catalogue stay one product source. */
     readCache = { raw: raw ?? null, parsed: healed };
     return healed;
   } catch {
-    return healRead(null);
+    return mergeCatalogueSeed(healRead(null));
   }
 };
 
@@ -339,6 +370,14 @@ export const normaliseProductRecord = (raw = {}, index = 0) => {
   const review = raw.review && typeof raw.review === "object" ? raw.review : {};
   const status = normaliseProductStatus(raw.status) || (raw.published === false ? "DRAFT" : "PUBLISHED");
 
+  /* Authored catalogue plates (media.primary / media.gallery) mirror the
+     legacy `image` / `additionalImages` fields the media pipeline reads. */
+  const authoredMedia = raw.media && typeof raw.media === "object" ? raw.media : null;
+  const image = raw.image ?? authoredMedia?.primary ?? undefined;
+  const additionalImages = asArray(raw.additionalImages).length
+    ? asArray(raw.additionalImages)
+    : asArray(authoredMedia?.gallery);
+
   return {
     ...raw,
 
@@ -466,6 +505,8 @@ export const normaliseProductRecord = (raw = {}, index = 0) => {
        media claims. Register-level ownership (media.productId) remains the
        single ownership truth; a claim that conflicts with the register is
        reported, never silently resolved. */
+    image,
+    additionalImages,
     mediaIds: asArray(raw.mediaIds),
     primaryMediaId: raw.primaryMediaId || null,
     galleryMediaIds: asArray(raw.galleryMediaIds),
