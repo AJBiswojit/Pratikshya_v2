@@ -174,7 +174,7 @@ function ProductWorkspace() {
       <DataTable
         rows={filtered}
         rowKey="id"
-        empty="No products match those filters."
+        empty={items.length === 0 ? "No products yet — start building the PRATIKSHYA FASHON catalog by adding your first product." : "No products match those filters."}
         columns={[
           {
             id: "name",

@@ -7,6 +7,7 @@ import {
   AVAILABILITY_OPTIONS,
   COLLECTION_OPTIONS,
   COLOR_OPTIONS,
+  DEPARTMENT_SELECT_OPTIONS,
   FABRIC_OPTIONS,
   GENDER_OPTIONS,
   MATERIAL_OPTIONS,
@@ -17,6 +18,8 @@ import {
   SIZE_OPTIONS,
   TAG_SUGGESTIONS,
   WORK_OPTIONS,
+  departmentCategoriesFor,
+  departmentSubcategoriesFor,
   subcategoryOptionsFor,
 } from "../../config/productCatalogConfig";
 import catalogRepository from "../../services/catalogRepository";
@@ -39,8 +42,42 @@ import {
 export function SectionBasics({ draft, patch, errors, isNew }) {
   const slugPreview = draft.slug || catalogRepository.suggestSlug(draft.name, draft.id);
 
+  /**
+   * When the department changes, infer the gender and narrow the category
+   * options. Category and subcategory are reset when the department changes
+   * so the record can never carry a stale combination.
+   */
+  const handleDepartmentChange = (departmentId) => {
+    const genderMap = { women: "Women", bridal: "Women", men: "Men", kids: "Kids" };
+    patch({
+      department: departmentId,
+      gender: genderMap[departmentId] || draft.gender,
+      category: "",
+      subcategory: "",
+    });
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-2">
+      <Field
+        label="Department"
+        required
+        hint="All departments use the same product-management system. Selecting a department narrows the available categories and subcategories."
+        htmlFor="pf-department"
+        className="lg:col-span-2"
+      >
+        <Select
+          id="pf-department"
+          value={draft.department}
+          onChange={(event) => handleDepartmentChange(event.target.value)}
+          placeholder="Choose a department"
+          options={DEPARTMENT_SELECT_OPTIONS.map((dept) => ({
+            value: dept.id,
+            label: dept.label,
+          }))}
+        />
+      </Field>
+
       <Field label="Product name" required error={errors.name} htmlFor="pf-name" className="lg:col-span-2">
         <TextInput
           id="pf-name"
@@ -191,8 +228,21 @@ export function SectionBasics({ draft, patch, errors, isNew }) {
 /* ------------------------------------------------------------------ */
 
 export function SectionAttributes({ draft, patch, errors }) {
-  const subcategoryOptions = subcategoryOptionsFor(draft.category);
-  const categoryOptions = taxonomyRepository.categoryOptions();
+  const allSubcategoryOptions = subcategoryOptionsFor(draft.category);
+  const departmentSubcategories = draft.department
+    ? departmentSubcategoriesFor(draft.department, draft.category)
+    : [];
+  const subcategoryOptions = departmentSubcategories.length
+    ? departmentSubcategories.map((sub) => sub.id)
+    : allSubcategoryOptions;
+
+  const allCategoryOptions = taxonomyRepository.categoryOptions();
+  const departmentCategories = draft.department
+    ? departmentCategoriesFor(draft.department)
+    : [];
+  const categoryOptions = departmentCategories.length
+    ? departmentCategories
+    : allCategoryOptions;
   const collectionOptions = taxonomyRepository.collectionOptions().map((entry) => entry.label);
 
   return (
@@ -203,7 +253,7 @@ export function SectionAttributes({ draft, patch, errors }) {
             id="pf-category"
             value={draft.category}
             onChange={(event) => patch({ category: event.target.value, subcategory: "" })}
-            placeholder="Choose a category"
+            placeholder={draft.department ? "Choose a category" : "Choose a department first"}
             options={categoryOptions.map((category) => ({ value: category.id, label: category.label }))}
           />
         </Field>

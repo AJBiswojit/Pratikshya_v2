@@ -18,6 +18,11 @@ import {
   occasions,
 } from "../data/products/taxonomy";
 import taxonomyRepository from "../services/taxonomyRepository";
+import {
+  DEPARTMENT_OPTIONS,
+  categoriesForDepartment,
+  subcategoriesForDepartmentCategory,
+} from "../data/products/departments";
 
 /* ------------------------------------------------------------------ */
 /* Product type                                                        */
@@ -89,6 +94,16 @@ export const subcategoryOptionsFor = (categoryId) =>
 /* ------------------------------------------------------------------ */
 
 export const GENDER_OPTIONS = ["Women", "Men", "Kids", "Unisex"];
+
+/* ------------------------------------------------------------------ */
+/* Departments — the generic product system uses the same components   */
+/* for Women, Bridal, Men and Kids. Department is DATA, not logic.     */
+/* ------------------------------------------------------------------ */
+
+export const DEPARTMENT_SELECT_OPTIONS = DEPARTMENT_OPTIONS;
+
+export const departmentCategoriesFor = categoriesForDepartment;
+export const departmentSubcategoriesFor = subcategoriesForDepartmentCategory;
 
 /* ------------------------------------------------------------------ */
 /* Stable Product IDs (Phase 22)                                       */
