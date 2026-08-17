@@ -35,16 +35,7 @@ import { getPublishIssues } from "../../services/catalogRepository";
 import { CATEGORY_OPTIONS, getProductStatusLabel } from "../../config/productCatalogConfig";
 import taxonomyRepository from "../../services/taxonomyRepository";
 import { formatINR } from "../../utils/shopping";
-import {
-  getKidsPublishBlockers,
-  kidsHoverState,
-} from "../../services/kidsProductFinalization";
-import {
-  isConfirmedKidsProductId,
-  kidsFileNameOf,
-  kidsMediaFileForProductId,
-  kidsNameLooksForeign,
-} from "../../services/kidsProductIdentity";
+import { kidsFileNameOf } from "../../services/kidsProductIdentity";
 import { reviewFlagLabel } from "../../services/productReviewFlags";
 
 const fieldClass =
@@ -151,22 +142,10 @@ export default function EmployeeProductReview() {
   };
 
   const view = useMemo(() => selected ? getProductWorkflowView(selected) : null, [selected]);
-  /* Phase 22.2 — a confirmed Kids product is validated by the Kids rules
-     (own media, Kids Wear category, valid subcategory, inventory state)
-     on top of the shared publish validation. */
-  const isConfirmedKid = useMemo(() => selected ? isConfirmedKidsProductId(selected.id) : false, [selected?.id]);
-  const issues = useMemo(() => selected
-    ? isConfirmedKid
-      ? getKidsPublishBlockers(selected)
-      : getPublishIssues(selected)
-    : [], [selected, isConfirmedKid]);
-  const hover = selected && isConfirmedKid ? kidsHoverState(selected) : null;
-  const mediaFileName =
-    kidsFileNameOf(view?.mediaSet?.primary) ||
-    (selected ? kidsMediaFileForProductId(selected.id) : null) ||
-    kidsFileNameOf(view?.conflicts?.[0]?.file) ||
-    null;
-  const nameNeedsReview = selected ? kidsNameLooksForeign(draft?.name ?? selected.name) : false;
+  /* Generic publish validation for all products — same rules for every department. */
+  const issues = useMemo(() => selected ? getPublishIssues(selected) : [], [selected]);
+  const mediaFileName = kidsFileNameOf(view?.mediaSet?.primary) || null;
+  const nameNeedsReview = false;
 
   const discountPercent = (() => {
     if (!selected) return null;
@@ -349,8 +328,8 @@ export default function EmployeeProductReview() {
                       />
                       {nameNeedsReview ? (
                         <p className="mt-1 font-ui text-[10px] uppercase tracking-[.12em] text-accent">
-                          Name review required — this name reads like another department's product.
-                          Describe the actual Kids product.
+                          Name review required — this name reads like another department&apos;s product.
+                          Describe the actual product.
                         </p>
                       ) : null}
                     </div>

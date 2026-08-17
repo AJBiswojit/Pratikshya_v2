@@ -2,15 +2,15 @@
  * PRATIKSHYA FASHON — Unified Review Queue (Phase 3D).
  *
  * The ONE queue over the ONE product lifecycle. Every product in the
- * canonical register appears here exactly once — Kids products are rows in
- * the same queue (Kids is a category filter, never a separate workflow).
+ * canonical register appears here exactly once. All departments (Women,
+ * Bridal, Men, Kids) are rows in the same queue with the same treatment.
  *
  *   catalogue → workflow projection → review query → unified review queue
  *
  * The queue is a memoized projection of `catalogRepository` — there is no
  * second register and nothing here writes. Filters cover only facts the
- * canonical data already carries: workflow stage, category, assignment,
- * review flags, Kids / non-Kids, media readiness, taxonomy / price / name /
+ * canonical data already carries: workflow stage, department, category,
+ * assignment, review flags, media readiness, taxonomy / price / name /
  * grouping validity and missing information.
  *
  * PERFORMANCE OPTIMIZATION:
@@ -30,6 +30,7 @@ import {
   WORKFLOW_STAGES,
   categoriesInUnifiedQueue,
   countUnifiedQuickFilters,
+  departmentsInUnifiedQueue,
   filterUnifiedReviewQueue,
   flagsInUnifiedQueue,
   getUnifiedReviewQueue,
@@ -62,6 +63,7 @@ export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQu
   const rows = useMemo(() => getUnifiedReviewQueue(), [items]);
   const counts = useMemo(() => countUnifiedQuickFilters(rows), [rows]);
   const categories = useMemo(() => categoriesInUnifiedQueue(rows), [rows]);
+  const departments = useMemo(() => departmentsInUnifiedQueue(rows), [rows]);
   const flagsPresent = useMemo(() => flagsInUnifiedQueue(rows), [rows]);
 
   const [filters, setFilters] = useState({ ...UNIFIED_FILTER_DEFAULTS, quick: initialQuickFilter });
@@ -133,11 +135,12 @@ export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQu
         </label>
 
         <label className="flex flex-col gap-1">
-          <span className="font-ui text-[9px] uppercase tracking-[.18em] text-taupe">Kids / non-Kids</span>
-          <select value={filters.kids} onChange={(event) => setFilter("kids", event.target.value)} className={selectClass}>
-            <option value="ALL">Everything</option>
-            <option value="KIDS">Kids only</option>
-            <option value="NON_KIDS">Non-Kids only</option>
+          <span className="font-ui text-[9px] uppercase tracking-[.18em] text-taupe">Department</span>
+          <select value={filters.department} onChange={(event) => setFilter("department", event.target.value)} className={selectClass}>
+            <option value="ALL">All departments</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>{dept.label}</option>
+            ))}
           </select>
         </label>
 
@@ -251,7 +254,6 @@ export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQu
                   <td className="px-3 py-3">
                     {categoryLabels[row.category] ?? row.category ?? "—"}
                     {row.subcategory ? <span className="block text-[11px] text-taupe">{row.subcategory}</span> : null}
-                    {row.isKids ? <StatusBadge label="Kids" tone="ink" className="mt-1" /> : null}
                   </td>
                   <td className="px-3 py-3">
                     <StatusBadge label={row.stageLabel ?? row.stage} tone={stageTone[row.stage] ?? "quiet"} />
@@ -315,8 +317,7 @@ export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQu
       ) : null}
 
       <p className="mt-4 font-ui text-[10px] leading-relaxed text-taupe">
-        One queue over one lifecycle — {rows.length} products, including every Kids product. Kids is
-        a category filter here, never a separate review system.
+        One queue over one lifecycle — {rows.length} products. All departments use the same review system.
       </p>
     </div>
   );

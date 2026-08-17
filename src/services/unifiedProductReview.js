@@ -39,7 +39,7 @@ import {
   isApprovableStage,
 } from "./workflow/productWorkflowState";
 import { validateProductForPublish } from "./workflow/productPublishValidator";
-import { isKidsProduct } from "./workflow/kidsValidator";
+import { departmentForProduct, DEPARTMENT_OPTIONS } from "../data/products/departments";
 import {
   REVIEW_FLAGS,
   blockingReviewFlags,
@@ -84,7 +84,7 @@ export const buildUnifiedReviewRow = (product) => {
   const state = getProductWorkflowState(product);
   const validation = validateProductForPublish(product);
   const blocking = validation.blocking;
-  const isKids = isKidsProduct(product);
+  const department = departmentForProduct(product);
 
   const sectionValid = (section) => !blocking.some((issue) => issue.section === section);
   const sections = {
@@ -93,7 +93,7 @@ export const buildUnifiedReviewRow = (product) => {
     taxonomy: sectionValid("taxonomy"),
     media: sectionValid("media"),
     grouping: sectionValid("grouping"),
-    category: !blocking.some((issue) => issue.source === "KIDS"),
+    category: sectionValid("category"),
   };
 
   const blockingFlags = blockingReviewFlags(product.reviewFlags);
@@ -108,8 +108,8 @@ export const buildUnifiedReviewRow = (product) => {
     category: product.category ?? "",
     subcategory: product.subcategory ?? "",
 
-    /* category concern */
-    isKids,
+    /* department — generic, treats all departments equally */
+    department,
 
     /* canonical workflow projection */
     status: product.status ?? null,
@@ -218,7 +218,6 @@ export const getUnifiedReviewRow = (productId) =>
  */
 export const UNIFIED_QUICK_FILTERS = [
   { id: "ALL", label: "All" },
-  { id: "KIDS", label: "Kids" },
   { id: "DRAFT", label: "Draft" },
   { id: "SUBMITTED", label: "Submitted" },
   { id: "PENDING_APPROVAL", label: "Pending approval" },
@@ -228,8 +227,6 @@ export const UNIFIED_QUICK_FILTERS = [
 
 export const matchesQuickFilter = (row, quick) => {
   switch (quick) {
-    case "KIDS":
-      return row.isKids;
     case "DRAFT":
       return row.status === PRODUCT_STATUS.DRAFT;
     case "SUBMITTED":
@@ -254,8 +251,8 @@ export const matchesQuickFilter = (row, quick) => {
 export const UNIFIED_FILTER_DEFAULTS = {
   quick: "ALL",
   stage: "ALL", // any WORKFLOW_STAGES value
+  department: "ALL", // ALL | women | bridal | men | kids
   category: "ALL", // any taxonomy category id
-  kids: "ALL", // ALL | KIDS | NON_KIDS
   assignment: "ALL", // ALL | ASSIGNED | UNASSIGNED
   flag: "ALL", // ALL | ANY | a specific REVIEW_FLAGS value
   media: "ALL", // ALL | READY | BLOCKED
@@ -277,8 +274,8 @@ export const matchesUnifiedFilters = (row, filters = {}) => {
   if (f.stage !== "ALL" && row.stage !== f.stage) return false;
   if (f.category !== "ALL" && row.category !== f.category) return false;
 
-  if (f.kids === "KIDS" && !row.isKids) return false;
-  if (f.kids === "NON_KIDS" && row.isKids) return false;
+  /* Department filter — generic, all departments treated equally */
+  if (f.department !== "ALL" && row.department !== f.department) return false;
 
   if (f.assignment === "ASSIGNED" && !row.assignedEmployeeId) return false;
   if (f.assignment === "UNASSIGNED" && row.assignedEmployeeId) return false;
@@ -338,6 +335,12 @@ export const categoriesInUnifiedQueue = (rows = getUnifiedReviewQueue()) => {
 export const flagsInUnifiedQueue = (rows = getUnifiedReviewQueue()) =>
   [...new Set(rows.flatMap((row) => row.reviewFlags))].sort();
 
+/** Department options for the department filter. */
+export const departmentsInUnifiedQueue = (rows = getUnifiedReviewQueue()) => {
+  const present = [...new Set(rows.map((row) => row.department).filter(Boolean))];
+  return DEPARTMENT_OPTIONS.filter((dept) => present.includes(dept.id));
+};
+
 export { REVIEW_FLAGS, WORKFLOW_STAGES };
 
 export default {
@@ -353,5 +356,6 @@ export default {
   matchesUnifiedFilters,
   countUnifiedQuickFilters,
   categoriesInUnifiedQueue,
+  departmentsInUnifiedQueue,
   flagsInUnifiedQueue,
 };
