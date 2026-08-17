@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { Accent, AtelierSection, EditorialHeading, ProductCard, gap, useReveal } from "../../design-system";
 import { getLiveStorefrontProducts, productHref } from "../../data/products";
 import { selectNewArrivalProducts } from "../../services/media/mediaResolver";
+import { MARKETING_PLACEMENTS } from "../../config/mediaTypes";
+import { usePlacementProducts } from "../../hooks/useMarketingPlacements";
 import { useProductCovers } from "../../hooks/useMedia";
 import { useWishlist } from "../../context/WishlistContext";
 import { useInventory } from "../../context/InventoryContext";
@@ -32,7 +34,15 @@ export default function NewArrivals() {
   const wishlist = useWishlist();
   const inventory = useInventory();
 
-  const arrivals = selectNewArrivalProducts(getLiveStorefrontProducts(), COUNT);
+  /* The Marketing Media desk can curate this rail through the NEW_ARRIVALS
+     placement; a curated list leads, in placement order, and the house's
+     deterministic new-arrival selection stands when nothing is curated. */
+  const liveProducts = getLiveStorefrontProducts();
+  const curated = usePlacementProducts(MARKETING_PLACEMENTS.NEW_ARRIVALS, liveProducts);
+  const arrivals =
+    curated.length > 0
+      ? curated.slice(0, COUNT)
+      : selectNewArrivalProducts(liveProducts, COUNT);
 
   /* Rows carry the published cover when the Admin Portal has set one. */
   const rows = useProductCovers(arrivals);

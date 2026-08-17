@@ -6,6 +6,7 @@ import { heroSlides } from "../data/catalog/hero";
 import HeroCarousel from "../components/storefront/HeroCarousel";
 import SareeEditCarousel from "../components/storefront/SareeEditCarousel";
 import BrideGroomEdit from "../components/storefront/BrideGroomEdit";
+import PlacementProductRail from "../components/storefront/PlacementProductRail";
 import ShopByCategory from "../components/storefront/ShopByCategory";
 import NewArrivals from "../components/storefront/NewArrivals";
 import SaleBanner from "../components/storefront/SaleBanner";
@@ -35,6 +36,14 @@ export default function AtelierDesign() {
 
       <SareeEditCarousel />
 
+      {/* Curated marketing sections. Each rail reads its placement from the
+          marketing register and resolves the assigned products through the
+          canonical catalogue; a placement with nothing curated stays absent,
+          so the homepage never changes unless the Admin Portal curates it.
+          Lehenga and Kids use the shared rail; bespoke seams (Saree Edit,
+          Bride & Groom, New Arrivals) read the same register internally. */}
+      <PlacementProductRail placementId={MARKETING_PLACEMENTS.LEHENGA_SECTION} />
+
       <BrideGroomEdit excludeIds={heroImageIds} />
 
       <CelebrationEdit excludeIds={heroImageIds} />
@@ -42,6 +51,8 @@ export default function AtelierDesign() {
       <ShopByCategory excludeIds={heroImageIds} />
 
       <NewArrivals />
+
+      <PlacementProductRail placementId={MARKETING_PLACEMENTS.KIDS_SECTION} />
 
       <SaleBanner excludeIds={heroImageIds} />
 

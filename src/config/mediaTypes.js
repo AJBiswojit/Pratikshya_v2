@@ -277,7 +277,28 @@ export const isValidUsageRole = (role) => Object.values(USAGE_ROLES).includes(ro
  * `live: false` placements are catalogued sections of the house that do not
  * yet read from the media repository; the Marketing page says so plainly
  * rather than implying an effect that does not exist.
+ *
+ * Every placement also declares what kind of content it holds:
+ *
+ *   · PRODUCT placements display pieces from the canonical product catalogue.
+ *     They are curated through the Product Catalog Selector, which stores
+ *     product IDs only — the catalogue remains the single source of truth for
+ *     the product's name, taxonomy and media. `recommendedDepartment` /
+ *     `recommendedCategory` / `recommendedSubcategory` describe the taxonomy
+ *     the section is built around so the selector can open pre-arranged, but
+ *     they never lock the catalogue down.
+ *
+ *   · GENERIC placements display house artwork (hero plates, editorial
+ *     storytelling, campaign bands). They keep the existing media-upload
+ *     workflow.
  */
+export const PLACEMENT_MODES = {
+  PRODUCT: "PRODUCT",
+  GENERIC: "GENERIC",
+};
+
+export const isProductPlacement = (id) =>
+  getPlacement(id)?.mode === PLACEMENT_MODES.PRODUCT;
 export const MARKETING_PLACEMENTS = {
   HOME_HERO: "HOME_HERO",
   WOMEN_SECTION: "WOMEN_SECTION",
@@ -300,78 +321,105 @@ export const MARKETING_PLACEMENT_OPTIONS = [
     label: "Home hero",
     surface: "Landing page — opening hero plate",
     live: true,
+    mode: PLACEMENT_MODES.GENERIC,
   },
   {
     id: MARKETING_PLACEMENTS.SAREE_SECTION,
     label: "Saree section",
     surface: "Landing page — Saree collection panel",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "women",
+    recommendedCategory: "sarees",
   },
   {
     id: MARKETING_PLACEMENTS.LEHENGA_SECTION,
     label: "Lehenga section",
     surface: "Landing page — Lehenga collection panel",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "women",
+    recommendedCategory: "lehengas",
   },
   {
     id: MARKETING_PLACEMENTS.FESTIVE_SECTION,
     label: "Festive section",
     surface: "Landing page — festive campaign band",
     live: true,
+    mode: PLACEMENT_MODES.GENERIC,
   },
   {
     id: MARKETING_PLACEMENTS.WOMEN_SECTION,
     label: "Women's section",
     surface: "Landing page — women's edit tiles",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "women",
   },
   {
     id: MARKETING_PLACEMENTS.BRIDAL_SECTION,
     label: "Bridal section",
     surface: "Bridal couture category",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "bridal",
   },
   {
     id: MARKETING_PLACEMENTS.GROOM_SECTION,
     label: "Groom section",
     surface: "Menswear & groom category",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "men",
   },
   {
     id: MARKETING_PLACEMENTS.KIDS_SECTION,
     label: "Kids section",
     surface: "Kidswear category",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "kids",
   },
   {
     id: MARKETING_PLACEMENTS.BANGLES_SECTION,
     label: "Bangles section",
     surface: "Bangles category",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "bridal",
+    recommendedCategory: "finishing-touches",
+    recommendedSubcategory: "bangles",
   },
   {
     id: MARKETING_PLACEMENTS.JEWELLERY_SECTION,
     label: "Jewellery section",
     surface: "Jewellery category",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "bridal",
+    recommendedCategory: "finishing-touches",
+    recommendedSubcategory: "jewellery",
   },
   {
     id: MARKETING_PLACEMENTS.NEW_ARRIVALS,
     label: "New arrivals",
     surface: "New arrivals edit",
     live: true,
+    mode: PLACEMENT_MODES.PRODUCT,
   },
   {
     id: MARKETING_PLACEMENTS.EDITORIAL,
     label: "Editorial",
     surface: "Editorial storytelling plates",
     live: true,
+    mode: PLACEMENT_MODES.GENERIC,
   },
   {
     id: MARKETING_PLACEMENTS.PROMOTION,
     label: "Promotion",
     surface: "Seasonal promotion artwork",
     live: true,
+    mode: PLACEMENT_MODES.GENERIC,
   },
 ];
 
