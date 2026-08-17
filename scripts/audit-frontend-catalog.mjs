@@ -148,10 +148,47 @@ check("no two products share a name", duplicateNames.length === 0, duplicateName
 const invalidStatus = products.filter((p) => !["draft", "published"].includes(p.status));
 check("status is draft or published", invalidStatus.length === 0, invalidStatus.map((p) => p.id).join(", "));
 
-const inventedCommerce = products.filter(
-  (p) => p.price !== null || p.compareAtPrice !== null || (p.description ?? "") !== ""
+/*
+ * Commercial data is entered by an administrator in Admin → Product
+ * Management, never generated. A record is therefore either still awaiting
+ * completion (all three fields empty) or completed coherently: a positive
+ * MRP, a positive selling price at or below it, and a real description.
+ * A half-filled or contradictory record is the failure this guards against.
+ */
+const incoherentCommerce = products.filter((p) => {
+  const description = String(p.description ?? "").trim();
+  const selling = p.price;
+  const mrp = p.compareAtPrice;
+  const untouched = selling === null && mrp === null && description === "";
+  if (untouched) return false;
+  if (!description) return true;
+  if (!(Number(selling) > 0) || !(Number(mrp) > 0)) return true;
+  if (Number(selling) > Number(mrp)) return true;
+  if (p.pricing && (Number(p.pricing.mrp) !== Number(mrp) || Number(p.pricing.sellingPrice) <= 0)) return true;
+  return false;
+});
+check(
+  "commercial data is either absent or complete and coherent (MRP > 0, selling price > 0 and <= MRP, description present)",
+  incoherentCommerce.length === 0,
+  incoherentCommerce.map((p) => p.id).join(", ")
 );
-check("no commercial data is invented (price / compare-at / description empty)", inventedCommerce.length === 0, inventedCommerce.map((p) => p.id).join(", "));
+
+const genericDescriptions = products.filter((p) =>
+  /^(premium|beautiful|high[- ]quality)\b/i.test(String(p.description ?? "").trim())
+);
+check(
+  "no generic filler descriptions",
+  genericDescriptions.length === 0,
+  genericDescriptions.map((p) => p.id).join(", ")
+);
+
+const describedProducts = products.filter((p) => String(p.description ?? "").trim());
+const uniqueDescriptions = new Set(describedProducts.map((p) => p.description.trim()));
+check(
+  "every completed description is product-specific (no repeated copy)",
+  uniqueDescriptions.size === describedProducts.length,
+  `${describedProducts.length - uniqueDescriptions.size} repeated`
+);
 
 const validDepartments = new Set(["women", "bridal", "men", "kids"]);
 const badDepartment = products.filter((p) => !validDepartments.has(p.department));
