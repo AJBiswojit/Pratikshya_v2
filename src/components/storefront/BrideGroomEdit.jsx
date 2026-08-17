@@ -3,7 +3,10 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import PratikshyaImage from "../PratikshyaImage";
 import { Accent, AtelierSection, EditorialHeading, body } from "../../design-system";
+import { MARKETING_PLACEMENTS } from "../../config/mediaTypes";
 import { useBrideGroomLooks } from "../../hooks/useMedia";
+import { usePlacementEntries } from "../../hooks/useMarketingPlacements";
+import { getLiveStorefrontProducts } from "../../data/products";
 import { resolveCategoryRoute } from "../../services/taxonomyRouting";
 import { cn } from "../../utils/cn";
 
@@ -193,9 +196,27 @@ function WeddingPlate({
  * invents a URL or hard-codes a destination.
  */
 export default function BrideGroomEdit({ excludeIds = null }) {
+  /* The Marketing Media desk curates the Bride and Groom plates through the
+     BRIDAL_SECTION / GROOM_SECTION placements. A curated side leads — its
+     products resolved from the canonical catalogue in placement order — and
+     a side without curation keeps the house's deterministic wedding edit. */
+  const liveProducts = getLiveStorefrontProducts();
+  const curatedBride = usePlacementEntries(MARKETING_PLACEMENTS.BRIDAL_SECTION, liveProducts);
+  const curatedGroom = usePlacementEntries(MARKETING_PLACEMENTS.GROOM_SECTION, liveProducts);
   const looks = useBrideGroomLooks({ excludeIds }) || { bride: [], groom: [] };
-  const brideLooks = looks.bride || [];
-  const groomLooks = looks.groom || [];
+  const curatedToLooks = (entries, side) =>
+    entries.map((entry) => ({
+      ...entry,
+      side,
+      categoryId: entry.product.category,
+      ownership: "curated",
+    }));
+  const brideLooks = curatedBride.length
+    ? curatedToLooks(curatedBride, "bride")
+    : looks.bride || [];
+  const groomLooks = curatedGroom.length
+    ? curatedToLooks(curatedGroom, "groom")
+    : looks.groom || [];
   const brideRoute = resolveBrideHref();
   const groomRoute = resolveGroomHref();
   const reducedMotion = useReducedMotion();

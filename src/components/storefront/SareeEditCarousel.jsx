@@ -4,7 +4,10 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import PratikshyaImage from "../PratikshyaImage";
 import { Accent, AtelierSection, EditorialHeading, eyebrow } from "../../design-system";
+import { MARKETING_PLACEMENTS } from "../../config/mediaTypes";
 import { useSareeEditProducts } from "../../hooks/useMedia";
+import { usePlacementEntries } from "../../hooks/useMarketingPlacements";
+import { getLiveStorefrontProducts } from "../../data/products";
 import { resolveCategoryRoute } from "../../services/taxonomyRouting";
 import { formatINR } from "../../utils/shopping";
 import { cn } from "../../utils/cn";
@@ -284,7 +287,13 @@ function SareePreview({ entry, relation, custom, onSelect }) {
  * for hover, focus, touch and manual navigation before resuming gently.
  */
 export default function SareeEditCarousel() {
-  const entries = useSareeEditProducts();
+  /* The Marketing Media desk curates this section through the SAREE_SECTION
+     placement. When products are assigned there, they lead — resolved from
+     the canonical catalogue in placement order; otherwise the house's
+     deterministic Saree Edit stands. */
+  const curated = usePlacementEntries(MARKETING_PLACEMENTS.SAREE_SECTION, getLiveStorefrontProducts());
+  const deterministic = useSareeEditProducts();
+  const entries = curated.length ? curated : deterministic;
   const sareeRoute = resolveCategoryRoute("sarees");
   const count = entries.length;
 
