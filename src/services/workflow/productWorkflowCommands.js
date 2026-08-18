@@ -604,6 +604,53 @@ export const unpublishProduct = (productId, actor = null, options = {}) => {
 };
 
 /**
+ * bulkApprove — the ONE bulk approval implementation. Per product:
+ * authorize → validate lifecycle → validate product → validate media →
+ * validate category → approve. APPROVAL DOES NOT PUBLISH.
+ *
+ * Each product runs through the exact same approveProduct command used by
+ * individual review. A product that fails validation or is not in an
+ * approvable stage is never force-approved; its errors are collected so the
+ * administrator can see the real blockers. Valid products still approve even
+ * when siblings are blocked — the same independence as bulkPublish.
+ */
+export const bulkApprove = (productIds = [], actor = null, options = {}) => {
+  const auth = requireAdmin(actor);
+  if (!auth.ok) return authorizationFailure(auth.error);
+  const ids = [...new Set((Array.isArray(productIds) ? productIds : []).map(String))];
+  const results = [];
+  let applied = 0;
+  let skipped = 0;
+  ids.forEach((id) => {
+    const result = approveProduct(id, auth.resolved.principal.actor ?? actor, options);
+    results.push({
+      id,
+      ok: result.ok,
+      product: result.product ?? null,
+      errors: result.errors ?? (result.error ? [result.error] : []),
+      issues: result.issues ?? null,
+      alreadyApproved: Boolean(result.alreadyApproved),
+      alreadyPublished: Boolean(result.alreadyPublished),
+    });
+    if (result.ok) applied += 1;
+    else skipped += 1;
+  });
+  if (applied > 0) {
+    try {
+      recordActivity(loadActivity(), {
+        ...describeActor(actor),
+        targetProductId: ids[0] ?? null,
+        action: ACTIVITY_ACTIONS.PRODUCT_BULK_UPDATED,
+        summary: `Bulk approve · ${applied} product${applied === 1 ? "" : "s"}${skipped ? `, ${skipped} blocked (validation / workflow unmet)` : ""}`,
+      });
+    } catch {
+      /* Diary failures never block. */
+    }
+  }
+  return { ok: true, applied, skipped, results };
+};
+
+/**
  * bulkPublish — the ONE bulk publishing implementation. Per product:
  * authorize → validate lifecycle → validate product → validate media →
  * validate category → publish. A product that is not APPROVED is never
@@ -649,6 +696,7 @@ export const commands = {
   archiveProduct,
   restoreProduct,
   unpublishProduct,
+  bulkApprove,
   bulkPublish,
 };
 

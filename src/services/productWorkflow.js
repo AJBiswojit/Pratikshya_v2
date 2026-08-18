@@ -326,6 +326,12 @@ export const submitProductForReview = (productId, actor = null) =>
 export const approveProduct = (productId, actor = null) =>
   workflowCommands.approveProduct(productId, actor);
 
+/** Bulk approve — COMPATIBILITY WRAPPER around the universal workflow command.
+    Per product this runs the exact same approveProduct path (authorization,
+    lifecycle stage, canonical validation). APPROVAL DOES NOT PUBLISH. */
+export const bulkApproveProducts = (productIds = [], actor = null) =>
+  workflowCommands.bulkApprove(productIds, actor);
+
 /** Return — COMPATIBILITY WRAPPER around the universal workflow command.
     Phase 3D: the unified Admin review workspace returns products through the
     same canonical command every category uses. A reason is REQUIRED — the
@@ -1370,6 +1376,7 @@ export default {
   assignProductToEmployee,
   submitProductForReview,
   approveProduct,
+  bulkApproveProducts,
   returnProduct,
   publishProduct,
   archiveProduct,

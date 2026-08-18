@@ -73,6 +73,7 @@ const requiredCommands = [
   "publishProduct",
   "archiveProduct",
   "restoreProduct",
+  "bulkApprove",
   "bulkPublish",
 ];
 requiredCommands.forEach((name) => {
