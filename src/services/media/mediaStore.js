@@ -138,6 +138,7 @@ export const normaliseMedia = (entry) => {
     /* Provenance */
     source: cleanString(entry.source, "URL"),
     fileName: cleanString(entry.fileName) || null,
+    mimeType: cleanString(entry.mimeType) || null,
     fileSize: Number.isFinite(Number(entry.fileSize)) ? Number(entry.fileSize) : null,
     uploadedBy: cleanString(entry.uploadedBy) || null,
     uploadedByEmployeeId: cleanString(entry.uploadedByEmployeeId) || null,

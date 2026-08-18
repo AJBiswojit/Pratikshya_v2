@@ -228,6 +228,7 @@ export default function MediaUploadForm({
           role: isProduct ? item.role : null,
           fileName: item.file.name,
           fileSize: item.file.size,
+          mimeType: item.file.type || "",
           demoPlaceholder: true,
           // Assign demo URL so when approved it resolves into a valid storefront plate
           url: demoPlate.url,
