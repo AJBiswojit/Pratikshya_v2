@@ -81,6 +81,20 @@ const matchers = {
     (product.collections ?? []).includes(value) ||
     taxonomyRepository.isProductInCollection(product, value),
   collectionId: (product, value) => taxonomyRepository.isProductInCollection(product, value),
+  /**
+   * Editorial curation. `curated: true` keeps the pieces that belong to at
+   * least one ACTIVE collection — manual membership, an authored collection
+   * field or a collection rule, all resolved by the taxonomy repository.
+   * This is what makes `/collections` a merchandising context rather than a
+   * second copy of the catalogue.
+   */
+  curated: (product, value) => {
+    const inActiveCollection = taxonomyRepository
+      .collectionsForProduct(product)
+      .some((collection) => collection.displayStatus === "ACTIVE");
+    const expected = value === false || value === "false" ? false : Boolean(value);
+    return inActiveCollection === expected;
+  },
   availability: (product, value) => product.availability === value,
   occasion: (product, value) => product.occasion.includes(value),
   color: (product, value) => product.colors.includes(value),

@@ -243,9 +243,18 @@ export const resolveCatalogueScope = (pathname) => {
   return { ...route, filters };
 };
 
-/** navigationScopes entries for every catalogue listing path. */
+/**
+ * navigationScopes entries for every catalogue listing path.
+ *
+ * A navigation scope is always a `{ filters }` record — the same shape the
+ * collection and legacy entries in `src/data/products/taxonomy.js` use — so
+ * `CatalogueListing` can read `scope.filters` for every listing route
+ * without knowing which table the route came from. Emitting the bare filter
+ * object here is what silently unscoped the department routes: the page
+ * read `nav.filters`, found nothing, and queried the whole catalogue.
+ */
 export const catalogueNavigationScopes = Object.fromEntries(
-  catalogueRoutes.map((route) => [route.path, resolveCatalogueScope(route.path).filters])
+  catalogueRoutes.map((route) => [route.path, { filters: resolveCatalogueScope(route.path).filters }])
 );
 
 export default { departments, departmentNames, categoryNames, catalogueRoutes, resolveCatalogueScope, catalogueNavigationScopes };
