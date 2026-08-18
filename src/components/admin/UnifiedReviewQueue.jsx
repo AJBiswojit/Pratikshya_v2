@@ -13,6 +13,14 @@
  * assignment, review flags, media readiness, taxonomy / price / name /
  * grouping validity and missing information.
  *
+ * Bulk selection + bulk approve:
+ *   · Select All respects the current filtered result (never hidden rows)
+ *   · Selection identity is the stable Product ID
+ *   · Filter changes clear selection (matches Product Management safety)
+ *   · APPROVE SELECTED runs the canonical bulkApprove command, which calls
+ *     approveProduct per id — the exact same validation / workflow rules as
+ *     individual REVIEW → APPROVE. Blocked products keep their real reasons.
+ *
  * PERFORMANCE OPTIMIZATION:
  *   · rows come from the cached unified projection — rebuilt once per
  *     catalogue change, never once per render
@@ -20,8 +28,8 @@
  *   · paginated rendering (first 25, load more)
  */
 
-import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Check, Search } from "lucide-react";
 import StatusBadge from "../employee/StatusBadge";
 import { useProducts } from "../../hooks/useProducts";
 import {
@@ -35,8 +43,12 @@ import {
   flagsInUnifiedQueue,
   getUnifiedReviewQueue,
 } from "../../services/unifiedProductReview";
-import { WORKFLOW_STAGE_LABELS } from "../../services/workflow/productWorkflowState";
+import {
+  WORKFLOW_STAGE_LABELS,
+  isApprovableStage,
+} from "../../services/workflow/productWorkflowState";
 import { reviewFlagLabel } from "../../services/productReviewFlags";
+import { bulkApproveProducts } from "../../services/productWorkflow";
 import { categoryLabels } from "../../data/products/taxonomy";
 
 const PAGE_SIZE = 25;
@@ -57,7 +69,53 @@ const stageTone = {
   ARCHIVED: "muted",
 };
 
-export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQuickFilter = "ALL" }) {
+/**
+ * Preview eligibility using the same facts the queue already carries.
+ * The bulk command still re-runs approveProduct (full validation) per id —
+ * this preview only powers the confirmation dialog so the admin sees
+ * ready vs blocked before confirming.
+ */
+const previewBulkEligibility = (rows, selectedIds) => {
+  const selected = selectedIds
+    .map((id) => rows.find((row) => String(row.productId) === String(id)))
+    .filter(Boolean);
+  const ready = [];
+  const blocked = [];
+  selected.forEach((row) => {
+    /* Matches approveProduct: already APPROVED / PUBLISHED succeed as no-ops. */
+    if (
+      row.canApprove ||
+      row.stage === WORKFLOW_STAGES.APPROVED ||
+      row.stage === WORKFLOW_STAGES.PUBLISHED
+    ) {
+      ready.push(row);
+      return;
+    }
+    const reasons = [];
+    /* Stage blocks only when the product is not in an approvable stage —
+       same wording as approveProduct. Validation blockers keep their own
+       canonical messages (MRP, description, media, …). */
+    if (!isApprovableStage(row.stage)) {
+      reasons.push(`Only submitted products can be approved (current stage: ${row.stageLabel ?? row.stage}).`);
+    }
+    (row.blockingIssues ?? []).forEach((issue) => {
+      if (issue?.message) reasons.push(issue.message);
+    });
+    if (!reasons.length) {
+      reasons.push(`Only submitted products can be approved (current stage: ${row.stageLabel ?? row.stage}).`);
+    }
+    blocked.push({ productId: row.productId, name: row.name, reasons: [...new Set(reasons)] });
+  });
+  return { selected, ready, blocked };
+};
+
+export default function UnifiedReviewQueue({
+  focusId = null,
+  onSelect,
+  initialQuickFilter = "ALL",
+  actor = null,
+  onNotice = null,
+}) {
   const items = useProducts(); /* reactivity only — the queue reads the register */
 
   const rows = useMemo(() => getUnifiedReviewQueue(), [items]);
@@ -68,19 +126,126 @@ export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQu
 
   const [filters, setFilters] = useState({ ...UNIFIED_FILTER_DEFAULTS, quick: initialQuickFilter });
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const [selected, setSelected] = useState([]);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [bulkResult, setBulkResult] = useState(null);
 
   const filtered = useMemo(() => filterUnifiedReviewQueue(rows, filters), [rows, filters]);
 
+  /* Filter changes clear selection so hidden products cannot remain selected
+     for a bulk action — the same safety pattern as Product Management. */
   const setQuick = (quick) => {
     setFilters((current) => ({ ...current, quick }));
     setVisible(PAGE_SIZE);
+    setSelected([]);
+    setConfirmOpen(false);
+    setBulkResult(null);
   };
   const setFilter = (key, value) => {
     setFilters((current) => ({ ...current, [key]: value }));
     setVisible(PAGE_SIZE);
+    setSelected([]);
+    setConfirmOpen(false);
+    setBulkResult(null);
   };
 
+  /* Drop selections that no longer exist in the register (after archive/delete). */
+  useEffect(() => {
+    const present = new Set(rows.map((row) => String(row.productId)));
+    setSelected((current) => {
+      const next = current.filter((id) => present.has(String(id)));
+      return next.length === current.length ? current : next;
+    });
+  }, [rows]);
+
   const shown = filtered.slice(0, visible);
+
+  const toggleSelect = useCallback((productId) => {
+    const id = String(productId);
+    setSelected((current) =>
+      current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id]
+    );
+    setConfirmOpen(false);
+    setBulkResult(null);
+  }, []);
+
+  const allVisibleSelected =
+    filtered.length > 0 && filtered.every((row) => selected.includes(String(row.productId)));
+
+  const toggleSelectAll = useCallback(() => {
+    setSelected(allVisibleSelected ? [] : filtered.map((row) => String(row.productId)));
+    setConfirmOpen(false);
+    setBulkResult(null);
+  }, [allVisibleSelected, filtered]);
+
+  const clearSelection = useCallback(() => {
+    setSelected([]);
+    setConfirmOpen(false);
+    setBulkResult(null);
+  }, []);
+
+  const eligibility = useMemo(
+    () => previewBulkEligibility(filtered, selected),
+    [filtered, selected]
+  );
+
+  const openConfirm = useCallback(() => {
+    if (!selected.length || bulkBusy) return;
+    setBulkResult(null);
+    setConfirmOpen(true);
+  }, [selected, bulkBusy]);
+
+  const runBulkApprove = useCallback(() => {
+    if (!selected.length || bulkBusy) return;
+    setBulkBusy(true);
+    setConfirmOpen(false);
+    /* Snapshot the ids now — clear selection after the command finishes so
+       the result summary can still reference them. */
+    const ids = [...selected];
+    setTimeout(() => {
+      const result = bulkApproveProducts(ids, actor);
+      const approved = (result.results ?? []).filter((entry) => entry.ok);
+      const blocked = (result.results ?? []).filter((entry) => !entry.ok);
+      const summary = {
+        ok: Boolean(result.ok),
+        applied: result.applied ?? approved.length,
+        skipped: result.skipped ?? blocked.length,
+        approved: approved.map((entry) => entry.id),
+        blocked: blocked.map((entry) => ({
+          productId: entry.id,
+          reasons: entry.errors?.length
+            ? entry.errors
+            : ["This product could not be approved."],
+        })),
+        error: result.error ?? null,
+      };
+      setBulkResult(summary);
+      setSelected([]);
+      setBulkBusy(false);
+
+      if (onNotice) {
+        if (!result.ok) {
+          onNotice({ tone: "warn", text: result.error || "Bulk approval could not run." });
+        } else if (summary.skipped === 0) {
+          onNotice({
+            tone: "ok",
+            text: `Approval completed. Approved: ${summary.applied} product${summary.applied === 1 ? "" : "s"}.`,
+          });
+        } else if (summary.applied === 0) {
+          onNotice({
+            tone: "warn",
+            text: `Approval completed. Approved: 0 products. Blocked: ${summary.skipped} product${summary.skipped === 1 ? "" : "s"}. Review the blockers below.`,
+          });
+        } else {
+          onNotice({
+            tone: "ok",
+            text: `Approval completed. Approved: ${summary.applied} product${summary.applied === 1 ? "" : "s"}. Blocked: ${summary.skipped} product${summary.skipped === 1 ? "" : "s"}.`,
+          });
+        }
+      }
+    }, 0);
+  }, [selected, bulkBusy, actor, onNotice]);
 
   return (
     <div>
@@ -219,6 +384,160 @@ export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQu
         </label>
       </div>
 
+      {/* Bulk selection toolbar — mirrors Product Management visual language */}
+      {selected.length ? (
+        <div className="mb-5 flex flex-wrap items-center gap-2 border border-mist/80 bg-canvas p-3">
+          <p className="mr-2 font-ui text-[11px] uppercase tracking-[.16em] text-ink font-medium">
+            {selected.length} selected{bulkBusy ? " · processing…" : ""}
+          </p>
+          <button
+            type="button"
+            disabled={bulkBusy}
+            onClick={openConfirm}
+            className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40"
+          >
+            <Check size={11} className="mr-1 inline" aria-hidden="true" /> Approve selected
+          </button>
+          <button
+            type="button"
+            onClick={clearSelection}
+            disabled={bulkBusy}
+            className="ml-auto font-ui text-[10px] uppercase tracking-[.14em] text-taupe underline-offset-4 hover:text-accent hover:underline disabled:opacity-40"
+          >
+            Clear
+          </button>
+        </div>
+      ) : null}
+
+      {/* Confirmation dialog — ready vs blocked, never force-approve */}
+      {confirmOpen && selected.length ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bulk-approve-title"
+          className="mb-5 border border-mist/80 bg-canvas p-4"
+        >
+          <h3 id="bulk-approve-title" className="font-ui text-[11px] uppercase tracking-[.18em] text-ink">
+            Approve selected products
+          </h3>
+          <dl className="mt-3 grid gap-1 font-ui text-sm text-ink sm:grid-cols-3">
+            <div>
+              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-taupe">Selected</dt>
+              <dd className="font-medium">{eligibility.selected.length}</dd>
+            </div>
+            <div>
+              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-taupe">Ready for approval</dt>
+              <dd className="font-medium">{eligibility.ready.length}</dd>
+            </div>
+            <div>
+              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-taupe">Blocked</dt>
+              <dd className="font-medium">{eligibility.blocked.length}</dd>
+            </div>
+          </dl>
+
+          {eligibility.blocked.length ? (
+            <div className="mt-3 border border-accent/40 bg-accent/[0.05] px-3 py-3">
+              <p className="font-ui text-[11px] text-ink">
+                The {eligibility.blocked.length} blocked product{eligibility.blocked.length === 1 ? "" : "s"} will not be approved.
+                Review the validation warnings before continuing.
+              </p>
+              <ul className="mt-2 space-y-2">
+                {eligibility.blocked.map((entry) => (
+                  <li key={entry.productId} className="font-ui text-[12px] text-cocoa">
+                    <span className="font-medium text-ink">{entry.productId}</span>
+                    <ul className="mt-0.5 list-disc pl-4 text-accent">
+                      {entry.reasons.map((reason) => (
+                        <li key={`${entry.productId}-${reason}`}>{reason}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          <p className="mt-3 font-ui text-[10px] text-taupe">
+            Each product runs through the same Approve command used by individual review —
+            including validation, workflow stage and authorization. Approval never publishes.
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirmOpen(false)}
+              className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink"
+            >
+              Cancel
+            </button>
+            {eligibility.ready.length ? (
+              <button
+                type="button"
+                disabled={bulkBusy}
+                onClick={runBulkApprove}
+                className="border border-accent px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-accent transition-colors hover:bg-accent hover:text-ivory disabled:opacity-40"
+              >
+                Approve {eligibility.ready.length} eligible product{eligibility.ready.length === 1 ? "" : "s"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe opacity-40"
+              >
+                No eligible products
+              </button>
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      {/* Post-run result — accurate approved / blocked breakdown */}
+      {bulkResult ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`mb-5 border px-4 py-3 font-ui text-sm ${
+            bulkResult.skipped
+              ? "border-accent/60 bg-accent/5 text-ink"
+              : "border-mist/80 bg-canvas text-ink"
+          }`}
+        >
+          <p className="font-medium">
+            {bulkResult.error
+              ? bulkResult.error
+              : `Approval completed. Approved: ${bulkResult.applied} product${bulkResult.applied === 1 ? "" : "s"}${
+                  bulkResult.skipped
+                    ? `. Blocked: ${bulkResult.skipped} product${bulkResult.skipped === 1 ? "" : "s"}.`
+                    : "."
+                }`}
+          </p>
+          {bulkResult.blocked?.length ? (
+            <div className="mt-2">
+              <p className="font-ui text-[10px] uppercase tracking-[.16em] text-taupe">Blocked products</p>
+              <ul className="mt-1 space-y-1.5">
+                {bulkResult.blocked.map((entry) => (
+                  <li key={entry.productId} className="text-[12px]">
+                    <span className="font-medium">{entry.productId}</span>
+                    <ul className="list-disc pl-4 text-accent">
+                      {entry.reasons.map((reason) => (
+                        <li key={`${entry.productId}-${reason}`}>{reason}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setBulkResult(null)}
+            className="mt-2 font-ui text-[10px] uppercase tracking-[.14em] text-taupe underline-offset-4 hover:text-accent hover:underline"
+          >
+            Dismiss
+          </button>
+        </div>
+      ) : null}
+
       {/* The queue ------------------------------------------------------ */}
       {!filtered.length ? (
         <p className="py-10 text-center font-ui text-sm text-taupe">No products match this view. The atelier is in order.</p>
@@ -227,78 +546,98 @@ export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQu
           <table className="w-full min-w-[980px] text-left">
             <thead>
               <tr className="border-b border-mist font-ui text-[10px] uppercase tracking-widest text-taupe">
+                <th className="px-3 py-3" scope="col">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all visible products in the review queue"
+                    checked={allVisibleSelected}
+                    onChange={toggleSelectAll}
+                  />
+                </th>
                 {["Product", "Category", "Workflow state", "Assigned", "Review flags", "Media", "Readiness", ""].map((heading, index) => (
                   <th key={heading || `column-${index}`} className="px-3 py-3" scope="col">{heading}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {shown.map((row) => (
-                <tr
-                  key={row.productId}
-                  className={`border-b border-mist/60 align-top font-ui text-sm ${focusId === row.productId ? "bg-ivory/70" : ""}`}
-                >
-                  <td className="px-3 py-3">
-                    <button
-                      type="button"
-                      onClick={() => onSelect?.(row.productId)}
-                      className="text-left underline-offset-4 hover:text-accent hover:underline"
-                    >
-                      <span className="block font-ui text-[10px] uppercase tracking-[.18em] text-accent">{row.productId}</span>
-                      {row.name?.trim() || <span className="text-taupe">[Not yet defined]</span>}
-                    </button>
-                    {row.returned && row.rejectionReason ? (
-                      <p className="mt-0.5 text-[11px] text-accent">Returned: {row.rejectionReason}</p>
-                    ) : null}
-                  </td>
-                  <td className="px-3 py-3">
-                    {categoryLabels[row.category] ?? row.category ?? "—"}
-                    {row.subcategory ? <span className="block text-[11px] text-taupe">{row.subcategory}</span> : null}
-                  </td>
-                  <td className="px-3 py-3">
-                    <StatusBadge label={row.stageLabel ?? row.stage} tone={stageTone[row.stage] ?? "quiet"} />
-                  </td>
-                  <td className="px-3 py-3 text-[11px] text-taupe">{row.assignedEmployeeName ?? "—"}</td>
-                  <td className="px-3 py-3">
-                    {row.blockingFlags.length ? (
-                      <span className="inline-flex flex-wrap gap-1">
-                        {row.blockingFlags.slice(0, 2).map((flag) => (
-                          <StatusBadge key={flag} label={reviewFlagLabel(flag)} tone="danger" />
-                        ))}
-                        {row.blockingFlags.length > 2 ? <StatusBadge label={`+${row.blockingFlags.length - 2}`} tone="danger" /> : null}
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-taupe">None</span>
-                    )}
-                  </td>
-                  <td className="px-3 py-3">
-                    {row.sections.media ? (
-                      <StatusBadge label="Media valid" tone="ink" />
-                    ) : (
-                      <StatusBadge label="Media blocked" tone="danger" />
-                    )}
-                  </td>
-                  <td className="px-3 py-3">
-                    <span className="inline-flex flex-col gap-1">
-                      {row.readyToPublish ? <StatusBadge label="Ready to publish" tone="ink" /> : null}
-                      {row.canApprove ? <StatusBadge label="Ready to approve" tone="alert" /> : null}
-                      {row.missingInformation && !row.readyToPublish && !row.canApprove ? (
-                        <StatusBadge label={`${row.blockingIssues.length} blocker${row.blockingIssues.length === 1 ? "" : "s"}`} tone="quiet" />
+              {shown.map((row) => {
+                const productId = String(row.productId);
+                const isSelected = selected.includes(productId);
+                return (
+                  <tr
+                    key={row.productId}
+                    className={`border-b border-mist/60 align-top font-ui text-sm ${focusId === row.productId ? "bg-ivory/70" : ""}`}
+                  >
+                    <td className="px-3 py-3 align-top">
+                      <input
+                        type="checkbox"
+                        aria-label={`Select ${row.name?.trim() || row.productId}`}
+                        checked={isSelected}
+                        onChange={() => toggleSelect(productId)}
+                      />
+                    </td>
+                    <td className="px-3 py-3">
+                      <button
+                        type="button"
+                        onClick={() => onSelect?.(row.productId)}
+                        className="text-left underline-offset-4 hover:text-accent hover:underline"
+                      >
+                        <span className="block font-ui text-[10px] uppercase tracking-[.18em] text-accent">{row.productId}</span>
+                        {row.name?.trim() || <span className="text-taupe">[Not yet defined]</span>}
+                      </button>
+                      {row.returned && row.rejectionReason ? (
+                        <p className="mt-0.5 text-[11px] text-accent">Returned: {row.rejectionReason}</p>
                       ) : null}
-                      {row.published ? <StatusBadge label="Live" tone="ink" /> : null}
-                    </span>
-                  </td>
-                  <td className="px-3 py-3 text-right">
-                    <button
-                      type="button"
-                      onClick={() => onSelect?.(row.productId)}
-                      className="border border-ink px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-ink transition-colors hover:bg-ink hover:text-ivory"
-                    >
-                      Review
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-3 py-3">
+                      {categoryLabels[row.category] ?? row.category ?? "—"}
+                      {row.subcategory ? <span className="block text-[11px] text-taupe">{row.subcategory}</span> : null}
+                    </td>
+                    <td className="px-3 py-3">
+                      <StatusBadge label={row.stageLabel ?? row.stage} tone={stageTone[row.stage] ?? "quiet"} />
+                    </td>
+                    <td className="px-3 py-3 text-[11px] text-taupe">{row.assignedEmployeeName ?? "—"}</td>
+                    <td className="px-3 py-3">
+                      {row.blockingFlags.length ? (
+                        <span className="inline-flex flex-wrap gap-1">
+                          {row.blockingFlags.slice(0, 2).map((flag) => (
+                            <StatusBadge key={flag} label={reviewFlagLabel(flag)} tone="danger" />
+                          ))}
+                          {row.blockingFlags.length > 2 ? <StatusBadge label={`+${row.blockingFlags.length - 2}`} tone="danger" /> : null}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-taupe">None</span>
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      {row.sections.media ? (
+                        <StatusBadge label="Media valid" tone="ink" />
+                      ) : (
+                        <StatusBadge label="Media blocked" tone="danger" />
+                      )}
+                    </td>
+                    <td className="px-3 py-3">
+                      <span className="inline-flex flex-col gap-1">
+                        {row.readyToPublish ? <StatusBadge label="Ready to publish" tone="ink" /> : null}
+                        {row.canApprove ? <StatusBadge label="Ready to approve" tone="alert" /> : null}
+                        {row.missingInformation && !row.readyToPublish && !row.canApprove ? (
+                          <StatusBadge label={`${row.blockingIssues.length} blocker${row.blockingIssues.length === 1 ? "" : "s"}`} tone="quiet" />
+                        ) : null}
+                        {row.published ? <StatusBadge label="Live" tone="ink" /> : null}
+                      </span>
+                    </td>
+                    <td className="px-3 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => onSelect?.(row.productId)}
+                        className="border border-ink px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-ink transition-colors hover:bg-ink hover:text-ivory"
+                      >
+                        Review
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -318,6 +657,7 @@ export default function UnifiedReviewQueue({ focusId = null, onSelect, initialQu
 
       <p className="mt-4 font-ui text-[10px] leading-relaxed text-taupe">
         One queue over one lifecycle — {rows.length} products. All departments use the same review system.
+        Bulk approve runs the same canonical Approve command as individual review.
       </p>
     </div>
   );

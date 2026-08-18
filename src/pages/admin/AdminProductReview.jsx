@@ -116,7 +116,12 @@ export default function AdminProductReview() {
 
       {/* UNIFIED REVIEW QUEUE ------------------------------------------ */}
       <AdminPanel eyebrow="One queue · one lifecycle" title="Unified review queue">
-        <UnifiedReviewQueue focusId={focusedProductId} onSelect={focusProduct} />
+        <UnifiedReviewQueue
+          focusId={focusedProductId}
+          onSelect={focusProduct}
+          actor={actor}
+          onNotice={setNotice}
+        />
       </AdminPanel>
 
       {/* UNIFIED PRODUCT REVIEW DETAIL --------------------------------- */}

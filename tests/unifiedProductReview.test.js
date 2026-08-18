@@ -42,6 +42,7 @@ import {
 import { assignMediaToProduct } from "../src/services/media/mediaOwnershipService.js";
 import {
   approveProduct,
+  bulkApproveProducts,
   returnProduct,
   publishProduct,
   submitProductForReview,
@@ -617,6 +618,91 @@ test("23. no duplicate review queue exists — one memoized projection", () => {
   const row = afterChange.find((candidate) => candidate.productId === scratch.product.id);
   assert.equal(row.stage, WORKFLOW_STAGES.APPROVED, "the projection reflects the canonical stage");
   cleanup(scratch);
+});
+
+/* ================================================================== */
+/* 24a. Bulk selection + bulk approve on the unified review queue     */
+/* ================================================================== */
+
+test("24a. Product Review queue supports filter-aware selection and rule-compliant bulk approve", () => {
+  const queue = queueSource();
+  const page = pageSource();
+
+  /* Selection UI — same pattern as Product Management. */
+  assert.ok(queue.includes('type="checkbox"'), "row / select-all checkboxes exist");
+  assert.ok(queue.includes("Select all visible products"), "Select All is labelled");
+  assert.ok(/selected\.length/.test(queue), "selected count is driven by selection state");
+  assert.ok(/Clear/i.test(queue), "Clear selection is available");
+  assert.ok(/Approve selected/i.test(queue), "Approve Selected bulk action exists");
+
+  /* Selection identity is Product ID, never index / name / image. */
+  assert.ok(queue.includes("String(row.productId)"), "selection uses the stable Product ID");
+  assert.ok(!/selected\.includes\(\s*index\s*\)/.test(queue));
+
+  /* Select All operates on the filtered result. */
+  assert.ok(
+    /filtered\.map\(\s*\(row\)\s*=>\s*String\(row\.productId\)\s*\)/.test(queue) ||
+      /filtered\.map\(\(row\) => String\(row\.productId\)\)/.test(queue),
+    "Select All maps filtered Product IDs"
+  );
+
+  /* Filter changes clear selection — no stale hidden bulk targets. */
+  assert.ok(
+    /setSelected\(\[\]\)/.test(queue) && /setFilter/.test(queue),
+    "filter changes clear selection"
+  );
+
+  /* Bulk approve reuses the canonical command — never a status write. */
+  assert.ok(
+    /from\s+"..\/..\/services\/productWorkflow"/.test(queue) ||
+      queue.includes("bulkApproveProducts"),
+    "queue imports the productWorkflow boundary"
+  );
+  assert.ok(queue.includes("bulkApproveProducts"), "queue calls bulkApproveProducts");
+  assert.ok(!/review\.state\s*=\s*["']APPROVED["']/.test(queue), "no direct APPROVED write");
+  assert.ok(!/status\s*:\s*["']APPROVED["']/.test(queue), "no direct status APPROVED patch");
+  assert.ok(!/catalogRepository/.test(queue), "queue never writes the repository");
+
+  /* Confirmation + blocked reasons surface the real validation messages. */
+  assert.ok(/Approve selected products/i.test(queue) || /ready for approval/i.test(queue));
+  assert.ok(/blocked/i.test(queue));
+  assert.ok(queue.includes("blockingIssues") || queue.includes("reasons"));
+
+  /* Individual REVIEW remains available. */
+  assert.ok(/>\s*Review\s*</.test(queue) || queue.includes(">Review<"));
+
+  /* The page wires actor + notice into the queue for bulk actions. */
+  assert.ok(page.includes("actor={actor}"));
+  assert.ok(page.includes("onNotice={setNotice}"));
+
+  /* Runtime: bulkApproveProducts is the same path as individual approve. */
+  const valid = createScratch();
+  const blocked = createScratch();
+  assert.ok(commands.submitProduct(valid.product.id, ADMIN).ok);
+  assert.ok(commands.submitProduct(blocked.product.id, ADMIN).ok);
+  catalogRepository.updateDraft(blocked.product.id, { description: "", shortDescription: "" }, ADMIN);
+
+  const individualBlocked = approveProduct(blocked.product.id, ADMIN);
+  assert.equal(individualBlocked.ok, false);
+
+  const bulk = bulkApproveProducts([valid.product.id, blocked.product.id], ADMIN);
+  assert.equal(bulk.applied, 1);
+  assert.equal(bulk.skipped, 1);
+  assert.equal(getProductWorkflowState(catalogRepository.find(valid.product.id)).stage, WORKFLOW_STAGES.APPROVED);
+  assert.notEqual(catalogRepository.find(valid.product.id).status, PRODUCT_STATUS.PUBLISHED);
+  assert.equal(
+    getProductWorkflowState(catalogRepository.find(blocked.product.id)).stage,
+    WORKFLOW_STAGES.SUBMITTED
+  );
+  const blockedEntry = bulk.results.find((entry) => entry.id === blocked.product.id);
+  assert.deepEqual(
+    blockedEntry.errors,
+    individualBlocked.errors ?? [individualBlocked.error],
+    "bulk surfaces the exact same blocker reasons as individual approve"
+  );
+
+  cleanup(valid);
+  cleanup(blocked);
 });
 
 /* ================================================================== */

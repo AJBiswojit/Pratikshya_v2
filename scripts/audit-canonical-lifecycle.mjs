@@ -170,6 +170,7 @@ const REQUIRED_COMMANDS = [
   "archiveProduct",
   "restoreProduct",
   "unpublishProduct",
+  "bulkApprove",
   "bulkPublish",
 ];
 
@@ -183,9 +184,19 @@ check(
   missingCommands.length === 0,
   missingCommands.join(", ")
 );
+/* Bulk approve + bulk publish are the only bulk lifecycle commands. Each
+   iterates the matching single-product command (approveProduct / publishProduct)
+   so there is never a second approval or publishing implementation. */
+const bulkExports = commandSource.match(/export const bulk[A-Z]\w*/g) ?? [];
 check(
-  "there is exactly ONE bulk lifecycle command (bulkPublish)",
-  (commandSource.match(/export const bulk[A-Z]\w*/g) ?? []).length === 1
+  "bulk lifecycle commands are bulkApprove and bulkPublish only",
+  bulkExports.length === 2 &&
+    bulkExports.includes("export const bulkApprove") &&
+    bulkExports.includes("export const bulkPublish")
+);
+check(
+  "bulkApprove delegates to approveProduct per product",
+  /export const bulkApprove[\s\S]*?approveProduct\s*\(/.test(commandSource)
 );
 line();
 

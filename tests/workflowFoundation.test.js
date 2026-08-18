@@ -509,6 +509,112 @@ test("bulk publish uses the canonical command per product and never publishes un
   cleanupScratch({ ...draftScratch, product: catalogRepository.find(draftScratch.product.id) });
 });
 
+test("bulk approve uses the canonical approveProduct per product and never force-approves blockers", () => {
+  const validA = createScratchProduct({ id: "FND-307" });
+  const validB = createScratchProduct({ id: "FND-308" });
+  const invalid = createScratchProduct({ id: "FND-309" });
+  const draft = createScratchProduct({ id: "FND-310" });
+
+  assert.ok(commands.submitProduct(validA.product.id, ADMIN).ok);
+  assert.ok(commands.submitProduct(validB.product.id, ADMIN).ok);
+  assert.ok(commands.submitProduct(invalid.product.id, ADMIN).ok);
+
+  /* Break description after submit — same blocker individual approve would raise. */
+  catalogRepository.updateDraft(invalid.product.id, { description: "", shortDescription: "" }, ADMIN);
+
+  const result = commands.bulkApprove(
+    [validA.product.id, invalid.product.id, validB.product.id, draft.product.id],
+    ADMIN
+  );
+
+  assert.equal(result.applied, 2, "only the two valid submitted products approve");
+  assert.equal(result.skipped, 2, "invalid + draft remain blocked");
+
+  assert.equal(getProductWorkflowState(catalogRepository.find(validA.product.id)).stage, WORKFLOW_STAGES.APPROVED);
+  assert.equal(getProductWorkflowState(catalogRepository.find(validB.product.id)).stage, WORKFLOW_STAGES.APPROVED);
+  assert.notEqual(catalogRepository.find(validA.product.id).status, PRODUCT_STATUS.PUBLISHED, "bulk approve never publishes");
+  assert.notEqual(catalogRepository.find(validB.product.id).status, PRODUCT_STATUS.PUBLISHED);
+
+  const invalidResult = result.results.find((entry) => entry.id === invalid.product.id);
+  assert.equal(invalidResult.ok, false);
+  assert.ok(
+    invalidResult.errors.some((message) => /description is required/i.test(message)),
+    `blocker reason must surface: ${invalidResult.errors.join("; ")}`
+  );
+  assert.equal(
+    getProductWorkflowState(catalogRepository.find(invalid.product.id)).stage,
+    WORKFLOW_STAGES.SUBMITTED,
+    "blocked product stays submitted / unapproved"
+  );
+
+  const draftResult = result.results.find((entry) => entry.id === draft.product.id);
+  assert.equal(draftResult.ok, false);
+  assert.ok(/submitted/i.test(draftResult.errors.join(" ")), "DRAFT → APPROVED is refused");
+  assert.equal(catalogRepository.find(draft.product.id).status, PRODUCT_STATUS.DRAFT);
+
+  /* Employees cannot bulk approve either. */
+  assert.equal(commands.bulkApprove([validA.product.id], manager()).ok, false);
+
+  cleanupScratch({ ...validA, product: catalogRepository.find(validA.product.id) });
+  cleanupScratch({ ...validB, product: catalogRepository.find(validB.product.id) });
+  cleanupScratch({ ...invalid, product: catalogRepository.find(invalid.product.id) });
+  cleanupScratch({ ...draft, product: catalogRepository.find(draft.product.id) });
+});
+
+test("bulk approve enforces MRP / selling price / description blockers with the same messages as individual approve", () => {
+  const mrpBroken = createScratchProduct({ id: "FND-311" });
+  const priceBroken = createScratchProduct({ id: "FND-312" });
+  const descBroken = createScratchProduct({ id: "FND-313" });
+
+  [mrpBroken, priceBroken, descBroken].forEach((scratch) => {
+    assert.ok(commands.submitProduct(scratch.product.id, ADMIN).ok);
+  });
+
+  catalogRepository.updateDraft(
+    mrpBroken.product.id,
+    { price: 0, pricing: { sellingPrice: 500, mrp: 0 } },
+    ADMIN
+  );
+  catalogRepository.updateDraft(
+    priceBroken.product.id,
+    { price: 0, pricing: { sellingPrice: 0, mrp: 1500 } },
+    ADMIN
+  );
+  catalogRepository.updateDraft(
+    descBroken.product.id,
+    { description: "", shortDescription: "" },
+    ADMIN
+  );
+
+  /* Individual approve surfaces the exact blockers. */
+  const individualMrp = commands.approveProduct(mrpBroken.product.id, ADMIN);
+  const individualPrice = commands.approveProduct(priceBroken.product.id, ADMIN);
+  const individualDesc = commands.approveProduct(descBroken.product.id, ADMIN);
+  assert.equal(individualMrp.ok, false);
+  assert.equal(individualPrice.ok, false);
+  assert.equal(individualDesc.ok, false);
+
+  const bulk = commands.bulkApprove(
+    [mrpBroken.product.id, priceBroken.product.id, descBroken.product.id],
+    ADMIN
+  );
+  assert.equal(bulk.applied, 0);
+  assert.equal(bulk.skipped, 3);
+
+  const byId = Object.fromEntries(bulk.results.map((entry) => [entry.id, entry]));
+  assert.deepEqual(byId[mrpBroken.product.id].errors, individualMrp.errors ?? [individualMrp.error]);
+  assert.deepEqual(byId[priceBroken.product.id].errors, individualPrice.errors ?? [individualPrice.error]);
+  assert.deepEqual(byId[descBroken.product.id].errors, individualDesc.errors ?? [individualDesc.error]);
+
+  assert.ok(byId[mrpBroken.product.id].errors.some((m) => /MRP must be greater than zero/i.test(m)));
+  assert.ok(byId[priceBroken.product.id].errors.some((m) => /Selling price must be greater than zero/i.test(m)));
+  assert.ok(byId[descBroken.product.id].errors.some((m) => /description is required/i.test(m)));
+
+  cleanupScratch({ ...mrpBroken, product: catalogRepository.find(mrpBroken.product.id) });
+  cleanupScratch({ ...priceBroken, product: catalogRepository.find(priceBroken.product.id) });
+  cleanupScratch({ ...descBroken, product: catalogRepository.find(descBroken.product.id) });
+});
+
 /* ------------------------------------------------------------------ */
 /* 5. Kids — category validation, not a second lifecycle               */
 /* ------------------------------------------------------------------ */
