@@ -6,6 +6,7 @@ import PratikshyaImage from "../PratikshyaImage";
 import { AtelierButton, Container, body } from "../../design-system";
 import { useActivePlacementMedia } from "../../hooks/useMedia";
 import { resolveFestiveCampaignImage } from "../../services/media/mediaResolver";
+import { resolvePlacementImage } from "../../services/media/marketingMediaSource";
 import { MARKETING_PLACEMENTS } from "../../config/mediaTypes";
 import { resolveCollectionRoute } from "../../services/taxonomyRouting";
 import offerRepository from "../../services/offers/offerRepository";
@@ -58,8 +59,13 @@ export default function SaleBanner({ excludeIds = null }) {
   const festiveMedia = useActivePlacementMedia(MARKETING_PLACEMENTS.FESTIVE_SECTION);
   const usedIds = new Set(excludeIds ?? []);
 
-  /* The editorial plate — deterministic, festive, library-first. */
-  const image = resolveFestiveCampaignImage(festiveMedia, usedIds);
+  /* The editorial plate — the PROMOTION placement's active record stands in
+     first ("seasonal promotion artwork" is this band), then the existing
+     deterministic festive chain: the FESTIVE_SECTION record, library
+     SALE/BANNER role media, and the house plate. An unusable or missing
+     promotion record changes nothing. */
+  const promotionMedia = useActivePlacementMedia(MARKETING_PLACEMENTS.PROMOTION);
+  const image = resolvePlacementImage(promotionMedia, resolveFestiveCampaignImage(festiveMedia, usedIds));
 
   /* Offer truth — unchanged from the original band. */
   const activeOffers = offerRepository.list({ status: "ACTIVE" });

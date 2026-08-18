@@ -13,6 +13,11 @@
  *   4. Assignments survive a re-read (refresh) and removals only drop the
  *      reference — the product stays in the catalogue.
  *   5. Hero / editorial placements stay on the generic media workflow.
+ *   5b. EVERY remaining placement has a live storefront seam: the Women's
+ *      landing rail, the Bangles / Jewellery category rails, the Editorial
+ *      storytelling plate, the Promotion band — plus the admin labels that
+ *      must answer the canonical consumption rule, not the local assignment.
+ *   6. Cleared storage recovers the canonical catalogue without duplicates.
  *
  * Run:  npm run qa:marketing-assignment
  */
@@ -407,6 +412,241 @@ check(
     .map((placement) => placement.id)
     .join(", ")
 );
+
+/* ------------------------------------------------------------------ */
+console.log("\n# 5b. EVERY REMAINING PLACEMENT HAS A LIVE STOREFRONT SEAM");
+/* ------------------------------------------------------------------ */
+
+/* Women's section — the landing-page rail. */
+try {
+  const WOMEN_PRODUCT = catalogRepository
+    .all()
+    .find((product) => product.department === "women" && product.category === "essentials");
+  publishViaWorkflow(WOMEN_PRODUCT.id);
+  marketingPlacementRepository.setPlacementProductIds(MARKETING_PLACEMENTS.WOMEN_SECTION, [
+    WOMEN_PRODUCT.id,
+  ]);
+  const { default: PlacementProductRail } = await import(
+    "../src/components/storefront/PlacementProductRail.jsx"
+  );
+  const { WishlistProvider } = await import("../src/context/WishlistContext.jsx");
+  const { InventoryProvider } = await import("../src/context/InventoryContext.jsx");
+  const womenHtml = renderAt(
+    React.createElement(
+      InventoryProvider,
+      null,
+      React.createElement(
+        WishlistProvider,
+        null,
+        React.createElement(PlacementProductRail, {
+          placementId: MARKETING_PLACEMENTS.WOMEN_SECTION,
+        })
+      )
+    ),
+    "/"
+  );
+  check(
+    "Women's section renders its curated product on the landing page",
+    womenHtml.includes(WOMEN_PRODUCT.name),
+    WOMEN_PRODUCT.id
+  );
+} catch (error) {
+  check("Women's section renders its curated product on the landing page", false, error.message);
+}
+
+/* Bangles + Jewellery — the category listing rails. */
+try {
+  const banglesProduct = catalogRepository
+    .all()
+    .find(
+      (product) =>
+        product.department === "bridal" &&
+        product.category === "finishing-touches" &&
+        product.subcategory === "bangles"
+    );
+  const jewelleryProduct = catalogRepository
+    .all()
+    .find(
+      (product) =>
+        product.department === "bridal" &&
+        product.category === "finishing-touches" &&
+        product.subcategory === "jewellery"
+    );
+  publishViaWorkflow(banglesProduct.id);
+  publishViaWorkflow(jewelleryProduct.id);
+  marketingPlacementRepository.setPlacementProductIds(MARKETING_PLACEMENTS.BANGLES_SECTION, [
+    banglesProduct.id,
+  ]);
+  marketingPlacementRepository.setPlacementProductIds(MARKETING_PLACEMENTS.JEWELLERY_SECTION, [
+    jewelleryProduct.id,
+  ]);
+
+  const { default: CatalogueListing } = await import("../src/pages/CatalogueListing.jsx");
+  const { WishlistProvider } = await import("../src/context/WishlistContext.jsx");
+  const { InventoryProvider } = await import("../src/context/InventoryContext.jsx");
+  const listingAt = (path) =>
+    renderAt(
+      React.createElement(
+        InventoryProvider,
+        null,
+        React.createElement(
+          WishlistProvider,
+          null,
+          React.createElement(CatalogueListing, { variant: "navigation" })
+        )
+      ),
+      path
+    );
+
+  const banglesHtml = listingAt("/bridal/finishing-touches/bangles");
+  const banglesOccurrences = (banglesHtml.match(new RegExp(escapeRegExp(banglesProduct.name), "g")) || []).length;
+  check(
+    "Bangles category page renders its curated rail",
+    banglesHtml.includes('id="placement-bangles_section"') && banglesOccurrences >= 2,
+    `${banglesProduct.id} — ${banglesOccurrences} renders (rail + grid)`
+  );
+  const jewelleryHtml = listingAt("/bridal/finishing-touches/jewellery");
+  const jewelleryOccurrences = (jewelleryHtml.match(new RegExp(escapeRegExp(jewelleryProduct.name), "g")) || []).length;
+  check(
+    "Jewellery category page renders its curated rail",
+    jewelleryHtml.includes('id="placement-jewellery_section"') && jewelleryOccurrences >= 2,
+    `${jewelleryProduct.id} — ${jewelleryOccurrences} renders (rail + grid)`
+  );
+  /* A page that is no placement's surface never grows a rail. */
+  const plainHtml = listingAt("/women/sarees/cotton");
+  check(
+    "a non-placement listing page renders no curated rail",
+    !plainHtml.includes('id="placement-'),
+    "no rail outside the vocabulary"
+  );
+} catch (error) {
+  check("Bangles / Jewellery category rails", false, error.message);
+  console.error(error.stack?.split("\n").slice(0, 6).join("\n"));
+}
+
+/* Editorial + Promotion — the generic artwork seams. */
+try {
+  const { default: mediaRepository } = await import("../src/services/media/mediaRepository.js");
+  const promotion = mediaRepository.create({
+    type: "IMAGE",
+    title: "Nababarsha promotion plate",
+    url: "/images/products/women/sarees/silk/PF-W-SAR-SIL-0002/primary.avif",
+    status: "ACTIVE",
+    scope: "MARKETING",
+    placement: MARKETING_PLACEMENTS.PROMOTION,
+  });
+  const editorial = mediaRepository.create({
+    type: "IMAGE",
+    title: "Heritage storytelling plate",
+    url: "/images/products/women/sarees/banarasi/PF-W-SAR-BAN-0002/primary.avif",
+    status: "ACTIVE",
+    scope: "MARKETING",
+    placement: MARKETING_PLACEMENTS.EDITORIAL,
+  });
+
+  const { default: SaleBanner } = await import("../src/components/storefront/SaleBanner.jsx");
+  const saleHtml = renderAt(React.createElement(SaleBanner), "/");
+  check(
+    "Promotion artwork stands on the seasonal band",
+    saleHtml.includes(promotion.url),
+    promotion.url
+  );
+
+  const { default: CelebrationEdit } = await import(
+    "../src/components/storefront/CelebrationEdit.jsx"
+  );
+  const celebrationHtml = renderAt(React.createElement(CelebrationEdit), "/");
+  check(
+    "Editorial artwork stands on the heritage storytelling plate",
+    celebrationHtml.includes(editorial.url),
+    editorial.url
+  );
+
+  /* A DRAFT promotion record must not stand on the band — the festive chain stays. */
+  mediaRepository.update(promotion.id, { status: "DRAFT" });
+  const saleAfterDraft = renderAt(React.createElement(SaleBanner), "/");
+  check(
+    "a draft promotion record leaves the band untouched",
+    !saleAfterDraft.includes(promotion.url)
+  );
+  mediaRepository.update(promotion.id, { status: "ACTIVE" });
+} catch (error) {
+  check("Editorial / Promotion artwork seams", false, error.message);
+  console.error(error.stack?.split("\n").slice(0, 6).join("\n"));
+}
+
+/* Admin label honesty — the badge answers the canonical consumption rule. */
+try {
+  const { default: mediaRepository } = await import("../src/services/media/mediaRepository.js");
+  /* Isolate the board: records that genuinely stand on their seams earn the
+     badge, so they are removed before the hero honesty check. */
+  mediaRepository.getAll()
+    .filter((item) => item.scope === "MARKETING")
+    .forEach((item) => mediaRepository.remove(item.id));
+  const plainHero = mediaRepository.create({
+    type: "IMAGE",
+    title: "Plain hero upload",
+    url: "/images/products/women/sarees/silk/PF-W-SAR-SIL-0003/primary.avif",
+    status: "ACTIVE",
+    scope: "MARKETING",
+    placement: MARKETING_PLACEMENTS.HOME_HERO,
+  });
+  const { default: AdminMarketingMedia } = await import(
+    "../src/pages/admin/media/AdminMarketingMedia.jsx"
+  );
+  const boardHtml = renderAt(React.createElement(AdminMarketingMedia), "/admin/media/marketing");
+  check(
+    "an active hero upload the slideshow cannot admit is not badged On the storefront",
+    !boardHtml.includes("On the storefront"),
+    "hero register requires the dedicated HERO role"
+  );
+  check(
+    "the marketing board says so honestly",
+    boardHtml.includes("not admitted by the seam yet"),
+    "panel copy reflects the canonical rule"
+  );
+  check(
+    "the plain hero record is still listed for the placement",
+    boardHtml.includes(plainHero.title),
+    plainHero.id
+  );
+
+  mediaRepository.remove(plainHero.id);
+  const admitted = mediaRepository.create({
+    type: "IMAGE",
+    title: "Registered promotion plate",
+    url: "/images/products/women/sarees/silk/PF-W-SAR-SIL-0004/primary.avif",
+    status: "ACTIVE",
+    scope: "MARKETING",
+    placement: MARKETING_PLACEMENTS.PROMOTION,
+  });
+  const boardAfter = renderAt(React.createElement(AdminMarketingMedia), "/admin/media/marketing");
+  check(
+    "a promotion record that truly stands on the band is badged On the storefront",
+    boardAfter.includes("On the storefront") && boardAfter.includes(admitted.title),
+    admitted.id
+  );
+  mediaRepository.remove(admitted.id);
+
+  const { default: MediaPlacementSelector } = await import(
+    "../src/components/media/MediaPlacementSelector.jsx"
+  );
+  const selectorHtml = renderAt(
+    React.createElement(MediaPlacementSelector, {
+      selectedPlacement: null,
+      onSelectPlacement: () => {},
+    }),
+    "/admin/media/upload"
+  );
+  check(
+    "artwork uploads are only offered GENERIC placements",
+    selectorHtml.includes("Home hero") && !selectorHtml.includes("Saree section"),
+    "product placements are curated from the catalogue"
+  );
+} catch (error) {
+  check("admin label honesty", false, error.message);
+  console.error(error.stack?.split("\n").slice(0, 6).join("\n"));
+}
 
 /* ------------------------------------------------------------------ */
 console.log("\n# 6. CLEARED STORAGE — canonical recovery without duplicate state");

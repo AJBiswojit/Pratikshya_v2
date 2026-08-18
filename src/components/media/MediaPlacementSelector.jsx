@@ -1,6 +1,16 @@
 import { Check } from "lucide-react";
-import { MARKETING_PLACEMENT_OPTIONS } from "../../config/mediaTypes";
+import { MARKETING_PLACEMENT_OPTIONS, PLACEMENT_MODES } from "../../config/mediaTypes";
 import { cn } from "../../utils/cn";
+
+/**
+ * Artwork uploads may only target GENERIC placements — the surfaces that
+ * read house artwork from the media register. PRODUCT placements are curated
+ * from the canonical catalogue on the Marketing Media desk; an artwork
+ * record pointed at one would surface nowhere, so it is never offered.
+ */
+const ARTWORK_PLACEMENT_OPTIONS = MARKETING_PLACEMENT_OPTIONS.filter(
+  (placement) => placement.mode === PLACEMENT_MODES.GENERIC
+);
 
 export default function MediaPlacementSelector({
   selectedPlacement,
@@ -18,7 +28,7 @@ export default function MediaPlacementSelector({
       </div>
 
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {MARKETING_PLACEMENT_OPTIONS.map((placement) => {
+        {ARTWORK_PLACEMENT_OPTIONS.map((placement) => {
           const isSelected = selectedPlacement === placement.id;
           return (
             <button

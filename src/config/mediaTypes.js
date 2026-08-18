@@ -269,11 +269,23 @@ export const isValidUsageRole = (role) => Object.values(USAGE_ROLES).includes(ro
  *     the product's name, taxonomy and media. `recommendedDepartment` /
  *     `recommendedCategory` / `recommendedSubcategory` describe the taxonomy
  *     the section is built around so the selector can open pre-arranged, but
- *     they never lock the catalogue down.
+ *     they never lock the catalogue down. A PRODUCT placement whose documented
+ *     surface is a category listing page (`listingSurface: true`) renders its
+ *     curated rail on that taxonomy's listing route; the rail matcher reads
+ *     exactly these recommended taxonomy fields, never a hardcoded route.
+ *     `houseSelectionFallback: true` marks the seams that keep a curated,
+ *     data-driven house edit when nothing is assigned — every other product
+ *     seam simply stays hidden until the desk curates it (no catalogue
+ *     fallback, no random products).
  *
  *   · GENERIC placements display house artwork (hero plates, editorial
  *     storytelling, campaign bands). They keep the existing media-upload
  *     workflow.
+ *
+ * Every placement marked `live: true` is read by a real storefront seam —
+ * product placements through the marketing placement register, generic
+ * placements through the marketing media register. Nothing is advertised as
+ * live that the storefront does not actually consume.
  */
 export const PLACEMENT_MODES = {
   PRODUCT: "PRODUCT",
@@ -314,6 +326,7 @@ export const MARKETING_PLACEMENT_OPTIONS = [
     mode: PLACEMENT_MODES.PRODUCT,
     recommendedDepartment: "women",
     recommendedCategory: "sarees",
+    houseSelectionFallback: true,
   },
   {
     id: MARKETING_PLACEMENTS.LEHENGA_SECTION,
@@ -346,6 +359,7 @@ export const MARKETING_PLACEMENT_OPTIONS = [
     live: true,
     mode: PLACEMENT_MODES.PRODUCT,
     recommendedDepartment: "bridal",
+    houseSelectionFallback: true,
   },
   {
     id: MARKETING_PLACEMENTS.GROOM_SECTION,
@@ -354,6 +368,7 @@ export const MARKETING_PLACEMENT_OPTIONS = [
     live: true,
     mode: PLACEMENT_MODES.PRODUCT,
     recommendedDepartment: "men",
+    houseSelectionFallback: true,
   },
   {
     id: MARKETING_PLACEMENTS.KIDS_SECTION,
@@ -372,6 +387,7 @@ export const MARKETING_PLACEMENT_OPTIONS = [
     recommendedDepartment: "bridal",
     recommendedCategory: "finishing-touches",
     recommendedSubcategory: "bangles",
+    listingSurface: true,
   },
   {
     id: MARKETING_PLACEMENTS.JEWELLERY_SECTION,
@@ -382,6 +398,7 @@ export const MARKETING_PLACEMENT_OPTIONS = [
     recommendedDepartment: "bridal",
     recommendedCategory: "finishing-touches",
     recommendedSubcategory: "jewellery",
+    listingSurface: true,
   },
   {
     id: MARKETING_PLACEMENTS.NEW_ARRIVALS,
@@ -389,6 +406,7 @@ export const MARKETING_PLACEMENT_OPTIONS = [
     surface: "New arrivals edit",
     live: true,
     mode: PLACEMENT_MODES.PRODUCT,
+    houseSelectionFallback: true,
   },
   {
     id: MARKETING_PLACEMENTS.EDITORIAL,
