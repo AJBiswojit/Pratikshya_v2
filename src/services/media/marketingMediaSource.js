@@ -14,7 +14,7 @@
  */
 
 import { MEDIA_TYPES } from "../../config/mediaTypes";
-import { resolveLegacyMediaUrl } from "./mediaPaths";
+import { resolveMediaUrl } from "./mediaPaths";
 
 /**
  * A marketing record shaped for `PratikshyaImage`, or null when it cannot
@@ -25,7 +25,7 @@ import { resolveLegacyMediaUrl } from "./mediaPaths";
  */
 export const placementImageSource = (media) => {
   if (!media) return null;
-  const src = resolveLegacyMediaUrl(
+  const src = resolveMediaUrl(
     media.type === MEDIA_TYPES.VIDEO ? media.poster : media.url || media.thumbnail
   );
   if (!src) return null;

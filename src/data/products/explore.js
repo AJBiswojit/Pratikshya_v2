@@ -4,7 +4,7 @@
  * The unified product-discovery dataset. Explore never scans files, never
  * invents cards from gallery views, and never keeps a second catalogue.
  *
- *   MEDIA LIBRARY → MEDIA GROUP → PRODUCT ID → PRODUCT RECORD → PUBLISHED
+ *   CANONICAL CATALOGUE → PRODUCT ID → PRODUCT MEDIA → PUBLISHED
  *        → getLiveStorefrontProducts() → dedupe by Product ID → EXPLORE
  *
  * One Product ID is one Explore card. Front / side / back of the same
@@ -132,10 +132,6 @@ export const buildExploreStream = (products = []) => {
 };
 
 export const getExploreOffers = () => offerRepository.listCustomerVisible().slice(0, 4);
-
-/** Kids products stay out of Explore until published — handled by the generic
-    storefront filter (DRAFT / PENDING_REVIEW records are never visible). */
-export const unpublishedKidsIds = () => [];
 
 export const inspectExploreMedia = (product) => {
   const set = getProductMediaSet(product);

@@ -17,7 +17,7 @@ import {
   recordActivity,
 } from "./employees/activityService";
 
-export const TAXONOMY_STORAGE_KEY = "pratikshya_taxonomy";
+export const TAXONOMY_STORAGE_KEY = "pratikshya_taxonomy_v2";
 export const TAXONOMY_CHANGED_EVENT = "pratikshya-taxonomy-changed";
 
 export const TAXONOMY_STATUS = {
@@ -51,18 +51,14 @@ const cleanName = (value) => String(value || "").replace(/\s+/g, " ").trim();
 const normaliseSlug = (value, fallback = "") => slugify(cleanName(value) || fallback);
 const asArray = (value) => (Array.isArray(value) ? value.filter(Boolean).map(String) : []);
 
-const CATEGORY_SEEDS = [
-  { id: "sarees", name: "Sarees", slug: "sarees", eyebrow: "Six Yards", description: "Handloom, silk and pato sarees woven across Odisha and Banaras.", image: null, featured: true, sortOrder: 10 },
-  { id: "lehengas", name: "Lehengas", slug: "lehengas", eyebrow: "The Ceremony", description: "Bridal, festive and designer lehengas cut for the long celebration.", image: null, featured: true, sortOrder: 20 },
-  { id: "bridal-couture", name: "Bridal Couture", slug: "bridal", eyebrow: "The Trousseau", description: "Reception gowns, sangeet sets and trousseau pieces made to order.", image: null, featured: true, sortOrder: 30 },
-  { id: "kurtis-and-suits", name: "Kurtis + Suits", slug: "kurtis-and-suits", eyebrow: "Everyday", description: "Quiet daily ethnic wear in cotton, linen and light silk.", image: null, sortOrder: 40 },
-  { id: "innerwear", name: "Innerwear", slug: "innerwear", eyebrow: "The Foundation", description: "Petticoats, blouses and shapewear finished to the same standard.", image: null, sortOrder: 50 },
-  { id: "dupattas", name: "Dupattas + Stoles", slug: "dupattas", eyebrow: "The Drape", description: "Woven and embroidered drapes that finish a look.", image: null, sortOrder: 60 },
-  { id: "bangles", name: "Bangles", slug: "bangles", eyebrow: "The Stack", description: "Bridal sets, gold-finish bangles, kada and cuffs.", image: null, featured: true, sortOrder: 70 },
-  { id: "jewellery", name: "Jewellery", slug: "jewellery", eyebrow: "Adornment", description: "Temple, kundan and polki pieces for the whole ceremony.", image: null, featured: true, sortOrder: 80 },
-  { id: "menswear", name: "Men's Wear", slug: "men", eyebrow: "The Groom", description: "Kurta, sherwani and Nehru jackets tailored in-house.", image: null, featured: true, sortOrder: 90 },
-  { id: "kidswear", name: "Kids Wear", slug: "kids", eyebrow: "Little Heirlooms", description: "Everyday sets, dresses and casual coordinates for children.", image: null, featured: true, sortOrder: 100 },
-];
+const CATEGORY_SEEDS = catalogueDepartments.flatMap((department) =>
+  department.categories.map((category, index) => ({
+    ...category,
+    departmentId: department.id,
+    featured: true,
+    sortOrder: index * 10,
+  }))
+);
 
 const COLLECTION_SEEDS = [
   { id: "new-arrivals", name: "New Arrivals", slug: "new-arrivals", eyebrow: "Just In", description: "The pieces that reached the atelier floor this month.", image: null, type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, featured: true, sortOrder: 5, rule: { flag: "isNew" } },
@@ -73,7 +69,6 @@ const COLLECTION_SEEDS = [
   { id: "bridal-trousseau", name: "Bridal Trousseau", slug: "bridal", eyebrow: "The Trousseau", description: "Every ceremony, considered as one wardrobe.", image: null, featured: true, sortOrder: 40 },
   { id: "everyday-atelier", name: "Everyday Atelier", slug: "everyday-atelier", description: "Ethnic wear light enough for a Tuesday.", image: null, sortOrder: 50 },
   { id: "groom-atelier", name: "Groom Atelier", slug: "groom-atelier", description: "Tailoring for the other half of the mandap.", image: null, sortOrder: 60 },
-  { id: "little-heirlooms", name: "Little Heirlooms", slug: "little-heirlooms", description: "Made small, kept for good.", image: null, sortOrder: 70 },
   { id: "silk", name: "Silk", slug: "silk", description: "Silk sarees, lehengas and heirloom weaves across the atelier.", image: null, type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, sortOrder: 80, rule: { fabricIncludes: "silk" } },
   { id: "wedding", name: "Wedding", slug: "wedding", eyebrow: "The Long Celebration", description: "One wardrobe for every ceremony in the calendar.", image: null, type: COLLECTION_TYPES.RULE_BASED, status: COLLECTION_STATUS.ACTIVE, featured: true, sortOrder: 90, rule: { occasion: "Wedding" } },
 ];
@@ -88,6 +83,7 @@ const makeCategory = (draft, index = 0) => {
     name,
     label: name,
     slug,
+    departmentId: draft.departmentId || null,
     eyebrow: draft.eyebrow || "",
     description: cleanName(draft.description),
     image: draft.image || "hero-atelier",
@@ -207,6 +203,7 @@ const buildSeed = () => {
       if (!categoryIds.has(category.id)) {
         categories.push(makeCategory({
           id: category.id,
+          departmentId: department.id,
           name: category.name,
           slug: category.slug,
           eyebrow: category.eyebrow,

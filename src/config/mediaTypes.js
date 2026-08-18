@@ -230,25 +230,8 @@ export const USAGE_ROLE_OPTIONS = [
   { id: USAGE_ROLES.AI_MIRROR, label: "AI Mirror" },
 ];
 
-/** Apparel categories the AI Mirror may receive. Jewellery and innerwear never qualify. */
-export const AI_MIRROR_ELIGIBLE_CATEGORIES = [
-  "sarees",
-  "lehengas",
-  "bridal-couture",
-  "kurtis-and-suits",
-  "menswear",
-  "kidswear",
-];
-
-export const AI_MIRROR_EXCLUDED_CATEGORIES = [
-  "jewellery",
-  "bangles",
-  "dupattas",
-  "innerwear",
-];
-
 /* ------------------------------------------------------------------ */
-/* Ingestion mapping / duplicate vocabulary (Phase 21.4)               */
+/* Managed-media mapping and duplicate vocabulary                       */
 /* ------------------------------------------------------------------ */
 
 export const MAPPING_STATUS = {
@@ -375,7 +358,7 @@ export const MARKETING_PLACEMENT_OPTIONS = [
   {
     id: MARKETING_PLACEMENTS.KIDS_SECTION,
     label: "Kids section",
-    surface: "Kidswear category",
+    surface: "Kids department",
     live: true,
     mode: PLACEMENT_MODES.PRODUCT,
     recommendedDepartment: "kids",

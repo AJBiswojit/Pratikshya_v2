@@ -390,19 +390,19 @@ export default function AdminMediaProductMapping() {
           <div className="space-y-2">
             <p className="font-ui text-[11px] uppercase tracking-[.18em] text-ink">Image addition flow</p>
             <pre className="overflow-x-auto bg-surface p-3 font-mono text-[11px] text-cocoa">
-{`NEW IMAGE
+{`SELECT FILE OR URL
 ↓
-filename parser (mediaNaming)
+managed media register (mediaStore)
 ↓
-media register (mediaStore)
+optional view grouping (mediaGroups)
 ↓
-group detection (mediaGroups)
+select canonical Product ID
 ↓
-product matching (catalogue/metadata)
+media ownership service
 ↓
 admin review if NEEDS_REVIEW
 ↓
-product gallery
+canonical product gallery
 ↓
 mediaResolver
 ↓
@@ -417,12 +417,12 @@ storefront`}
               <li>women-saree-banarasi-001-back.webp</li>
               <li>men-sherwani-006-left-side.webp</li>
               <li>women-lehenga-002-front-close.webp</li>
-              <li>kids-001.webp (standalone)</li>
+              <li>jewellery-001.webp (standalone)</li>
             </ul>
-            <p className="mt-3 font-ui text-[11px] uppercase tracking-[.18em] text-ink">No developer edit needed</p>
+            <p className="mt-3 font-ui text-[11px] uppercase tracking-[.18em] text-ink">Explicit ownership</p>
             <p className="font-ui text-xs text-taupe">
-              Dropping a new file into <code>public/library/</code> following the convention is enough — the parser,
-              group detection and admin review queue automatically surface it for mapping.
+              Upload or enter the media URL, then select a canonical Product ID. Filenames may organize views,
+              but they never create a product or infer product ownership.
             </p>
           </div>
         </div>

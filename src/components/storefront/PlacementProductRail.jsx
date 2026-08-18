@@ -31,7 +31,7 @@ import { cn } from "../../utils/cn";
  * approval workflow is never bypassed). With nothing curated, the section
  * stays absent and the homepage is exactly what it was.
  *
- * Used by placements without a bespoke seam (Lehenga section, Kids section);
+ * Used by product placements without a bespoke seam;
  * bespoke seams (Saree Edit, Bride & Groom, New Arrivals) read the same
  * register through the same hooks.
  */

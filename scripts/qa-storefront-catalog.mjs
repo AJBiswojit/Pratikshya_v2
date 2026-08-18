@@ -96,7 +96,10 @@ try {
   const { default: ProductPurchasePanel } = await import("../src/components/product/ProductPurchasePanel.jsx");
   const panelHtml = renderAt(React.createElement(ProductPurchasePanel, { product }), "/product/PF-W-SAR-SIL-0001");
   check("purchase panel shows the customer-facing name", panelHtml.includes(product.name));
-  check("purchase panel never invents a price for a draft", panelHtml.includes("Price on request") && !/>₹</.test(panelHtml));
+  check(
+    "purchase panel renders the canonical authored price without inventing one",
+    panelHtml.includes(`₹${product.price.toLocaleString("en-IN")}`) && !panelHtml.includes("Price on request")
+  );
 
   const { default: ProductGrid } = await import("../src/components/storefront/ProductGrid.jsx");
   const gridHtml = renderAt(React.createElement(ProductGrid, { products: [product] }), "/shop");

@@ -110,15 +110,15 @@ export const departmentSubcategoriesFor = subcategoriesForDepartmentCategory;
 /* ------------------------------------------------------------------ */
 
 /**
- * Deterministic category-based Product ID prefixes. A new draft product
- * created from media receives a permanent id like `KID-007` — never a
- * random id, never an array index. The id is persisted in the product
+ * Deterministic taxonomy-based Product ID prefixes. A new Product draft
+ * receives a permanent canonical id after its full taxonomy path is selected —
+ * never a random id and never an array index. The id is persisted in the product
  * register and is never derived from the editable product name.
  *
- * The values live in the leaf module `./productIdPrefixes` so the catalogue
- * repository can share them without an import cycle.
+ * The builder lives in the leaf module `./productIdPrefixes` so every draft
+ * source shares the same full taxonomy-path identity convention.
  */
-export { PRODUCT_ID_PREFIXES, DEFAULT_PRODUCT_ID_PREFIX } from "./productIdPrefixes";
+export { buildProductIdPrefix } from "./productIdPrefixes";
 
 /* ------------------------------------------------------------------ */
 /* Fabric & material — taxonomy list extended, never contradicted      */

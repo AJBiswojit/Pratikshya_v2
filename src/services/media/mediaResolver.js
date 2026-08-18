@@ -14,8 +14,6 @@
  */
 
 import {
-  AI_MIRROR_ELIGIBLE_CATEGORIES,
-  AI_MIRROR_EXCLUDED_CATEGORIES,
   MARKETING_PLACEMENTS,
   MEDIA_SCOPES,
   MEDIA_STATUS,
@@ -23,16 +21,18 @@ import {
   PRODUCT_MEDIA_ROLES,
   USAGE_ROLES,
 } from "../../config/mediaTypes";
-import { imageRef } from "../../data/pratikshyaImageManifest";
+import { imageRef } from "../../data/mediaPlaceholder";
 import { products as catalogueSeedProducts } from "../../data/catalog/products";
+import { departments as catalogueDepartments } from "../../data/catalog/taxonomy";
 import { collectionPlates as catalogueCollectionPlates } from "../../data/catalog/collections";
 import { getLiveStorefrontProducts, productHref } from "../../data/products";
 import taxonomyRepository from "../taxonomyRepository";
+import { isVirtualTryOnEligibleProduct } from "../aiMirror/aiMirrorEligibility";
 import { getAll, getById, getMarketingMedia, getProductMedia } from "./mediaRepository";
 import { placementImageSource } from "./marketingMediaSource";
 import {
-  isIngestedPhotographyUrl,
-  resolveLegacyMediaUrl,
+  isCanonicalMediaUrl,
+  resolveMediaUrl,
 } from "./mediaPaths";
 import { getProductCoverImage } from "./productMediaSource";
 import {
@@ -43,7 +43,7 @@ import {
 
 const asSource = (media, fallbackCategory = "default") => {
   if (!media) return null;
-  const src = resolveLegacyMediaUrl(media.url || media.thumbnail || media.poster);
+  const src = resolveMediaUrl(media.url || media.thumbnail || media.poster);
   if (!src) return null;
   return {
     id: media.id,
@@ -82,13 +82,8 @@ const roleRank = (media, preferredRoles = []) => {
   return index === -1 ? preferredRoles.length + 1 : index;
 };
 
-/**
- * The Phase 21.4 house plates are the *existing* fallback artwork (the old
- * `images/*` manifest plates re-ingested as `dump` records). They must never
- * outrank the new library photography for the same category — they exist to
- * catch the case where a category has no library media at all.
- */
-const isHousePlate = (media) =>
+/** Marketing artwork is fallback-only and never outranks canonical Product Media. */
+const isMarketingArtwork = (media) =>
   Boolean(media && ((media.tags || []).includes("house") || media.source === "House artwork"));
 
 /**
@@ -97,13 +92,13 @@ const isHousePlate = (media) =>
  * a resolver ran. The values describe the fallback chain travelled:
  *
  *   DIRECT            a dedicated role asset (CATEGORY_COVER / COLLECTION_COVER /
- *                     PRODUCT_PRIMARY / HERO / SALE …) from the real library
+ *                     PRODUCT_PRIMARY / HERO / SALE …) from the canonical product-media
  *   PRODUCT_GALLERY   a product's own gallery media, used when it has no COVER
  *   TAXONOMY_PRODUCT  a member product's primary media standing in for a
  *                     category / collection that has no dedicated cover
- *   RELATED_TAXONOMY  library media tagged to the same taxonomy, any role
- *   HOUSE_FALLBACK    the existing premium house artwork
- *   NO_SOURCE_MEDIA   no relevant source photography exists — house artwork
+ *   RELATED_TAXONOMY  canonical product media tagged to the same taxonomy, any role
+ *   EDITORIAL_FALLBACK    optional editorial artwork
+ *   NO_SOURCE_MEDIA   no relevant source photography exists
  */
 export const FALLBACK_REASONS = {
   DIRECT: "DIRECT",
@@ -111,7 +106,7 @@ export const FALLBACK_REASONS = {
   TAXONOMY_PRODUCT: "TAXONOMY_PRODUCT",
   RELATED_TAXONOMY: "RELATED_TAXONOMY",
   STATIC_CATALOG: "STATIC_CATALOG",
-  HOUSE_FALLBACK: "HOUSE_FALLBACK",
+  EDITORIAL_FALLBACK: "EDITORIAL_FALLBACK",
   NO_SOURCE_MEDIA: "NO_SOURCE_MEDIA",
 };
 
@@ -146,7 +141,7 @@ const withReason = (source, reason) => (source ? { ...source, reason } : null);
  * is stable across renders.
  *
  * Order mirrors the Phase 21.5 selection rules:
- *   1. real library photography over house fallback plates
+ *   1. real canonical product photography over house fallback plates
  *   2. explicit usage role (CATEGORY_COVER > EDITORIAL > HERO > …)
  *   3. featured
  *   4. quality / resolution
@@ -154,7 +149,7 @@ const withReason = (source, reason) => (source ? { ...source, reason } : null);
  *   6. stable id order
  */
 export const compareMedia = (a, b, { preferredRoles = [], preferPortrait = false } = {}) => {
-  const house = Number(isHousePlate(a)) - Number(isHousePlate(b));
+  const house = Number(isMarketingArtwork(a)) - Number(isMarketingArtwork(b));
   if (house) return house;
   const role = roleRank(a, preferredRoles) - roleRank(b, preferredRoles);
   if (role) return role;
@@ -192,7 +187,7 @@ export const selectMedia = ({
   const pool = getAll()
     .filter(isUsable)
     .filter((item) => (allowUnmapped ? true : item.mappingStatus !== "UNMAPPED"))
-    .filter((item) => (excludeHouse ? !isHousePlate(item) : true))
+    .filter((item) => (excludeHouse ? !isMarketingArtwork(item) : true))
     .filter((item) => (categoryId ? item.categoryId === categoryId : true))
     .filter((item) => (collectionId ? item.collectionId === collectionId : true))
     .filter((item) => (productId ? item.productId === productId : true))
@@ -235,19 +230,19 @@ export const resolveMedia = ({
     allowUnmapped,
   });
 
-/** The best real-library image a product owns — COVER preferred, never house. */
-const libraryProductImage = (product, usedIds = null) => {
+/** The best canonical product-media image a product owns — COVER preferred, never house. */
+const canonicalProductImage = (product, usedIds = null) => {
   if (!product?.id) return null;
   const images = getProductMedia(product.id, { publicOnly: true, type: MEDIA_TYPES.IMAGE })
     .filter(isUsable)
-    .filter((item) => !isHousePlate(item))
+    .filter((item) => !isMarketingArtwork(item))
     .filter((item) => !(usedIds && usedIds.has(item.id)));
   if (!images.length) return null;
   return images.find((item) => item.role === PRODUCT_MEDIA_ROLES.COVER) ?? images[0];
 };
 
 /**
- * Highest-ranked library image across a set of products — the fallback a
+ * Highest-ranked managed product image across a set of products — the fallback a
  * category/collection uses when it has no dedicated cover. The image always
  * belongs to a product inside that category/collection, never an unrelated
  * one.
@@ -255,7 +250,7 @@ const libraryProductImage = (product, usedIds = null) => {
 const bestMemberProductImage = (products = [], usedIds = null) => {
   const candidates = [];
   (products || []).forEach((product) => {
-    const media = libraryProductImage(product, usedIds);
+    const media = canonicalProductImage(product, usedIds);
     if (media) candidates.push(media);
   });
   if (!candidates.length) return null;
@@ -265,12 +260,12 @@ const bestMemberProductImage = (products = [], usedIds = null) => {
   return chosen;
 };
 
-/** One pass over the register → productId → its library media coverage. */
-export const buildProductLibraryIndex = () => {
+/** One pass over the register → productId → its canonical product media coverage. */
+export const buildCanonicalProductMediaIndex = () => {
   const index = new Map();
   getAll().forEach((item) => {
     if (item.scope !== MEDIA_SCOPES.PRODUCT || !item.productId) return;
-    if (!isUsable(item) || isHousePlate(item)) return;
+    if (!isUsable(item) || isMarketingArtwork(item)) return;
     const entry = index.get(item.productId) || { hasCover: false, hasAny: false };
     entry.hasAny = true;
     if (item.role === PRODUCT_MEDIA_ROLES.COVER) entry.hasCover = true;
@@ -280,9 +275,9 @@ export const buildProductLibraryIndex = () => {
 };
 
 /**
- * Library coverage tier for one product:
- *   0 = dedicated library COVER/PRIMARY media
- *   1 = library gallery media (no COVER)
+ * Managed-media coverage tier for one product:
+ *   0 = dedicated canonical COVER/PRIMARY media
+ *   1 = canonical gallery media (no COVER)
  *   2 = authored fallback only
  * A product never borrows another product's image — only its own published
  * media is consulted.
@@ -290,19 +285,19 @@ export const buildProductLibraryIndex = () => {
 export const productMediaTier = (product) => {
   const images = getProductMedia(product?.id, { publicOnly: true, type: MEDIA_TYPES.IMAGE })
     .filter(isUsable)
-    .filter((item) => !isHousePlate(item));
+    .filter((item) => !isMarketingArtwork(item));
   if (!images.length) return 2;
   return images.some((item) => item.role === PRODUCT_MEDIA_ROLES.COVER) ? 0 : 1;
 };
 
 /**
- * Ranks candidates so products with real library primary media come first,
- * then library gallery, then authored — recency breaks ties within a tier.
+ * Ranks candidates so products with canonical product-media primary media come first,
+ * then canonical gallery, then authored — recency breaks ties within a tier.
  * Single source for the New Arrivals section and the audit, so the report
  * always mirrors what the customer sees.
  */
 export const rankNewArrivalProducts = (products = []) => {
-  const index = buildProductLibraryIndex();
+  const index = buildCanonicalProductMediaIndex();
   const tierOf = (product) => {
     const entry = index.get(String(product?.id));
     if (!entry) return 2;
@@ -319,7 +314,7 @@ export const rankNewArrivalProducts = (products = []) => {
 };
 
 /**
- * The New Arrivals selection: flagged arrivals first (ranked library-first),
+ * The New Arrivals selection: flagged arrivals first (ranked canonical-media-first),
  * then the newest remaining pieces to fill the rail. Qualification is
  * unchanged — only the ordering within the new-arrival pool prefers real
  * product photography.
@@ -353,10 +348,10 @@ const sourceFilename = (source) =>
  * audit metadata only; the image itself always comes from getProductMediaSet.
  */
 const sareeEditMediaSource = (primary, registered) => {
-  const isLibraryAsset = isIngestedPhotographyUrl(sourcePath(primary));
+  const isCanonicalAsset = isCanonicalMediaUrl(sourcePath(primary));
   const role = registered?.role || primary?.role;
-  if (isLibraryAsset && role === PRODUCT_MEDIA_ROLES.COVER) return "PRODUCT_LIBRARY_COVER";
-  if (isLibraryAsset) return "PRODUCT_LIBRARY_GALLERY";
+  if (isCanonicalAsset && role === PRODUCT_MEDIA_ROLES.COVER) return "CANONICAL_PRODUCT_COVER";
+  if (isCanonicalAsset) return "CANONICAL_PRODUCT_GALLERY";
   if (registered && role === PRODUCT_MEDIA_ROLES.COVER) return "PRODUCT_OWNED_COVER";
   if (registered) return "PRODUCT_OWNED_GALLERY";
   return "AUTHORED_PRODUCT_IMAGE";
@@ -372,7 +367,7 @@ const sareeEditMediaSource = (primary, registered) => {
  * the same product id and, when the primary is a repository record, that
  * record must also name the same owner. Category media and another product's
  * gallery can therefore never enter the carousel. Generic category/editorial
- * manifest plates are ineligible; a dedicated library asset or genuinely
+ * manifest plates are ineligible; a canonical product-media asset or genuinely
  * product-authored source is required. Repeated source files are dropped as
  * well, preserving the visual variety of the edit.
  */
@@ -399,10 +394,10 @@ export const selectSareeEditProducts = (
       const ownsImage = imageOwner === String(product.id);
       const registeredOwnershipIsValid = !registered || registeredOwner === String(product.id);
       const path = sourcePath(image);
-      const dedicatedLibrary = isIngestedPhotographyUrl(path);
+      const canonicalProductMedia = isCanonicalMediaUrl(path);
       const sourceLabel = String(registered?.source || "").toLowerCase();
       const isGenericEditorial =
-        !dedicatedLibrary &&
+        !canonicalProductMedia &&
         (Boolean(image?.purpose) ||
           sourceLabel.includes("house") ||
           (registered?.tags || []).includes("house"));
@@ -418,7 +413,7 @@ export const selectSareeEditProducts = (
         return null;
       }
 
-      const rankingTier = product.isFeatured ? 0 : dedicatedLibrary ? 1 : product.isNew ? 2 : 3;
+      const rankingTier = product.isFeatured ? 0 : canonicalProductMedia ? 1 : product.isNew ? 2 : 3;
 
       return {
         product,
@@ -463,15 +458,22 @@ export const selectSareeEditProducts = (
 /** A short editorial rotation — not a catalogue dump. */
 export const BRIDE_GROOM_LOOK_COUNT = 4;
 
-/** Women's wedding taxonomy the Bride plate may draw from. */
-export const BRIDE_CATEGORY_IDS = ["bridal-couture", "lehengas", "sarees"];
+const categoryIdsForDepartment = (departmentId) =>
+  catalogueDepartments
+    .find((department) => department.id === departmentId)
+    ?.categories.map((category) => category.id) ?? [];
 
-/** Men's wedding / ceremonial taxonomy the Groom plate may draw from. */
-export const GROOM_CATEGORY_IDS = ["menswear"];
+/** Canonical wedding taxonomy the Bride plate may draw from. */
+export const BRIDE_CATEGORY_IDS = [
+  ...categoryIdsForDepartment("bridal").filter((categoryId) => categoryId !== "finishing-touches"),
+  ...categoryIdsForDepartment("women").filter((categoryId) => ["lehengas", "sarees"].includes(categoryId)),
+];
+
+/** Canonical men's taxonomy the Groom plate may draw from. */
+export const GROOM_CATEGORY_IDS = categoryIdsForDepartment("men");
 
 const BRIDE_WEDDING_OCCASIONS = ["Bridal", "Wedding", "Reception", "Sangeet"];
 const GROOM_WEDDING_OCCASIONS = ["Wedding", "Reception", "Sangeet"];
-const GROOM_CEREMONIAL_SUBCATEGORIES = ["Sherwani", "Kurta Pajama", "Kurta", "Nehru Jacket"];
 
 const BRIDE_GROOM_ROLES = [
   USAGE_ROLES.EDITORIAL,
@@ -499,28 +501,27 @@ const activeCategory = (id) => {
 const isPublishedProduct = (product) =>
   Boolean(product && product.status === "PUBLISHED" && product.slug);
 
-/** Bride products: women's wedding silhouettes only — never menswear or kids. */
+/** Bride products: canonical bridal apparel, plus women's wedding edits. */
 export const isBrideWeddingProduct = (product) => {
   if (!isPublishedProduct(product)) return false;
   if (!BRIDE_CATEGORY_IDS.includes(product.category)) return false;
   if (product.gender && product.gender !== "Women") return false;
-  if (product.category === "bridal-couture") return true;
-  return hasOccasion(product, BRIDE_WEDDING_OCCASIONS);
+  if (product.department === "bridal") return product.category !== "finishing-touches";
+  return product.department === "women" && hasOccasion(product, BRIDE_WEDDING_OCCASIONS);
 };
 
-/** Groom products: men's ceremonial wear only — never women's or kids imagery. */
+/** Groom products: canonical men's ceremonial apparel only. */
 export const isGroomWeddingProduct = (product) => {
   if (!isPublishedProduct(product)) return false;
-  if (!GROOM_CATEGORY_IDS.includes(product.category)) return false;
+  if (product.department !== "men" || !GROOM_CATEGORY_IDS.includes(product.category)) return false;
   if (product.gender && product.gender !== "Men") return false;
-  if (GROOM_CEREMONIAL_SUBCATEGORIES.includes(product.subcategory)) return true;
-  return hasOccasion(product, GROOM_WEDDING_OCCASIONS);
+  return product.category === "groom" || hasOccasion(product, GROOM_WEDDING_OCCASIONS);
 };
 
 const brideGroomMediaSource = (primary, registered, ownership) => {
   if (ownership === "taxonomy") {
-    return isIngestedPhotographyUrl(sourcePath(primary))
-      ? "TAXONOMY_LIBRARY"
+    return isCanonicalMediaUrl(sourcePath(primary))
+      ? "TAXONOMY_CANONICAL_MEDIA"
       : "TAXONOMY_OWNED";
   }
   return sareeEditMediaSource(primary, registered);
@@ -535,10 +536,10 @@ const productLookFromSet = (product, side, usedIds) => {
   const ownsImage = imageOwner === String(product.id);
   const registeredOwnershipIsValid = !registered || registeredOwner === String(product.id);
   const path = sourcePath(image);
-  const dedicatedLibrary = isIngestedPhotographyUrl(path);
+  const canonicalProductMedia = isCanonicalMediaUrl(path);
   const sourceLabel = String(registered?.source || "").toLowerCase();
   const isGenericEditorial =
-    !dedicatedLibrary &&
+    !canonicalProductMedia &&
     (Boolean(image?.purpose) ||
       sourceLabel.includes("house") ||
       (registered?.tags || []).includes("house"));
@@ -563,7 +564,7 @@ const productLookFromSet = (product, side, usedIds) => {
       : { Sherwani: 0, "Kurta Pajama": 1, Kurta: 2, "Nehru Jacket": 3 }[product.subcategory] ?? 4;
 
   const rankingTier =
-    categoryRank * 10 + (product.isFeatured ? 0 : dedicatedLibrary ? 1 : product.isNew ? 2 : 3);
+    categoryRank * 10 + (product.isFeatured ? 0 : canonicalProductMedia ? 1 : product.isNew ? 2 : 3);
 
   return {
     side,
@@ -717,7 +718,7 @@ const takeLooks = (candidates, limit, usedIds, diversifyByCategory = false) => {
  *     → taxonomy-owned menswear editorial plates
  *
  * Ownership is checked before a plate is admitted. A bride look can never
- * carry menswear / kids imagery; a groom look can never carry women's
+ * carry imagery from unrelated departments; a groom look can never carry women's
  * imagery. Another product's gallery can never stand in. Selection is
  * stable — a refresh never reshuffles the wedding story.
  */
@@ -771,12 +772,12 @@ export const selectBrideGroomLooks = (
  *
  * Fallback chain (Phase 21.8):
  *   1. ACTIVE managed banner                     → DIRECT
- *   2. dedicated CATEGORY_COVER library media     → DIRECT
- *   3. member product library media (same category) → TAXONOMY_PRODUCT
- *   4. related taxonomy library media (any role)  → RELATED_TAXONOMY
+ *   2. dedicated CATEGORY_COVER canonical product media     → DIRECT
+ *   3. member product canonical product media (same category) → TAXONOMY_PRODUCT
+ *   4. related taxonomy canonical product media (any role)  → RELATED_TAXONOMY
  *   5. authored house artwork                      → NO_SOURCE_MEDIA
  *
- * House re-ingested plates never satisfy tiers 2–4, so a category with no
+ * House artwork never satisfy tiers 2–4, so a category with no
  * real photography falls through to its own authored artwork rather than a
  * mismatched plate.
  */
@@ -940,7 +941,7 @@ export const resolveThemeImage = (theme, usedIds = null) => {
     return withReason(staticPlate(staticMember), FALLBACK_REASONS.STATIC_CATALOG);
   }
 
-  return withReason(imageRef(config.fallback), FALLBACK_REASONS.HOUSE_FALLBACK);
+  return withReason(imageRef(config.fallback), FALLBACK_REASONS.EDITORIAL_FALLBACK);
 };
 
 /** The carousel's authored copy themes, paired to HOME_HERO media by index. */
@@ -957,8 +958,8 @@ const HOMEPAGE_HERO_MAPPING_METHOD = "HOMEPAGE_HERO_REGISTER";
 /**
  * The canonical HOME_HERO register, in authored `sortOrder`.
  *
- * Requiring the dedicated placement, HERO usage role and ingestion marker
- * keeps product/category photography (and legacy one-off hero overrides) out
+ * Requiring the dedicated placement, HERO usage role and explicit marketing placement
+ * keeps product/category photography (and unrelated one-off hero overrides) out
  * of this set. The resolver receives records from `mediaRepository`; no file
  * address is authored in the carousel or in this module.
  */
@@ -991,14 +992,14 @@ const resolveSafeHeroFallback = (usedIds = null) => {
     .sort((a, b) => compareMedia(a, b, { preferredRoles: [USAGE_ROLES.HERO] }))[0];
 
   return fallback
-    ? withReason(asSource(fallback), FALLBACK_REASONS.HOUSE_FALLBACK)
-    : withReason(imageRef("hero-atelier"), FALLBACK_REASONS.HOUSE_FALLBACK);
+    ? withReason(asSource(fallback), FALLBACK_REASONS.EDITORIAL_FALLBACK)
+    : withReason(imageRef("hero-atelier"), FALLBACK_REASONS.EDITORIAL_FALLBACK);
 };
 
 /**
  * Resolve one carousel plate from the canonical HOME_HERO register. Theme is
  * used only to retain the existing copy/slide API; its fixed index determines
- * hero001 → hero005 order. Legacy theme media remains available to editorial
+ * authored order. Theme media remains available to editorial
  * sections through `resolveThemeImage`, but is no longer assigned here.
  */
 export const resolveHeroSlideImage = (theme, { heroMedia = null, usedIds = null } = {}) => {
@@ -1051,19 +1052,19 @@ export const resolveSaleBackdrop = (festiveMedia = null, usedIds = null) => {
     excludeHouse: true,
   })[0];
   if (selected) return withReason(asSource(selected, "lehengas"), FALLBACK_REASONS.DIRECT);
-  return withReason(imageRef("lehenga-party"), FALLBACK_REASONS.HOUSE_FALLBACK);
+  return withReason(imageRef("lehenga-party"), FALLBACK_REASONS.EDITORIAL_FALLBACK);
 };
 
 /**
  * The Festive Edit campaign's editorial plate.
  *
- * The premium festive band leads with a real library editorial — festive
+ * The premium festive band leads with a canonical product-media editorial — festive
  * lehenga photography — resolved through the same deterministic `selectMedia`
  * rules as the rest of the homepage (featured → preferred role → quality →
- * stable id order; never random). When no festive library photography can
+ * stable id order; never random). When no festive canonical product photography can
  * stand, it falls back through the existing sale/offer chain so the section
  * can never render empty. The selected image is always semantically festive
- * (lehenga / saree / bridal), never a texture, kids, jewellery or menswear
+ * (lehenga / saree / bridal), never unrelated product or texture imagery
  * plate.
  */
 export const resolveFestiveCampaignImage = (festiveMedia = null, usedIds = null) => {
@@ -1082,15 +1083,15 @@ export const resolveFestiveCampaignImage = (festiveMedia = null, usedIds = null)
 /**
  * Product cover for any customer surface.
  *
- * Priority (Phase 21.8): the product's own library COVER/PRIMARY media,
- * then its own library gallery media, then its authored plate. An image is
+ * Priority (Phase 21.8): the product's own canonical COVER/PRIMARY media,
+ * then its own canonical gallery media, then its authored plate. An image is
  * only ever taken from the product itself — never from another product.
  */
 export const resolveProductCover = (product) => {
   if (!product) return null;
   const images = getProductMedia(product.id, { publicOnly: true, type: MEDIA_TYPES.IMAGE })
     .filter(isUsable)
-    .filter((item) => !isHousePlate(item));
+    .filter((item) => !isMarketingArtwork(item));
   if (images.length) {
     const cover = images.find((item) => item.role === PRODUCT_MEDIA_ROLES.COVER) ?? images[0];
     return withReason(
@@ -1115,14 +1116,15 @@ export const decorateProductsWithMedia = (products = []) =>
 export const isAiMirrorSafeMedia = (media) => {
   if (!media) return false;
   if ((media.usageRoles || []).includes(USAGE_ROLES.AI_MIRROR) === false) return false;
-  if (AI_MIRROR_EXCLUDED_CATEGORIES.includes(media.categoryId)) return false;
-  if (media.categoryId && !AI_MIRROR_ELIGIBLE_CATEGORIES.includes(media.categoryId)) return false;
-  return isUsable(media);
+  const owner = getLiveStorefrontProducts().find(
+    (product) => String(product.id) === String(media.productId || "")
+  );
+  return Boolean(owner && isVirtualTryOnEligibleProduct(owner) && isUsable(media));
 };
 
 export const resolveAiMirrorImage = (product) => {
   if (!product) return null;
-  if (AI_MIRROR_EXCLUDED_CATEGORIES.includes(product.category)) return null;
+  if (!isVirtualTryOnEligibleProduct(product)) return null;
   const cover = getProductCoverImage(product);
   return cover || null;
 };
@@ -1151,7 +1153,7 @@ export default {
   resolveSaleBackdrop,
   resolveFestiveCampaignImage,
   resolveProductCover,
-  buildProductLibraryIndex,
+  buildCanonicalProductMediaIndex,
   productMediaTier,
   rankNewArrivalProducts,
   selectNewArrivalProducts,

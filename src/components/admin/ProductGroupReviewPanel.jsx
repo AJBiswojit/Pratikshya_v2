@@ -30,6 +30,7 @@ import {
   splitGroup,
 } from "../../services/media/productMediaGroups";
 import mediaRepository from "../../services/media/mediaRepository";
+import { useProducts } from "../../hooks/useProducts";
 
 const actorLabel = (actor) =>
   typeof actor === "string" ? actor : actor?.label ?? actor?.name ?? null;
@@ -38,6 +39,8 @@ export default function ProductGroupReviewPanel({ actor, onNotice }) {
   const [busy, setBusy] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
   const [mergeTarget, setMergeTarget] = useState(null);
+  const [productTargets, setProductTargets] = useState({});
+  const products = useProducts();
 
   // Cached via workflow service
   const allCandidates = useMemo(() => getPotentialProductGroups(), []);
@@ -156,13 +159,34 @@ export default function ProductGroupReviewPanel({ actor, onNotice }) {
 
             <div className="border-t border-mist px-3 py-2">
               <p className="font-ui text-[11px] text-ink/80">{group.reason}</p>
-              <p className="mt-1 font-ui text-[10px] text-taupe">Existing product: {group.existingProductId ?? "None"}</p>
+              {!group.confirmed ? (
+                <label className="mt-2 block font-ui text-[10px] uppercase tracking-[.12em] text-taupe">
+                  Assign views to canonical Product
+                  <select
+                    value={group.existingProductId || productTargets[group.id] || ""}
+                    disabled={Boolean(group.existingProductId)}
+                    onChange={(event) => setProductTargets((current) => ({
+                      ...current,
+                      [group.id]: event.target.value,
+                    }))}
+                    className="mt-1 block w-full border border-mist bg-canvas px-2 py-1.5 font-ui text-[11px] normal-case tracking-normal text-ink outline-none focus:border-accent disabled:opacity-60"
+                  >
+                    <option value="">Select an existing Product…</option>
+                    {products.map((product) => (
+                      <option key={product.id} value={product.id}>{product.id} · {product.name}</option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <p className="mt-1 font-ui text-[10px] text-taupe">Existing Product: {group.existingProductId ?? "None"}</p>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-1.5 border-t border-mist px-3 py-2.5">
               {!group.confirmed ? (
                 <>
-                  <button type="button" disabled={busy === group.id} onClick={() => decide(group, "SAME_PRODUCT")} className={`border border-ink bg-ink px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-ivory transition-colors hover:bg-transparent hover:text-ink ${busy ? "opacity-40" : ""}`}>{busy === group.id ? "Grouping…" : "Group as one product"}</button>
+                  <button type="button" disabled={busy === group.id || !(group.existingProductId || productTargets[group.id])} onClick={() => decide(group, "SAME_PRODUCT", group.existingProductId || productTargets[group.id])} className={`border border-ink bg-ink px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-ivory transition-colors hover:bg-transparent hover:text-ink disabled:cursor-not-allowed disabled:opacity-40`}>{busy === group.id ? "Assigning…" : "Assign views to Product"}</button>
+                  {!(group.existingProductId || productTargets[group.id]) ? (<Link to="/admin/products/new" className="border border-accent px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-accent transition-colors hover:bg-accent hover:text-ivory">Create Product First</Link>) : null}
                   <button type="button" disabled={busy === group.id} onClick={() => decide(group, "SEPARATE_PRODUCTS")} className={`border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink ${busy ? "opacity-40" : ""}`}>Keep as separate products</button>
                   <button type="button" disabled={busy === group.id} onClick={() => decide(group, "REVIEW_LATER")} className={`border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-taupe transition-colors hover:border-ink hover:text-ink ${busy ? "opacity-40" : ""}`}>Review later</button>
                 </>

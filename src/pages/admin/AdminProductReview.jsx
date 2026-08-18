@@ -3,21 +3,17 @@
  *
  * Phase 3D — the ONE unified Admin Product Review Workspace.
  *
- * Before Phase 3D this route embedded three separate review surfaces over
- * the same lifecycle (AdminKidsFinalizationPanel, AdminKidsReviewPanel and
- * the standalone draft-review table). Phase 3D consolidates them into:
+ * This route consolidates product review into:
  *
  *   UNIFIED REVIEW QUEUE      every product in the canonical register,
- *                             Kids included — filters, search, pagination
+ *                             with filters, search and pagination
  *   PRODUCT REVIEW DETAIL     one review detail per product, with the
- *                             Kids validation section shown conditionally
  *   MEDIA INBOX               media intake (a media concern — unchanged)
  *   GROUPING DECISIONS        human same-or-different decisions (unchanged)
  *
  * Every lifecycle action routes through the canonical workflow commands
  * (approve / return / publish / submit / archive / assign) via the
- * productWorkflow service boundary. APPROVE ≠ PUBLISH. Kids is a category
- * validation layer, never a separate workflow.
+ * productWorkflow service boundary. APPROVE ≠ PUBLISH.
  *
  * Compatibility: the historical `?draft=PRODUCT_ID` deep link (media inbox,
  * bookmarks) is redirected to `?product=PRODUCT_ID` — nothing breaks.
@@ -107,7 +103,7 @@ export default function AdminProductReview() {
     <AdminPage
       eyebrow="Business / Products"
       title={<>Product <span className="italic text-accent">review.</span></>}
-      description="One workspace over one product lifecycle: every product — Kids included — waits in the same unified queue, is reviewed in the same detail, and moves only through the canonical approve, return and publish commands. Nothing reaches the storefront until it is approved and then explicitly published."
+      description="One workspace over one product lifecycle: every product waits in the same unified queue, is reviewed in the same detail, and moves only through the canonical approve, return and publish commands. Nothing reaches the storefront until it is approved and then explicitly published."
       actions={<AtelierButton as={Link} to="/admin/products" size="chip" variant="outline">Back to catalog</AtelierButton>}
     >
       {notice ? (
@@ -135,7 +131,7 @@ export default function AdminProductReview() {
           ) : (
             <p className="py-10 text-center font-ui text-sm text-taupe">
               Choose a product above to review it — identity, media, information, workflow, review
-              flags and (for Kids products) the Kids validation section all live in this one place.
+              flags and canonical validation all live in this one place.
             </p>
           )}
         </AdminPanel>

@@ -76,8 +76,7 @@ export const ACTIVITY_ACTIONS = {
   PRODUCT_GROUP_DECIDED: "PRODUCT_GROUP_DECIDED",
   PRODUCT_VARIANT_REVIEW_REQUIRED: "PRODUCT_VARIANT_REVIEW_REQUIRED",
 
-  /* Products — Phase 22.1. Kids reconciliation, recorded in this same
-     diary, never a second log. */
+  /* Product conflict resolution is recorded in this shared activity diary. */
   PRODUCT_CONFLICT_RESOLVED: "PRODUCT_CONFLICT_RESOLVED",
   PRODUCT_REVIEW_FLAGS_CLEARED: "PRODUCT_REVIEW_FLAGS_CLEARED",
 

@@ -10,7 +10,7 @@ import CatalogueBrowser from "../components/storefront/CatalogueBrowser";
 import { categoryRoutes, collectionRoutes, navigationScopes } from "../data/products/taxonomy";
 import taxonomyRepository from "../services/taxonomyRepository";
 import { getRouteMeta } from "../config/navigationConfig";
-import { imageRef } from "../data/pratikshyaImageManifest";
+import { imageRef } from "../data/mediaPlaceholder";
 import { resolveCategoryCover, resolveCollectionCover } from "../services/media/mediaResolver";
 import { cn } from "../utils/cn";
 import NotFound from "./NotFound";
@@ -106,8 +106,8 @@ export default function CatalogueListing({ variant }) {
 
   /* The editorial plate resolves through the central media resolver, so
      category and collection pages show the same centralized media the rest
-     of the storefront uses — managed banner first, then library media, then
-     the authored artwork. Navigation paths that represent a catalogue
+     of the storefront uses — active Marketing Media first, then canonical
+     Product Media or authored editorial artwork. Routes that represent a catalogue
      category resolve that category's cover; everything else keeps its
      authored plate. */
   const heroImage = (() => {

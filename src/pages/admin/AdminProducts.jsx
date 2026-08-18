@@ -33,8 +33,20 @@ import AdminPage from "../../components/admin/AdminPage";
 import AdminPanel from "../../components/admin/AdminPanel";
 import AdminMetricCard from "../../components/admin/AdminMetricCard";
 import StatusBadge from "../../components/employee/StatusBadge";
+import ConfirmDialog from "../../components/orders/ConfirmDialog";
 import { AtelierButton } from "../../design-system";
 import catalogRepository, { catalogMetrics } from "../../services/catalogRepository";
+import {
+  archiveProduct,
+  duplicateProduct,
+  publishProduct,
+  restoreProduct,
+  saveProductDraft,
+} from "../../services/workflow/productWorkflowCommands";
+import {
+  WORKFLOW_STAGES,
+  getProductWorkflowState,
+} from "../../services/workflow/productWorkflowState";
 import inventoryRepository from "../../services/inventory/inventoryRepository";
 import { useProducts } from "../../hooks/useProducts";
 import { useProductMediaSummaries } from "../../hooks/useMedia";
@@ -81,7 +93,7 @@ const ProductRow = memo(function ProductRow({
   onRestore,
   busyId,
 }) {
-  const canQuickPublish = product.status === "DRAFT" || product.status === "PENDING_REVIEW";
+  const canQuickPublish = getProductWorkflowState(product).stage === WORKFLOW_STAGES.APPROVED;
   const isBusy = busyId === product.id;
   return (
     <tr className="border-b border-mist/60 font-ui text-sm">
@@ -159,8 +171,8 @@ const ProductRow = memo(function ProductRow({
           {canQuickPublish ? (
             <button
               type="button"
-              aria-label={`Publish ${product.name}`}
-              title="Publish product"
+              aria-label={`Publish approved product ${product.name}`}
+              title="Publish approved product"
               disabled={isBusy}
               onClick={() => onPublishQuick(product)}
               className={`text-taupe hover:text-accent ${isBusy ? "opacity-40" : ""}`}
@@ -202,6 +214,7 @@ export default function AdminProducts() {
   const [notice, setNotice] = useState(null);
   const [busyId, setBusyId] = useState(null);
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [pendingBulkAction, setPendingBulkAction] = useState(null);
 
   const mediaSummaries = useProductMediaSummaries(items);
 
@@ -258,39 +271,121 @@ export default function AdminProducts() {
 
   const allVisibleSelected = filtered.length > 0 && filtered.every((p) => selected.includes(p.id));
 
-  const toggleSelectAll = useCallback(() =>
-    setSelected(allVisibleSelected ? [] : filtered.map((p) => p.id)),
-    [allVisibleSelected, filtered]);
+  const toggleSelectAll = useCallback(() => {
+    const visibleIds = new Set(filtered.map((product) => product.id));
+    setSelected((current) =>
+      allVisibleSelected
+        ? current.filter((id) => !visibleIds.has(id))
+        : [...new Set([...current, ...visibleIds])]
+    );
+  }, [allVisibleSelected, filtered]);
 
-  const runBulk = useCallback((patch, label) => {
+  /** Merchandising bulk actions are ordinary Product edits, so every selected
+   * ID must pass through the same authorization and editable-stage command as
+   * an individual Admin Products save. Protected Products remain unchanged and
+   * retain the command's exact blocker in the partial-success report. */
+  const runMerchandisingBulk = useCallback((patch, label) => {
     if (!selected.length || bulkBusy) return;
+    const ids = [...selected];
     setBulkBusy(true);
-    // Immediate feedback
-    setNotice(`${label}: processing ${selected.length} products…`);
+    setNotice(`${label}: processing ${ids.length} products…`);
     setTimeout(() => {
-      const result = catalogRepository.bulkUpdate(selected, patch, actor, label);
+      const results = ids.map((id) => {
+        const product = catalogRepository.find(id);
+        const result = saveProductDraft(id, patch, actor);
+        return {
+          id,
+          name: product?.name ?? id,
+          ok: Boolean(result.ok),
+          reasons: result.errors?.length
+            ? result.errors
+            : [result.error || "Product edit failed."],
+        };
+      });
+      const applied = results.filter((result) => result.ok).length;
+      const blocked = results.filter((result) => !result.ok);
       setNotice(
-        `${label}: applied to ${result.applied} product${result.applied === 1 ? "" : "s"}${
-          result.skipped ? `, ${result.skipped} skipped (publish requirements unmet)` : ""
-        }.`
+        <>
+          <p>
+            {label}: applied to {applied} product{applied === 1 ? "" : "s"}
+            {blocked.length ? `, ${blocked.length} blocked.` : "."}
+          </p>
+          {blocked.length ? (
+            <ul className="mt-2 max-h-56 list-disc space-y-1 overflow-y-auto pl-5 text-accent">
+              {blocked.map((result) => (
+                <li key={result.id}>
+                  <span className="font-medium">{result.id}</span>{" — "}
+                  {result.reasons.join(" ")}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </>
       );
-      if (patch.status === "PUBLISHED") {
-        selected.forEach((id) => {
-          const published = catalogRepository.find(id);
-          if (published?.status === "PUBLISHED") inventoryRepository.ensureOpeningStock(published, actor);
-        });
-      }
       setSelected([]);
       setBulkBusy(false);
     }, 0);
   }, [selected, bulkBusy, actor]);
+
+  /** Lifecycle bulk actions deliberately invoke the authoritative individual
+   * command for every selected Product ID. A failed Product stays unchanged,
+   * while its canonical validator/authorization message is surfaced intact. */
+  const runWorkflowBulk = useCallback(() => {
+    if (!pendingBulkAction || !selected.length || bulkBusy) return;
+    const action = pendingBulkAction;
+    const ids = [...selected];
+    setPendingBulkAction(null);
+    setBulkBusy(true);
+    setNotice(`${action.label}: processing ${ids.length} products…`);
+    setTimeout(() => {
+      const results = ids.map((id) => {
+        const product = catalogRepository.find(id);
+        const result = action.id === "publish"
+          ? publishProduct(id, actor)
+          : archiveProduct(id, actor);
+        if (action.id === "publish" && result.ok) {
+          inventoryRepository.ensureOpeningStock(result.product, actor);
+        }
+        return {
+          id,
+          name: product?.name ?? id,
+          ok: Boolean(result.ok),
+          reasons: result.errors?.length
+            ? result.errors
+            : [result.error || "Workflow action failed."],
+        };
+      });
+      const applied = results.filter((result) => result.ok).length;
+      const blocked = results.filter((result) => !result.ok);
+      setNotice(
+        <>
+          <p>
+            {action.label}: applied to {applied} product{applied === 1 ? "" : "s"}
+            {blocked.length ? `, ${blocked.length} blocked.` : "."}
+          </p>
+          {blocked.length ? (
+            <ul className="mt-2 max-h-56 list-disc space-y-1 overflow-y-auto pl-5 text-accent">
+              {blocked.map((result) => (
+                <li key={result.id}>
+                  <span className="font-medium">{result.id}</span>{" — "}
+                  {result.reasons.join(" ")}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </>
+      );
+      setSelected([]);
+      setBulkBusy(false);
+    }, 0);
+  }, [pendingBulkAction, selected, bulkBusy, actor]);
 
   const publishQuick = useCallback((product) => {
     if (busyId) return;
     setBusyId(product.id);
     setNotice(`Publishing “${product.name}”…`);
     setTimeout(() => {
-      const result = catalogRepository.publishProduct(product.id, actor);
+      const result = publishProduct(product.id, actor);
       if (result.ok) {
         inventoryRepository.ensureOpeningStock(result.product, actor);
         setNotice(`Published “${product.name}” — now visible to customers.`);
@@ -305,8 +400,12 @@ export default function AdminProducts() {
     if (busyId) return;
     setBusyId(product.id);
     setTimeout(() => {
-      const result = catalogRepository.duplicateProduct(product.id, actor);
-      if (result.ok) setNotice(`Duplicated as “${result.product.name}” — review its SKU and slug.`);
+      const result = duplicateProduct(product.id, actor);
+      setNotice(
+        result.ok
+          ? `Duplicated as “${result.product.name}” — review its SKU and slug.`
+          : `Could not duplicate “${product.name}”: ${result.error}`
+      );
       setBusyId(null);
     }, 0);
   }, [busyId, actor]);
@@ -315,7 +414,12 @@ export default function AdminProducts() {
     if (busyId) return;
     setBusyId(product.id);
     setTimeout(() => {
-      catalogRepository.archiveProduct(product.id, actor);
+      const result = archiveProduct(product.id, actor);
+      setNotice(
+        result.ok
+          ? `Archived “${product.name}”.`
+          : `Could not archive “${product.name}”: ${result.error}`
+      );
       setBusyId(null);
     }, 0);
   }, [busyId, actor]);
@@ -324,7 +428,12 @@ export default function AdminProducts() {
     if (busyId) return;
     setBusyId(product.id);
     setTimeout(() => {
-      catalogRepository.restoreProduct(product.id, actor);
+      const result = restoreProduct(product.id, actor);
+      setNotice(
+        result.ok
+          ? `Restored “${product.name}” to draft.`
+          : `Could not restore “${product.name}”: ${result.error}`
+      );
       setBusyId(null);
     }, 0);
   }, [busyId, actor]);
@@ -366,10 +475,25 @@ export default function AdminProducts() {
       </div>
 
       {notice ? (
-        <p aria-live="polite" className="mb-5 border border-mist/80 bg-canvas px-4 py-3 font-ui text-sm text-ink">
+        <div aria-live="polite" className="mb-5 border border-mist/80 bg-canvas px-4 py-3 font-ui text-sm text-ink">
           {notice}
-        </p>
+        </div>
       ) : null}
+
+      <ConfirmDialog
+        isOpen={Boolean(pendingBulkAction)}
+        title={`${pendingBulkAction?.label ?? "Update"} selected products?`}
+        description={
+          pendingBulkAction?.id === "publish"
+            ? `Each of the ${selected.length} selected Product IDs will run through the canonical Publish command. Only approved Products that pass full validation will publish; blocked Products stay unchanged and their exact warnings will be shown.`
+            : `Each of the ${selected.length} selected Product IDs will run through the canonical Archive command. Blocked Products stay unchanged and their exact warnings will be shown.`
+        }
+        confirmLabel={pendingBulkAction?.label ?? "Confirm"}
+        cancelLabel="Cancel"
+        onConfirm={runWorkflowBulk}
+        onCancel={() => setPendingBulkAction(null)}
+        tone={pendingBulkAction?.id === "archive" ? "danger" : "primary"}
+      />
 
       <AdminPanel eyebrow="Catalog" title="Products">
         <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -424,11 +548,11 @@ export default function AdminProducts() {
         {selected.length ? (
           <div className="mb-5 flex flex-wrap items-center gap-2 border border-mist/80 bg-canvas p-3">
             <p className="mr-2 font-ui text-[11px] uppercase tracking-[.16em] text-ink font-medium">{selected.length} selected{bulkBusy ? " · processing…" : ""}</p>
-            <button type="button" disabled={bulkBusy} onClick={() => runBulk({ status: "PUBLISHED" }, "Publish")} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40"><UploadCloud size={11} className="mr-1 inline" aria-hidden="true" /> Publish</button>
-            <button type="button" disabled={bulkBusy} onClick={() => runBulk({ status: "ARCHIVED" }, "Archive")} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40"><Archive size={11} className="mr-1 inline" aria-hidden="true" /> Archive</button>
-            <button type="button" disabled={bulkBusy} onClick={() => runBulk({ isFeatured: true }, "Mark featured")} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40">Mark featured</button>
-            <button type="button" disabled={bulkBusy} onClick={() => runBulk({ isBestseller: true }, "Mark bestseller")} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40">Mark bestseller</button>
-            <button type="button" disabled={bulkBusy} onClick={() => runBulk({ isNew: true }, "Mark new arrival")} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40">Mark new arrival</button>
+            <button type="button" disabled={bulkBusy} onClick={() => setPendingBulkAction({ id: "publish", label: "Publish" })} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40"><UploadCloud size={11} className="mr-1 inline" aria-hidden="true" /> Publish</button>
+            <button type="button" disabled={bulkBusy} onClick={() => setPendingBulkAction({ id: "archive", label: "Archive" })} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40"><Archive size={11} className="mr-1 inline" aria-hidden="true" /> Archive</button>
+            <button type="button" disabled={bulkBusy} onClick={() => runMerchandisingBulk({ isFeatured: true }, "Mark featured")} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40">Mark featured</button>
+            <button type="button" disabled={bulkBusy} onClick={() => runMerchandisingBulk({ isBestseller: true }, "Mark bestseller")} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40">Mark bestseller</button>
+            <button type="button" disabled={bulkBusy} onClick={() => runMerchandisingBulk({ isNew: true }, "Mark new arrival")} className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40">Mark new arrival</button>
             <button type="button" onClick={() => setSelected([])} className="ml-auto font-ui text-[10px] uppercase tracking-[.14em] text-taupe underline-offset-4 hover:text-accent hover:underline">Clear</button>
           </div>
         ) : null}

@@ -14,8 +14,8 @@ import {
   getProductStatusLabel,
 } from "../../config/productCatalogConfig";
 import { useProductMedia } from "../../hooks/useMedia";
-import { imageRef } from "../../data/pratikshyaImageManifest";
-import { resolveLegacyMediaUrl } from "../../services/media/mediaPaths";
+import { imageRef } from "../../data/mediaPlaceholder";
+import { resolveMediaUrl } from "../../services/media/mediaPaths";
 import {
   Field,
   KeyValueEditor,
@@ -244,7 +244,7 @@ export function SectionMedia({ draft, patch, portal }) {
           <p className="mb-2 font-ui text-[10px] uppercase tracking-[.18em] text-ink">Cover Preview</p>
           {cover?.url || cover?.thumbnail ? (
             <img
-              src={resolveLegacyMediaUrl(cover.url || cover.thumbnail)}
+              src={resolveMediaUrl(cover.url || cover.thumbnail)}
               alt={cover.alt || `${draft.name} cover`}
               className="h-44 w-full max-w-xs object-cover border border-mist"
             />
@@ -252,7 +252,7 @@ export function SectionMedia({ draft, patch, portal }) {
             <img
               src={
                 draft.image.startsWith("http") || draft.image.startsWith("/") || draft.image.startsWith("data:")
-                  ? resolveLegacyMediaUrl(draft.image)
+                  ? resolveMediaUrl(draft.image)
                   : imageRef(draft.image)?.src
               }
               alt={`${draft.name} catalogue plate`}

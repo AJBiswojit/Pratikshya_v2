@@ -36,7 +36,7 @@ import { categoryLabels } from "../../../data/products/taxonomy";
  *
  * Two kinds of placement live on this board:
  *
- *   · PRODUCT placements (Saree section, Lehenga section, Kids section, …)
+ *   · PRODUCT placements for catalogue-backed sections
  *     are curated from the canonical product catalogue. "Add media" opens
  *     the Product Catalog Selector — no file browsing, no re-upload of a
  *     product image. The placement stores product IDs only, in display

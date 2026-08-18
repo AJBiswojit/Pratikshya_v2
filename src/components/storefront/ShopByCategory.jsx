@@ -11,6 +11,7 @@ import {
   gap,
   useReveal,
 } from "../../design-system";
+import { departments as canonicalDepartments } from "../../data/catalog/taxonomy";
 import { resolveCategoryCover } from "../../services/media/mediaResolver";
 import taxonomyRepository from "../../services/taxonomyRepository";
 import { categoryHref } from "../../services/taxonomyRouting";
@@ -29,25 +30,12 @@ import { cn } from "../../utils/cn";
  * is appended under its own heading).
  */
 
-/**
- * Presentation grouping only: labels plus references to category ids that
- * already exist in the repository. No name, slug, image or route is copied
- * here — those always resolve from the managed record.
- */
-const CATEGORY_GROUPS = [
-  {
-    id: "women",
-    label: "Women",
-    categories: ["sarees", "lehengas", "essentials"],
-  },
-  {
-    id: "bridal",
-    label: "Bridal",
-    categories: ["the-bride", "celebrations", "finishing-touches"],
-  },
-  { id: "men", label: "Men", categories: ["ethnic-wear", "groom"] },
-  { id: "kids", label: "Kids", categories: ["girls", "boys"] },
-];
+/** Presentation groups are projected directly from canonical departments. */
+const CATEGORY_GROUPS = canonicalDepartments.map((department) => ({
+  id: department.id,
+  label: department.name,
+  categories: department.categories.map((category) => category.id),
+}));
 
 const byOrder = (a, b) =>
   a.sortOrder - b.sortOrder || Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name);

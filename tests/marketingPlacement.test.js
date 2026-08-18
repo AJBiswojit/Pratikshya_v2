@@ -71,7 +71,8 @@ test.afterEach(clearStorage);
 const SAREE_A = "PF-W-SAR-BAN-0001";
 const SAREE_B = "PF-W-SAR-COT-0001";
 const SAREE_C = "PF-W-SAR-SIL-0001";
-const KIDS_A = "PF-K-GRL-DRS-0001";
+const KIDS_A = catalogueProducts.find((product) => product.department === "kids")?.id;
+assert.ok(KIDS_A, "the canonical catalogue must provide a Kids Product for placement coverage");
 
 /* ------------------------------------------------------------------ */
 /* Placement configuration                                             */

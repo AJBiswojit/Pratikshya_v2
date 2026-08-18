@@ -2,10 +2,10 @@
  * PRATIKSHYA FASHON — Product draft review panel (Phase 22 + 22.1).
  *
  * The admin side of one DRAFT: the complete group preview (ProductPreview),
- * the commercial fields (Product ID, name, category, subcategory, price,
- * compare-at, discount, description), view labels & primary image,
+ * the canonical read-only Product ID, commercial fields (name, category,
+ * subcategory, price, compare-at, discount, description), view labels & primary image,
  * ownership-conflict reconciliation, review-flag resolution and the
- * workflow actions — Save / Submit / Approve & Publish / Archive.
+ * workflow actions — Save / Submit / Approve / Publish / Archive.
  * Every action routes through the workflow service and the shared diary.
  *
  * Phase 3D: this panel is the EDITING desk inside the unified Admin Product
@@ -26,16 +26,14 @@ import { Archive, ArrowRight, Check, Save, Star } from "lucide-react";
 import ProductPreview from "../product/ProductPreview";
 import StatusBadge from "../employee/StatusBadge";
 import catalogRepository, { getPublishIssues } from "../../services/catalogRepository";
+import { saveProductDraft } from "../../services/workflow/productWorkflowCommands";
 import {
-  KIDS_CONFLICT_ACTIONS,
   approveProduct,
   archiveProduct,
-  changeProductId,
   clearReviewFlags,
   flagsSatisfiedByProduct,
   getProductWorkflowView,
   publishProduct,
-  reconcileKidsConflict,
   setPrimaryMedia,
   submitProductForReview,
   updateMediaViewLabel,
@@ -45,6 +43,7 @@ import taxonomyRepository from "../../services/taxonomyRepository";
 import { employeeFullName } from "../../utils/employee";
 import { getEmployee, loadEmployees } from "../../services/employees/employeeService";
 import { reviewFlagLabel } from "../../services/productReviewFlags";
+import mediaOwnershipService from "../../services/media/mediaOwnershipService";
 import { formatINR } from "../../utils/shopping";
 
 const fieldClass = "w-full border border-mist bg-canvas px-3 py-2 font-ui text-sm outline-none focus:border-accent";
@@ -66,8 +65,6 @@ export default function ProductDraftReviewPanel({ product, actor, onNotice, hide
   const [compareAt, setCompareAt] = useState((product.compareAtPrice ?? product.originalPrice) > 0 ? String(product.compareAtPrice ?? product.originalPrice) : "");
   const [description, setDescription] = useState(product.description ?? "");
   const [confirmTransfer, setConfirmTransfer] = useState(null);
-  const [newId, setNewId] = useState("");
-  const [idEditing, setIdEditing] = useState(false);
   const [busy, setBusy] = useState(null);
 
   useEffect(() => {
@@ -90,7 +87,7 @@ export default function ProductDraftReviewPanel({ product, actor, onNotice, hide
     setTimeout(() => {
       const patch = { name: name.trim(), category, subcategory, price: price === "" ? 0 : Number(price) || 0, compareAtPrice: compareAt === "" ? null : Number(compareAt) || null, description };
       const pricingPatch = { pricing: { ...(product.pricing ?? {}), sellingPrice: patch.price, mrp: Math.max(patch.price, patch.compareAtPrice ?? 0) } };
-      const result = catalogRepository.updateDraft(product.id, { ...patch, ...pricingPatch }, actor);
+      const result = saveProductDraft(product.id, { ...patch, ...pricingPatch }, actor);
       if (result.ok) {
         const satisfied = flagsSatisfiedByProduct(result.product);
         const cleared = satisfied.filter((flag) => (result.product.reviewFlags ?? []).includes(flag));
@@ -116,7 +113,11 @@ export default function ProductDraftReviewPanel({ product, actor, onNotice, hide
     setBusy("approve");
     setTimeout(() => {
       const result = approveProduct(product.id, actor);
-      onNotice?.(result.ok ? { tone: "ok", text: `${product.id} approved and published.` } : { tone: "warn", text: (result.errors ?? [result.error]).join(" ") });
+      onNotice?.(
+        result.ok
+          ? { tone: "ok", text: `${product.id} approved. Publish it with the separate Publish action.` }
+          : { tone: "warn", text: (result.errors ?? [result.error]).join(" ") }
+      );
       setBusy(null);
     }, 0);
   }, [busy, product.id, actor, onNotice]);
@@ -146,10 +147,20 @@ export default function ProductDraftReviewPanel({ product, actor, onNotice, hide
     if (busy) return;
     setBusy("transfer");
     setTimeout(() => {
-      const result = reconcileKidsConflict(product.id, KIDS_CONFLICT_ACTIONS.TRANSFER, actor);
+      const result = mediaOwnershipService.transferMediaOwnership({
+        mediaId: conflict.mediaId,
+        targetProductId: product.id,
+        principal: actor,
+        actor,
+        confirm: true,
+      });
       if (result.ok) {
+        const updated = catalogRepository.find(product.id);
+        const satisfied = flagsSatisfiedByProduct(updated);
+        const cleared = satisfied.filter((flag) => (updated?.reviewFlags ?? []).includes(flag));
+        if (cleared.length) clearReviewFlags(product.id, cleared, actor);
         setConfirmTransfer(null);
-        onNotice?.({ tone: "ok", text: `Ownership of ${conflict.file} moved to ${product.id}.${result.archivedOwners?.length ? ` Retired ${result.archivedOwners.join(", ")} (no media left).` : ""}` });
+        onNotice?.({ tone: "ok", text: `Ownership of ${conflict.file} moved to ${product.id}.` });
       } else onNotice?.({ tone: "warn", text: result.error });
       setBusy(null);
     }, 0);
@@ -184,17 +195,6 @@ export default function ProductDraftReviewPanel({ product, actor, onNotice, hide
       setBusy(null);
     }, 0);
   }, [busy, actor, onNotice]);
-
-  const changeId = useCallback(() => {
-    if (busy) return;
-    setBusy("changeId");
-    setTimeout(() => {
-      const result = changeProductId(product.id, newId, actor);
-      if (result.ok) { setIdEditing(false); setNewId(""); onNotice?.({ tone: "ok", text: `Product ID changed to ${result.product.id}.` }); }
-      else onNotice?.({ tone: "warn", text: result.error });
-      setBusy(null);
-    }, 0);
-  }, [busy, product.id, newId, actor, onNotice]);
 
   const assignedEmployee = useMemo(() => product.assignedEmployeeId ? getEmployee(loadEmployees(), product.assignedEmployeeId) : null, [product.assignedEmployeeId]);
 
@@ -259,7 +259,7 @@ export default function ProductDraftReviewPanel({ product, actor, onNotice, hide
             </div>
           ) : null}
 
-          <div><label htmlFor={`name-${product.id}`} className={labelClass}>Product name</label><input id={`name-${product.id}`} value={name} onChange={(event) => setName(event.target.value)} placeholder="Boys Cotton Casual Set in Yellow" className={fieldClass} /></div>
+          <div><label htmlFor={`name-${product.id}`} className={labelClass}>Product name</label><input id={`name-${product.id}`} value={name} onChange={(event) => setName(event.target.value)} placeholder="Product name" className={fieldClass} /></div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div><label htmlFor={`cat-${product.id}`} className={labelClass}>Category</label><select id={`cat-${product.id}`} value={category} onChange={(event) => { setCategory(event.target.value); setSubcategory(""); }} className={fieldClass}><option value="">— Select category —</option>{CATEGORY_OPTIONS.map((option) => (<option key={option.id} value={option.id}>{option.label}</option>))}</select></div>
             <div><label htmlFor={`sub-${product.id}`} className={labelClass}>Subcategory</label><select id={`sub-${product.id}`} value={subcategory} onChange={(event) => setSubcategory(event.target.value)} className={fieldClass}><option value="">— Select subcategory —</option>{subcategoryOptions.map((option) => (<option key={option} value={option}>{option}</option>))}</select></div>
@@ -281,19 +281,16 @@ export default function ProductDraftReviewPanel({ product, actor, onNotice, hide
             {!hideLifecycleActions ? (
               <>
                 <button type="button" disabled={!!busy} onClick={submit} className={`inline-flex items-center gap-1.5 border border-ink px-4 py-2 font-ui text-[10px] uppercase tracking-[.16em] text-ink transition-colors hover:bg-ink hover:text-ivory ${busy ? "opacity-40" : ""}`}><ArrowRight size={11} aria-hidden="true" /> {busy === "submit" ? "Submitting…" : "Submit for Review"}</button>
-                <button type="button" disabled={!!busy} onClick={approve} className={`inline-flex items-center gap-1.5 border border-accent px-4 py-2 font-ui text-[10px] uppercase tracking-[.16em] text-accent transition-colors hover:bg-accent hover:text-ivory ${busy ? "opacity-40" : ""}`}><Check size={11} aria-hidden="true" /> {busy === "approve" ? "Approving…" : "Approve & Publish"}</button>
+                <button type="button" disabled={!!busy} onClick={approve} className={`inline-flex items-center gap-1.5 border border-accent px-4 py-2 font-ui text-[10px] uppercase tracking-[.16em] text-accent transition-colors hover:bg-accent hover:text-ivory ${busy ? "opacity-40" : ""}`}><Check size={11} aria-hidden="true" /> {busy === "approve" ? "Approving…" : "Approve"}</button>
                 <button type="button" disabled={!!busy} onClick={publish} className={`border border-mist px-4 py-2 font-ui text-[10px] uppercase tracking-[.16em] text-taupe transition-colors hover:border-ink hover:text-ink ${busy ? "opacity-40" : ""}`}>{busy === "publish" ? "Publishing…" : "Publish"}</button>
                 <button type="button" disabled={!!busy} onClick={archive} className={`inline-flex items-center gap-1.5 border border-mist px-4 py-2 font-ui text-[10px] uppercase tracking-[.16em] text-taupe transition-colors hover:border-accent hover:text-accent ${busy ? "opacity-40" : ""}`}><Archive size={11} aria-hidden="true" /> {busy === "archive" ? "Archiving…" : "Archive"}</button>
               </>
             ) : null}
           </div>
-          {idEditing ? (
-            <div className="flex flex-wrap items-center gap-2 border-t border-mist pt-3">
-              <input value={newId} onChange={(event) => setNewId(event.target.value)} placeholder="KID-007" className="border border-mist bg-canvas px-3 py-2 font-ui text-sm outline-none focus:border-accent" />
-              <button type="button" disabled={!!busy} onClick={changeId} className={`border border-ink px-3 py-2 font-ui text-[10px] uppercase tracking-[.14em] text-ink transition-colors hover:bg-ink hover:text-ivory ${busy ? "opacity-40" : ""}`}>{busy === "changeId" ? "Changing…" : "Confirm ID change"}</button>
-              <button type="button" onClick={() => setIdEditing(false)} className="border border-mist px-3 py-2 font-ui text-[10px] uppercase tracking-[.14em] text-taupe">Cancel</button>
-            </div>
-          ) : (<button type="button" onClick={() => setIdEditing(true)} className="font-ui text-[11px] text-taupe underline-offset-2 hover:text-accent hover:underline">Change Product ID…</button>)}
+          <p className="border-t border-mist pt-3 font-ui text-[11px] text-taupe">
+            Product ID <span className="font-medium text-ink">{product.id}</span> is allocated from the
+            canonical taxonomy and remains read-only.
+          </p>
         </div>
       </div>
     </div>

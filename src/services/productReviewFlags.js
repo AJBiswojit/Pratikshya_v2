@@ -23,7 +23,6 @@ export const REVIEW_FLAGS = {
   NEEDS_MEDIA: "NEEDS_MEDIA",
   MEDIA_OWNERSHIP_REVIEW: "MEDIA_OWNERSHIP_REVIEW",
   CONFLICT_UNRESOLVED: "CONFLICT_UNRESOLVED",
-  KIDS_MIGRATION_REVIEW: "KIDS_MIGRATION_REVIEW",
   CONFLICT_REVIEW_LATER: "CONFLICT_REVIEW_LATER",
   MEDIA_OWNERSHIP_MOVED: "MEDIA_OWNERSHIP_MOVED",
   MEDIA_UNASSIGNED: "MEDIA_UNASSIGNED",
@@ -38,7 +37,6 @@ export const REVIEW_FLAG_LABELS = {
   [REVIEW_FLAGS.NEEDS_MEDIA]: "Needs media",
   [REVIEW_FLAGS.MEDIA_OWNERSHIP_REVIEW]: "Media ownership review",
   [REVIEW_FLAGS.CONFLICT_UNRESOLVED]: "Media conflict unresolved",
-  [REVIEW_FLAGS.KIDS_MIGRATION_REVIEW]: "Kids migration review",
   [REVIEW_FLAGS.CONFLICT_REVIEW_LATER]: "Conflict review deferred",
   [REVIEW_FLAGS.MEDIA_OWNERSHIP_MOVED]: "Media ownership moved",
   [REVIEW_FLAGS.MEDIA_UNASSIGNED]: "Media unassigned",
@@ -54,7 +52,6 @@ export const PUBLISH_BLOCKING_FLAGS = new Set([
   REVIEW_FLAGS.NEEDS_MEDIA,
   REVIEW_FLAGS.MEDIA_OWNERSHIP_REVIEW,
   REVIEW_FLAGS.CONFLICT_UNRESOLVED,
-  REVIEW_FLAGS.KIDS_MIGRATION_REVIEW,
 ]);
 
 export const reviewFlagLabel = (flag) => REVIEW_FLAG_LABELS[flag] ?? flag;
@@ -63,13 +60,7 @@ export const reviewFlagLabel = (flag) => REVIEW_FLAG_LABELS[flag] ?? flag;
 export const blockingReviewFlags = (flags = []) =>
   [...new Set((Array.isArray(flags) ? flags : []).filter((flag) => PUBLISH_BLOCKING_FLAGS.has(flag)))];
 
-/**
- * Names that do not count as real product information. Draft names derived
- * from catalogue metadata never land here; the safe fallbacks
- *   "Kids Piece · KID-001" (Phase 22.1), "Kids Product · KID-001"
- *   (Phase 22.2) and "Uncatalogued Saree · SAR-001" (Phase 23) do, so a
- *   draft with one stays blocked until a human names the product.
- */
+/** Names that do not count as real product information. */
 export const isPlaceholderProductName = (name) => {
   const clean = String(name ?? "")
     .toLowerCase()
@@ -78,8 +69,6 @@ export const isPlaceholderProductName = (name) => {
   if (!clean) return true;
   if (clean.startsWith("untitled")) return true;
   if (clean === "not yet defined" || clean === "undefined") return true;
-  if (clean.startsWith("kids piece")) return true;
-  if (clean.startsWith("kids product")) return true;
   if (clean.startsWith("uncatalogued")) return true;
   return false;
 };

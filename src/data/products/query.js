@@ -32,11 +32,8 @@ export const matchesSearch = (product, term) => {
   return words.every((word) => product.searchText.includes(word));
 };
 
-/** Friendly Explore / share URLs (`kids`, `price-low`) map onto taxonomy ids. */
+/** Friendly Explore / share URLs (`women`, `price-low`) map onto taxonomy ids. */
 export const CATEGORY_FILTER_ALIASES = {
-  kids: "kidswear",
-  kid: "kidswear",
-  kidswear: "kidswear",
   men: "menswear",
   mens: "menswear",
   "mens-wear": "menswear",

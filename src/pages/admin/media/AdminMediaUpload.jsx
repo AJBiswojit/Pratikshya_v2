@@ -18,7 +18,7 @@ export default function AdminMediaUpload() {
         </AtelierButton>
       }
     >
-      <AdminPanel eyebrow="Media Ingestion" title="Upload Assets">
+      <AdminPanel eyebrow="Media Registration" title="Upload Assets">
         <MediaUploadForm portalType="admin" onSuccessRedirect="/admin/media" />
       </AdminPanel>
     </AdminPage>

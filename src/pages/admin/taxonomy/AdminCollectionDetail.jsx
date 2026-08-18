@@ -8,7 +8,7 @@ import { AtelierButton } from "../../../design-system";
 import catalogRepository from "../../../services/catalogRepository";
 import taxonomyRepository from "../../../services/taxonomyRepository";
 import { getById as getMediaById } from "../../../services/media/mediaRepository";
-import { imageRef } from "../../../data/pratikshyaImageManifest";
+import { imageRef } from "../../../data/mediaPlaceholder";
 import { formatINR } from "../../../utils/shopping";
 import { useAdminAuth } from "../../../context/AdminAuthContext";
 

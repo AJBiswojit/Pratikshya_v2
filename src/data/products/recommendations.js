@@ -36,49 +36,24 @@ export function getRelatedProducts(product, { source = catalogue, limit = 4 } = 
   );
 }
 
-const companionCategories = {
-  sarees: ["bangles", "jewellery", "innerwear"],
-  lehengas: ["jewellery", "bangles", "dupattas"],
-  "bridal-couture": ["jewellery", "bangles", "dupattas"],
-  "kurtis-and-suits": ["dupattas", "jewellery", "bangles"],
-  innerwear: ["sarees", "lehengas", "bridal-couture"],
-  dupattas: ["kurtis-and-suits", "lehengas", "menswear"],
-  bangles: ["sarees", "lehengas", "jewellery"],
-  jewellery: ["sarees", "lehengas", "bangles"],
-  menswear: ["menswear", "dupattas"],
-  kidswear: ["kidswear"],
-};
-
-const isUsefulMenswearCompanion = (product, candidate) => {
-  if (product.category !== "menswear" || candidate.category !== "menswear") return true;
-  if (product.subcategory.includes("Kurta")) return candidate.subcategory === "Nehru Jacket";
-  return candidate.subcategory === "Kurta Pajama" || candidate.subcategory === "Nehru Jacket";
-};
-
-const isUsefulKidsCompanion = (product, candidate) => {
-  if (product.category !== "kidswear" || candidate.category !== "kidswear") return true;
-  return candidate.subcategory !== product.subcategory;
-};
-
 export function getCompleteTheLook(
   product,
   { source = catalogue, limit = 3, exclude = [] } = {}
 ) {
   if (!product) return [];
   const excluded = new Set(exclude.map((item) => (typeof item === "string" ? item : item.id)));
-  const preferred = companionCategories[product.category] ?? [];
   const candidates = withoutProduct(product, source).filter(
     (candidate) =>
       !excluded.has(candidate.id) &&
-      preferred.includes(candidate.category) &&
-      isUsefulMenswearCompanion(product, candidate) &&
-      isUsefulKidsCompanion(product, candidate)
+      Boolean(product.department) &&
+      candidate.department === product.department
   );
 
   const ranked = takeRanked(
     candidates,
     (candidate) =>
-      (preferred.length - preferred.indexOf(candidate.category)) * 5 +
+      (candidate.category !== product.category ? 8 : 0) +
+      (candidate.subcategory !== product.subcategory ? 4 : 0) +
       overlap(candidate.occasion, product.occasion) * 8 +
       overlap(candidate.colors, product.colors) * 3 +
       (candidate.collection === product.collection ? 4 : 0) +
@@ -141,8 +116,7 @@ export function getProductRecommendations(product, options = {}) {
  * The bag's cross-sell edit.
  *
  * Deterministic, catalogue-only mock logic: each piece in the bag proposes
- * its companion categories (a lehenga suggests bangles and jewellery, a
- * saree suggests bangles and a dupatta), the proposals are pooled and
+ * same-department companion candidates, pools and
  * ranked, and anything already in the bag is excluded. The same seam a
  * future recommendation service would replace.
  */

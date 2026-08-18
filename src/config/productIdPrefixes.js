@@ -1,29 +1,15 @@
-/**
- * PRATIKSHYA FASHON — Stable Product ID convention.
- *
- * The permanent, department-aware Product ID convention:
- *
- *     PF-{DEPT}-{CAT}-{SUB}-{NNNN}
- *
- * Examples:
- *     PF-W-SAR-PATO-0001    Women → Sarees → Pato Sarees
- *     PF-W-LEH-BRI-0001     Women → Lehengas → Bridal Lehengas
- *     PF-BR-COUT-BSR-0001   Bridal → Bridal Couture → Bridal Sarees
- *     PF-M-ETH-KUR-0001     Men → Ethnic Wear → Kurta
- *     PF-M-GRM-SHW-0001     Men → Groom → Sherwani
- *     PF-K-GRL-GDR-0001     Kids → Girls → Dresses
- *     PF-K-BYS-BTS-0001     Kids → Boys → T-Shirt & Shorts
- *
- * Legacy prefixes (KID, MEN, SAR, etc.) are still recognised on read for
- * backward compatibility but are no longer generated for new records.
- *
- * This is a LEAF module: no imports from the taxonomy repository or the
- * catalogue repository.
- */
+import { departments as canonicalDepartments } from "../data/catalog/taxonomy";
 
 /**
- * Department codes used in the product ID.
+ * Stable canonical Product ID convention.
+ *
+ *     PF-{DEPARTMENT}-{FAMILY}-{NNNN}
+ *
+ * Existing product families are kept explicit so a new record continues the
+ * same sequence as the generated canonical catalogue. The map covers the
+ * complete taxonomy; no department owns a parallel identity scheme.
  */
+
 export const PRODUCT_ID_DEPT_CODES = {
   women: "W",
   bridal: "BR",
@@ -31,61 +17,105 @@ export const PRODUCT_ID_DEPT_CODES = {
   kids: "K",
 };
 
-/**
- * Category codes used in the product ID.
- */
 export const PRODUCT_ID_CATEGORY_CODES = {
-  sarees: "SAR",
+  celebrations: "CEL",
+  "finishing-touches": "FIN",
+  "the-bride": "BRD",
+  boys: "BYS",
+  girls: "GRL",
+  "ethnic-wear": "ETH",
+  groom: "GRM",
+  essentials: "ESS",
   lehengas: "LEH",
-  "bridal-couture": "COUT",
-  "kurtis-and-suits": "KUR",
-  innerwear: "INN",
-  dupattas: "DUP",
-  bangles: "BAN",
-  jewellery: "JEW",
-  menswear: "ETH",
-  kidswear: "KID",
+  sarees: "SAR",
 };
 
 /**
- * Legacy prefixes — still recognised on read, never generated for new products.
+ * Authoritative prefixes already used by canonical records, keyed by the
+ * complete taxonomy path.
  */
-export const PRODUCT_ID_PREFIXES = {
-  kidswear: "KID",
-  menswear: "MEN",
-  sarees: "SAR",
-  lehengas: "LEH",
-  "bridal-couture": "BRD",
-  "kurtis-and-suits": "KUR",
-  innerwear: "INN",
-  dupattas: "DUP",
-  bangles: "BAN",
-  jewellery: "JEW",
+export const PRODUCT_ID_FAMILY_PREFIXES = {
+  "bridal/celebrations/mehendi-haldi": "PF-BR-MEH",
+  "bridal/celebrations/sangeet": "PF-BR-SNG",
+  "bridal/celebrations/trousseau": "PF-BR-TRS",
+  "bridal/finishing-touches/bangles": "PF-BR-BNG",
+  "bridal/finishing-touches/jewellery": "PF-BR-JWL",
+  "bridal/the-bride/lehengas": "PF-BR-LEH",
+  "bridal/the-bride/reception-wear": "PF-BR-REC",
+  "bridal/the-bride/sarees": "PF-BR-SAR",
+  "kids/boys/casual-sets": "PF-K-BYS-CS",
+  "kids/boys/t-shirt-shorts": "PF-K-BYS-TSH",
+  "kids/girls/casual-sets": "PF-K-GRL-CS",
+  "kids/girls/dresses": "PF-K-GRL-DRS",
+  "men/ethnic-wear/kurta-pajama": "PF-M-ETH-KPJ",
+  "men/ethnic-wear/nehru-jackets": "PF-M-ETH-NJ",
+  "men/groom/groom-collection": "PF-M-GRM-GEN",
+  "women/essentials/dupattas-stoles": "PF-W-ESS-DUP",
+  "women/essentials/innerwear": "PF-W-ESS-INW",
+  "women/essentials/kurtis-suits": "PF-W-ESS-KS",
+  "women/lehengas/bridal": "PF-W-LEH-BRI",
+  "women/lehengas/designer": "PF-W-LEH-DES",
+  "women/lehengas/party": "PF-W-LEH-PTY",
+  "women/sarees/banarasi": "PF-W-SAR-BAN",
+  "women/sarees/cotton": "PF-W-SAR-COT",
+  "women/sarees/silk": "PF-W-SAR-SIL",
 };
 
-export const DEFAULT_PRODUCT_ID_PREFIX = "PRD";
+const segmentCode = (value, fallback) => {
+  const words = String(value || "")
+    .replace(/[^a-zA-Z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!words.length) return fallback;
+  if (words.length === 1) return words[0].slice(0, 3).toUpperCase();
+  return words.map((word) => word[0]).join("").slice(0, 4).toUpperCase();
+};
 
-/**
- * Build a product ID prefix from department, category and subcategory.
- * Returns the string portion before the serial number.
- *
- * e.g. buildProductIdPrefix("women", "sarees", "Pato Saree")
- *   → "PF-W-SAR-PATO"
- */
 export const buildProductIdPrefix = (department, category, subcategory) => {
-  const deptCode = PRODUCT_ID_DEPT_CODES[department] || "X";
-  const catCode = PRODUCT_ID_CATEGORY_CODES[category] || "GEN";
-  if (subcategory) {
-    /* Use first 3-4 chars of subcategory, uppercased, no spaces/specials */
-    const subCode = String(subcategory)
-      .replace(/[^a-zA-Z0-9 ]/g, "")
-      .split(/\s+/)
-      .map((w) => w.charAt(0).toUpperCase())
-      .join("")
-      .slice(0, 4);
-    return `PF-${deptCode}-${catCode}-${subCode || "GEN"}`;
-  }
-  return `PF-${deptCode}-${catCode}`;
+  const path = [department, category, subcategory].map((value) => String(value || "").toLowerCase()).join("/");
+  const established = PRODUCT_ID_FAMILY_PREFIXES[path];
+  if (established) return established;
+
+  const deptCode = PRODUCT_ID_DEPT_CODES[department] || segmentCode(department, "X");
+  const categoryCode = PRODUCT_ID_CATEGORY_CODES[category] || segmentCode(category, "GEN");
+  const subcategoryCode = segmentCode(subcategory, "GEN");
+  return `PF-${deptCode}-${categoryCode}-${subcategoryCode}`;
 };
 
-export default { PRODUCT_ID_PREFIXES, DEFAULT_PRODUCT_ID_PREFIX };
+export const isCanonicalTaxonomyPath = (department, category, subcategory) => {
+  const departmentRecord = canonicalDepartments.find((entry) => entry.id === department);
+  const categoryRecord = departmentRecord?.categories?.find((entry) => entry.id === category);
+  return Boolean(categoryRecord?.subcategories?.some((entry) => entry.id === subcategory));
+};
+
+/**
+ * Allocates the next collision-safe ID in a canonical taxonomy family.
+ * Product identity comes from the selected taxonomy and catalogue register,
+ * never from a filename, media folder, product name, array index, or clock.
+ */
+export const nextCanonicalProductId = (products, department, category, subcategory) => {
+  if (!isCanonicalTaxonomyPath(department, category, subcategory)) return null;
+  const prefix = buildProductIdPrefix(department, category, subcategory);
+  const taken = new Set(
+    (Array.isArray(products) ? products : [])
+      .map((product) => String(product?.id || ""))
+      .filter(Boolean)
+  );
+  let serial = 1;
+  let candidate = `${prefix}-${String(serial).padStart(4, "0")}`;
+  while (taken.has(candidate)) {
+    serial += 1;
+    candidate = `${prefix}-${String(serial).padStart(4, "0")}`;
+  }
+  return candidate;
+};
+
+export default {
+  PRODUCT_ID_DEPT_CODES,
+  PRODUCT_ID_CATEGORY_CODES,
+  PRODUCT_ID_FAMILY_PREFIXES,
+  buildProductIdPrefix,
+  isCanonicalTaxonomyPath,
+  nextCanonicalProductId,
+};

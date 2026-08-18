@@ -5,13 +5,13 @@
  * create, assign, employee save, submit, admin review, return, approve,
  * publish, archive, restore, bulk publish — runs through this module and
  * only this module. Existing services (`catalogRepository`, `productWorkflow`,
- * Kids finalization) remain as COMPATIBILITY ADAPTERS that delegate here.
+ * compatibility adapters) delegate here.
  *
  * Commands enforce, in order:
  *   1. an authenticated principal (never a UI flag, route, or label)
  *   2. action-level authorization (employee vs Super Admin vs none)
  *   3. the canonical lifecycle transition table
- *   4. universal + category validation at approval and publication
+ *   4. universal + category validation at submission, approval and publication
  *
  * SECURITY NOTE — this is a frontend/localStorage demo. A backend MUST
  * re-verify the principal and re-run every check when the backend is
@@ -25,10 +25,12 @@
  *              status; permission and assignment are checked per action
  *   none     — anonymous/customer principals can never mutate workflow
  *
- * Canonical lifecycle:
- *   DRAFT → ASSIGNED → IN_EMPLOYEE_REVIEW → SUBMITTED → IN_ADMIN_REVIEW
- *         → APPROVED → PUBLISHED → ARCHIVED
- *   RETURNED is a result back to an editable stage (with reason).
+ * Canonical publication lifecycle:
+ *   DRAFT → SUBMITTED → APPROVED → PUBLISHED
+ *
+ * Assignment and review-in-progress markers are operational metadata within
+ * those stages; they never add, skip, or replace a publication transition.
+ * Return, archive, restore, and unpublish are explicit lifecycle commands.
  */
 
 import catalogRepository, {
@@ -227,6 +229,22 @@ export const createProduct = (draft, actor = null, options = {}) => {
 };
 
 /**
+ * duplicateProduct — authorized creation of a DRAFT from an existing Product.
+ * The repository primitive allocates the next collision-free canonical ID in
+ * the source Product's taxonomy family; media ownership is never copied.
+ */
+export const duplicateProduct = (productId, actor = null) => {
+  const auth = requireAdminOrEmployee(actor, PERMISSIONS.PRODUCTS_MANAGE);
+  if (!auth.ok) return authorizationFailure(auth.error);
+  const source = catalogRepository.find(productId);
+  if (!source) return notFound();
+  return catalogRepository.duplicateProduct(
+    source.id,
+    auth.resolved.principal.actor ?? actor
+  );
+};
+
+/**
  * assignProduct — Super Admin assigns (or unassigns) an employee.
  * Only ACTIVE employees can receive assignments.
  */
@@ -330,6 +348,12 @@ export const submitProduct = (productId, actor = null) => {
             : `Products in the ${state.label.toLowerCase()} stage cannot be submitted for review.`,
     };
   }
+
+  /* Submission is a lifecycle transition, not a way around the canonical
+     product rules. The exact same universal/category validator used by the
+     later transitions supplies every blocker and message here too. */
+  const validation = runValidation(product, "submit");
+  if (!validation.ok) return validationFailure(validation, actor);
 
   const result = catalogRepository.updateProduct(
     productId,
@@ -604,6 +628,47 @@ export const unpublishProduct = (productId, actor = null, options = {}) => {
 };
 
 /**
+ * bulkSubmit — the ONE bulk submission implementation. Every ID delegates
+ * to submitProduct, preserving assignment, lifecycle and canonical validation
+ * exactly as the individual Product Review action does. Valid products move
+ * to SUBMITTED independently; blocked products stay unchanged with their
+ * original issue messages.
+ */
+export const bulkSubmit = (productIds = [], actor = null) => {
+  const auth = requireAdminOrEmployee(actor, PERMISSIONS.PRODUCTS_MANAGE);
+  if (!auth.ok) return authorizationFailure(auth.error);
+  const ids = [...new Set((Array.isArray(productIds) ? productIds : []).map(String))];
+  const results = [];
+  let applied = 0;
+  let skipped = 0;
+  ids.forEach((id) => {
+    const result = submitProduct(id, auth.resolved.principal.actor ?? actor);
+    results.push({
+      id,
+      ok: result.ok,
+      product: result.product ?? null,
+      errors: result.errors ?? (result.error ? [result.error] : []),
+      issues: result.issues ?? null,
+    });
+    if (result.ok) applied += 1;
+    else skipped += 1;
+  });
+  if (applied > 0) {
+    try {
+      recordActivity(loadActivity(), {
+        ...describeActor(actor),
+        targetProductId: ids[0] ?? null,
+        action: ACTIVITY_ACTIONS.PRODUCT_BULK_UPDATED,
+        summary: `Bulk submit · ${applied} product${applied === 1 ? "" : "s"}${skipped ? `, ${skipped} blocked (validation / workflow unmet)` : ""}`,
+      });
+    } catch {
+      /* Diary failures never block. */
+    }
+  }
+  return { ok: true, applied, skipped, results };
+};
+
+/**
  * bulkApprove — the ONE bulk approval implementation. Per product:
  * authorize → validate lifecycle → validate product → validate media →
  * validate category → approve. APPROVAL DOES NOT PUBLISH.
@@ -686,6 +751,7 @@ export const bulkPublish = (productIds = [], actor = null, options = {}) => {
 
 export const commands = {
   createProduct,
+  duplicateProduct,
   assignProduct,
   saveProductDraft,
   submitProduct,
@@ -696,6 +762,7 @@ export const commands = {
   archiveProduct,
   restoreProduct,
   unpublishProduct,
+  bulkSubmit,
   bulkApprove,
   bulkPublish,
 };

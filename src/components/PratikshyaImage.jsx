@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { resolveLegacyMediaUrl } from "../services/media/mediaPaths";
+import { resolveMediaUrl } from "../services/media/mediaPaths";
 
 /**
  * Shared product-media renderer. It never invents or requests a fallback
  * image: absent and failed media stays a quiet Atelier empty plate.
  */
 const sourceOf = (image) => {
-  if (typeof image === "string") return resolveLegacyMediaUrl(image);
-  return resolveLegacyMediaUrl(image?.src || image?.url || "");
+  if (typeof image === "string") return resolveMediaUrl(image);
+  return resolveMediaUrl(image?.src || image?.url || "");
 };
 
 function EmptyMedia({ className, label = "Product media coming soon" }) {

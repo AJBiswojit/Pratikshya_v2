@@ -21,7 +21,7 @@ import useMediaActions from "../../hooks/useMediaActions";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { useEmployeeAuth } from "../../context/EmployeeAuthContext";
 import catalogRepository from "../../services/catalogRepository";
-import { getImage } from "../../data/pratikshyaImageManifest";
+import { getImage } from "../../data/mediaPlaceholder";
 import { cn } from "../../utils/cn";
 
 const SAMPLE_VIDEO =

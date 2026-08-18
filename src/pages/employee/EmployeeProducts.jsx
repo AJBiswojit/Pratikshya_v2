@@ -15,7 +15,7 @@ import DataTable from "../../components/employee/DataTable";
 import StatusBadge from "../../components/employee/StatusBadge";
 import { AtelierButton } from "../../design-system";
 import { searchProducts } from "../../services/employees/operationsService";
-import catalogRepository from "../../services/catalogRepository";
+import { submitProduct } from "../../services/workflow/productWorkflowCommands";
 import { useProducts } from "../../hooks/useProducts";
 import { useEmployeeAuth } from "../../context/EmployeeAuthContext";
 import { PERMISSIONS } from "../../config/employeePermissions";
@@ -84,7 +84,7 @@ function ProductWorkspace() {
   );
 
   const submit = (product) => {
-    const result = catalogRepository.submitForReview(product.id, actor);
+    const result = submitProduct(product.id, actor);
     if (result.ok) setNotice(`“${product.name}” submitted for review.`);
     else setNotice((result.errors ?? [result.error]).join(" "));
   };

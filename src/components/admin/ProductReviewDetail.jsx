@@ -1,13 +1,10 @@
 /**
  * PRATIKSHYA FASHON — Unified Product Review detail (Phase 3D).
  *
- * ONE review detail for ONE product lifecycle. This component replaces the
- * three separate Admin review surfaces (Kids finalization, Kids
- * reconciliation, draft review) with a single destination:
+ * ONE review detail for ONE product lifecycle. All products use this single
+ * destination:
  *
  *   IDENTITY · MEDIA · PRODUCT INFORMATION · WORKFLOW · REVIEW FLAGS
- *   KIDS VALIDATION (conditional — Kids is a category-specific validation
- *                    layer, NOT a separate workflow)
  *   EDITING DESK    (conditional — the retained ProductDraftReviewPanel)
  *
  * Rules honoured here, not in the UI:
@@ -37,11 +34,11 @@ import {
   isApprovableStage,
 } from "../../services/workflow/productWorkflowState";
 import { getUnifiedReviewRow } from "../../services/unifiedProductReview";
-import { kidsFileNameOf } from "../../services/kidsProductIdentity";
 import {
   approveProduct,
   archiveProduct,
   assignProductToEmployee,
+  mediaFileName,
   publishProduct,
   returnProduct,
   submitProductForReview,
@@ -208,7 +205,7 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
   const canArchive = stage !== WORKFLOW_STAGES.PUBLISHED && stage !== WORKFLOW_STAGES.ARCHIVED;
   const employees = eligibleEmployees();
 
-  const primaryFile = mediaSet?.primary ? kidsFileNameOf(mediaSet.primary) : null;
+  const primaryFile = mediaSet?.primary ? mediaFileName(mediaSet.primary) : null;
 
   return (
     <div className="space-y-4">
@@ -332,7 +329,7 @@ export default function ProductReviewDetail({ productId, actor, onNotice }) {
             <div className="min-w-0 flex-1 space-y-2">
               <p className="font-ui text-[11px] text-taupe">
                 Gallery: {mediaSet?.gallery?.length ?? 0} asset{(mediaSet?.gallery?.length ?? 0) === 1 ? "" : "s"}
-                {mediaSet?.hover ? ` · hover: ${kidsFileNameOf(mediaSet.hover) || mediaSet.hover.src}` : ""}
+                {mediaSet?.hover ? ` · hover: ${mediaFileName(mediaSet.hover) || mediaSet.hover.src}` : ""}
               </p>
               {mediaSet?.gallery?.length ? (
                 <ul className="flex flex-wrap gap-1.5">

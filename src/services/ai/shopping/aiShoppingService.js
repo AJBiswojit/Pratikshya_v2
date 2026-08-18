@@ -25,43 +25,178 @@ import {
   AI_SOURCES,
   buildShoppingResponse,
 } from "../shared/aiResponseBuilder.js";
+import { isVirtualTryOnEligibleProduct } from "../../aiMirror/aiMirrorEligibility.js";
 import {
   AI_SHOPPING_COPY as COPY,
   AI_SHOPPING_GREETING,
   AI_SHOPPING_SUGGESTIONS as SUGGESTIONS,
 } from "./aiShoppingMockData.js";
+import { products as canonicalProducts } from "../../../data/catalog/products.js";
+import { departments as canonicalDepartments } from "../../../data/catalog/taxonomy.js";
 
 /* ------------------------------------------------------------------ */
 /* Vocabularies                                                        */
 /* ------------------------------------------------------------------ */
 
 /**
- * Category keywords resolve onto the real taxonomy ids used by
- * `taxonomyRepository` seeds (sarees, lehengas, bridal-couture, …).
+ * AI vocabulary is a projection of the canonical taxonomy/catalogue. It is
+ * deliberately rebuilt from those records instead of maintaining a second
+ * allowlist of product types (or a department-specific branch).
  */
-export const CATEGORY_KEYWORDS = [];
+const asValues = (value) => (Array.isArray(value) ? value : value ? [value] : []);
 
-export const FABRIC_KEYWORDS = [];
+const readable = (value) => String(value || "")
+  .replace(/[-_]+/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+const titleCase = (value) => readable(value)
+  .split(" ")
+  .map((word) => word ? `${word[0].toUpperCase()}${word.slice(1)}` : "")
+  .join(" ");
+
+const singular = (word) => {
+  if (word.endsWith("ies") && word.length > 4) return `${word.slice(0, -3)}y`;
+  if (word.endsWith("s") && !word.endsWith("ss") && word.length > 3) return word.slice(0, -1);
+  return word;
+};
+
+const keywordForms = (...values) => {
+  const result = new Set();
+  values.flatMap(asValues).forEach((value) => {
+    const phrase = normaliseText(readable(value));
+    if (!phrase) return;
+    result.add(phrase);
+    const words = phrase.split(" ").filter(Boolean);
+    words.filter((word) => word.length > 2).forEach((word) => {
+      result.add(word);
+      result.add(singular(word));
+    });
+    result.add(words.map(singular).join(" "));
+  });
+  return [...result].filter(Boolean);
+};
+
+const taxonomyPaths = canonicalDepartments.flatMap((department) =>
+  department.categories.flatMap((category) =>
+    category.subcategories.map((subcategory) => ({ department, category, subcategory }))
+  )
+);
+
+const productsForCategory = (departmentId, categoryId) =>
+  canonicalProducts.filter((product) =>
+    product.department === departmentId && product.category === categoryId
+  );
+
+/** Category ids stay canonical; descendant labels/styles are only aliases. */
+export const CATEGORY_KEYWORDS = canonicalDepartments.flatMap((department) =>
+  department.categories.map((category) => {
+    const directKeywords = keywordForms(category.id, category.name, category.slug);
+    const descendants = category.subcategories.flatMap((subcategory) =>
+      keywordForms(subcategory.id, subcategory.name, subcategory.slug)
+    );
+    const styles = productsForCategory(department.id, category.id).flatMap((product) =>
+      keywordForms(product.style)
+    );
+    return {
+      id: category.id,
+      label: category.name,
+      departmentId: department.id,
+      directKeywords,
+      keywords: [...new Set([...directKeywords, ...descendants, ...styles])],
+    };
+  })
+);
+
+const groupsFromValues = (values, extra = {}) => {
+  const byNormalisedValue = new Map();
+  values.flatMap(asValues).filter(Boolean).forEach((value) => {
+    const key = normaliseText(readable(value));
+    if (!key || byNormalisedValue.has(key)) return;
+    const label = titleCase(value);
+    const keywords = keywordForms(value, label);
+    byNormalisedValue.set(key, { id: label, label, keywords, ...extra });
+  });
+  return [...byNormalisedValue.values()];
+};
 
 /**
- * Colour language resolves onto the catalogue swatch names. Aliases map a
- * shopper's word onto every stocked shade that can honestly answer it.
+ * Structured fabric/material values win. Taxonomy leaves and authored styles
+ * keep the projection useful while those optional catalogue fields are blank.
  */
-export const COLOUR_KEYWORDS = [];
-
-export const OCCASION_KEYWORDS = [];
-
-export const COLLECTION_KEYWORDS = [];
-
-/** Categories that count as full apparel looks for outfit building. */
-export const OUTFIT_MAIN_CATEGORY_IDS = new Set([
-  "sarees", "lehengas", "bridal-couture", "kurtis-and-suits", "menswear", "kidswear",
+export const FABRIC_KEYWORDS = groupsFromValues([
+  ...canonicalProducts.flatMap((product) => [product.fabric, product.material]),
+  ...taxonomyPaths.map(({ subcategory }) => subcategory.id),
 ]);
 
-/** Finishing pieces that may complete an AI Shopping outfit. */
-export const OUTFIT_COMPANION_CATEGORY_IDS = new Set([
-  "dupattas", "bangles", "jewellery",
+/**
+ * The generated catalogue's documented naming contract places its
+ * image-derived dominant colour after the house name. Explicit colour fields
+ * take precedence whenever an administrator has authored them.
+ */
+const colourValuesFor = (product) => {
+  const explicit = [
+    ...asValues(product.colors),
+    product.primaryColor,
+    product.secondaryColor,
+  ].filter(Boolean);
+  if (explicit.length) return explicit;
+  const words = readable(product.name).split(" ").filter(Boolean);
+  return words.length > 2 ? [words[1]] : [];
+};
+
+const colourGroups = groupsFromValues(canonicalProducts.flatMap(colourValuesFor));
+export const COLOUR_KEYWORDS = colourGroups.map((group) => ({
+  ...group,
+  aliases: [...group.keywords],
+}));
+
+const taxonomyNodeNames = new Set(canonicalDepartments.flatMap((department) => [
+  department.name,
+  ...department.categories.flatMap((category) => [
+    category.name,
+    ...category.subcategories.map((subcategory) => subcategory.name),
+  ]),
+]).map((value) => normaliseText(value)));
+
+const taxonomyOccasionValues = canonicalDepartments.flatMap((department) => [
+  ...readable(department.eyebrow).split(/\s*(?:\+|&|·)\s*/),
+  ...department.categories.flatMap((category) =>
+    readable(category.eyebrow).split(/\s*(?:\+|&|·)\s*/)
+  ),
+]).filter((value) => {
+  const key = normaliseText(value);
+  return key && !taxonomyNodeNames.has(key) && !/\b(?:collection|edit)\b/i.test(String(value));
+});
+
+export const OCCASION_KEYWORDS = groupsFromValues([
+  ...canonicalProducts.flatMap((product) => product.occasion),
+  ...taxonomyOccasionValues,
 ]);
+
+const taxonomyCollectionValues = taxonomyPaths
+  .flatMap(({ department, category, subcategory }) => [department.name, category.name, subcategory.name])
+  .filter((value) => /\b(?:collection|edit)\b/i.test(String(value)));
+
+const collectionGroups = groupsFromValues([
+  ...canonicalProducts.flatMap((product) => [product.collection, ...(product.collections ?? [])]),
+  ...taxonomyCollectionValues,
+]);
+const collectionKeywordFrequency = collectionGroups.reduce((counts, group) => {
+  group.keywords.forEach((keyword) => counts.set(keyword, (counts.get(keyword) ?? 0) + 1));
+  return counts;
+}, new Map());
+export const COLLECTION_KEYWORDS = collectionGroups.map((group) => ({
+  ...group,
+  keywords: group.keywords.filter((keyword) => collectionKeywordFrequency.get(keyword) === 1),
+}));
+
+const canonicalProductById = new Map(canonicalProducts.map((product) => [String(product.id), product]));
+const canonicalPathForProduct = (product) => taxonomyPaths.find(({ department, category, subcategory }) =>
+  department.id === product?.department &&
+  category.id === product?.category &&
+  subcategory.id === product?.subcategory
+);
 
 /* ------------------------------------------------------------------ */
 /* Intent resolution                                                   */
@@ -77,8 +212,18 @@ export const resolveShoppingIntent = (rawText) => {
   const text = String(rawText || "");
   const flat = normaliseText(text);
 
-  const categories = matchAllKeywordGroups(text, CATEGORY_KEYWORDS);
-  const fabrics = matchAllKeywordGroups(text, FABRIC_KEYWORDS);
+  const categoryMatches = matchAllKeywordGroups(text, CATEGORY_KEYWORDS);
+  /* When a word is both a canonical category and a leaf elsewhere (for
+     example “lehengas”), prefer the direct category while retaining every
+     matching canonical scope for ranking. */
+  const categories = [...categoryMatches].sort((a, b) => {
+    const aDirect = matchKeywordGroup(text, [{ keywords: a.directKeywords }]) ? 1 : 0;
+    const bDirect = matchKeywordGroup(text, [{ keywords: b.directKeywords }]) ? 1 : 0;
+    return bDirect - aDirect;
+  });
+  const fabricMatches = matchAllKeywordGroups(text, FABRIC_KEYWORDS);
+  const categoryIds = new Set(categories.map((group) => normaliseText(group.id)));
+  const fabrics = fabricMatches.filter((group) => !categoryIds.has(normaliseText(group.id)));
   const colours = matchAllKeywordGroups(text, COLOUR_KEYWORDS);
   const occasions = matchAllKeywordGroups(text, OCCASION_KEYWORDS);
   const collection = matchKeywordGroup(text, COLLECTION_KEYWORDS);
@@ -113,7 +258,8 @@ export const resolveShoppingIntent = (rawText) => {
     categories.length || fabrics.length || colours.length || occasions.length ||
     collection || price ||
     flags.newArrival || flags.bestseller || flags.trending || flags.discount ||
-    flags.similar || flags.pairing || flags.outfit || flags.compare || flags.viewDetails
+    flags.similar || flags.pairing || flags.outfit || flags.compare || flags.viewDetails ||
+    flags.elegant || weddingContext
   );
 
   return {
@@ -146,18 +292,48 @@ export const resolveShoppingIntent = (rawText) => {
 
 const priceOf = (product) => Number(product?.price ?? 0);
 
-const productColours = (product) => (product.colors ?? []).map((entry) => String(entry).toLowerCase());
+const canonicalSourceFor = (product) => canonicalProductById.get(String(product?.id)) ?? product;
+
+const productColours = (product) =>
+  colourValuesFor({ ...canonicalSourceFor(product), ...product })
+    .map((entry) => normaliseText(entry));
 
 /**
- * The cloth haystack: fabric and craft, plus subcategory and name so a
- * shopper asking for "Banarasi" still matches a piece woven in Katan Silk
- * under the Banarasi Saree style.
+ * The cloth haystack: explicit fabric/craft plus canonical leaf/style/name so
+ * a shopper asking for an authored taxonomy term still finds that family.
  */
-const productFabricHaystack = (product) =>
-  [product.fabric, product.material, product.subcategory, product.name]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+const productFabricHaystack = (product) => {
+  const canonical = canonicalSourceFor(product);
+  return normaliseText([
+    product.fabric,
+    product.material,
+    product.subcategory,
+    product.style,
+    product.name,
+    canonical?.fabric,
+    canonical?.material,
+    canonical?.subcategory,
+    canonical?.style,
+  ].filter(Boolean).join(" "));
+};
+
+const productOccasionHaystack = (product) => {
+  const canonical = canonicalSourceFor(product);
+  const path = canonicalPathForProduct(product) ?? canonicalPathForProduct(canonical);
+  return normaliseText([
+    ...asValues(product.occasion),
+    ...asValues(canonical?.occasion),
+    product.style,
+    canonical?.style,
+    product.subcategory,
+    canonical?.subcategory,
+    path?.department.name,
+    path?.department.eyebrow,
+    path?.category.name,
+    path?.category.eyebrow,
+    path?.subcategory.name,
+  ].filter(Boolean).join(" "));
+};
 
 const withinPrice = (product, price) => {
   if (!price) return true;
@@ -179,11 +355,11 @@ export const scoreProductForIntent = (product, intent, boosts = {}) => {
   let score = 0;
 
   /* Explicit request — category, fabric, colour, occasion, collection. */
-  if (intent.category && product.category === intent.category.id) {
+  if (intent.categories?.length) {
+    const categoryMatch = intent.categories.find((group) => product.category === group.id);
+    if (!categoryMatch) return { score: -1, reasons: [] };
     score += 40;
-    reasons.push(`matches your ${intent.category.label} request`);
-  } else if (intent.category) {
-    return { score: -1, reasons: [] };
+    reasons.push(`matches your ${categoryMatch.label} request`);
   }
 
   if (intent.fabrics?.length) {
@@ -214,9 +390,11 @@ export const scoreProductForIntent = (product, intent, boosts = {}) => {
   }
 
   if (intent.occasions?.length) {
-    const productOccasions = (product.occasion ?? []).map((entry) => entry.toLowerCase());
+    const haystack = productOccasionHaystack(product);
     const match = intent.occasions.find((group) =>
-      productOccasions.includes(group.id.toLowerCase())
+      group.keywords.some((keyword) =>
+        keyword.includes(" ") ? haystack.includes(keyword) : haystack.split(" ").includes(keyword)
+      )
     );
     if (match) {
       score += 20;
@@ -295,9 +473,17 @@ export const scoreProductForIntent = (product, intent, boosts = {}) => {
 const flagsCollectionMatch = (intent, product) => {
   const wanted = intent.collection?.id;
   if (!wanted) return true;
-  const ids = product.collectionIds ?? [];
-  const labels = (product.collections ?? []).map((entry) => String(entry).toLowerCase());
-  return ids.includes(wanted) || labels.includes(String(wanted).toLowerCase());
+  const ids = (product.collectionIds ?? []).map((entry) => normaliseText(entry));
+  const labels = (product.collections ?? []).map((entry) => normaliseText(entry));
+  if (ids.includes(normaliseText(wanted)) || labels.includes(normaliseText(wanted))) return true;
+  const canonical = canonicalSourceFor(product);
+  const canonicalText = normaliseText([
+    canonical?.collection,
+    ...(canonical?.collections ?? []),
+    canonical?.subcategory,
+    canonical?.style,
+  ].filter(Boolean).join(" "));
+  return intent.collection.keywords.some((keyword) => canonicalText.includes(keyword));
 };
 
 /**
@@ -372,7 +558,8 @@ export const findCompanionPieces = (products, main, limit = 3, maxRatio = 0.6) =
   if (!main) return [];
   const cap = Math.max(priceOf(main) * maxRatio, 2500);
   return (products ?? [])
-    .filter((product) => OUTFIT_COMPANION_CATEGORY_IDS.has(product.category))
+    .filter((product) => product.id !== main.id)
+    .filter((product) => product.department && product.department === main.department)
     .filter((product) => product.inStock !== false && product.availability !== "made-to-order")
     .filter((product) => priceOf(product) <= cap)
     .map((product) => {
@@ -580,10 +767,9 @@ export const answerShoppingQuestion = ({
 
   /* Full outfit building. */
   if (intent.flags.outfit) {
-    const mainIntent = { ...intent, category: intent.category && OUTFIT_MAIN_CATEGORY_IDS.has(intent.category.id) ? intent.category : null };
     const ranked = rankShoppingCandidates(
-      products.filter((product) => OUTFIT_MAIN_CATEGORY_IDS.has(product.category)),
-      mainIntent,
+      products.filter(isVirtualTryOnEligibleProduct),
+      intent,
       boosts,
       1
     );
@@ -601,11 +787,13 @@ export const answerShoppingQuestion = ({
 
   /* Comparison. */
   if (intent.flags.compare) {
-    const pool = intent.category
-      ? products.filter((product) => product.category === intent.category.id)
+    const pool = intent.categories?.length
+      ? products.filter((product) => intent.categories.some((group) => group.id === product.category))
       : products.filter((product) =>
           intent.occasions?.length
-            ? (product.occasion ?? []).some((entry) => intent.occasions.some((group) => group.id === entry))
+            ? intent.occasions.some((group) =>
+                group.keywords.some((keyword) => productOccasionHaystack(product).includes(keyword))
+              )
             : true
         );
     const ranked = rankShoppingCandidates(pool.length ? pool : products, intent, boosts, 2);

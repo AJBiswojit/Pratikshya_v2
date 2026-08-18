@@ -12,6 +12,7 @@
  */
 
 import taxonomyRepository, { normalizeTaxonomyRecord } from "./taxonomyRepository";
+import { departments as canonicalDepartments } from "../data/catalog/taxonomy";
 
 /** The route prefix owned by the storefront's category listing. */
 export const categoryPath = (slug) => `/category/${slug}`;
@@ -21,13 +22,15 @@ export const collectionPath = (slug) => `/collection/${slug}`;
 
 /**
  * The canonical destination for a category record, or null when it must not
- * be linked. Reads the managed slug so `/category/kids` is whatever the
- * repository says, never an assumed string.
+ * be linked. Canonical categories resolve through their full department path.
  */
 export const categoryHref = (category) => {
   const record = normalizeTaxonomyRecord(category, "category");
   if (!record || !record.slug || record.status !== "ACTIVE") return null;
-  return categoryPath(record.slug);
+  const canonical = canonicalDepartments
+    .flatMap((department) => department.categories)
+    .find((entry) => entry.id === record.id || entry.slug === record.slug);
+  return canonical?.path || categoryPath(record.slug);
 };
 
 /**

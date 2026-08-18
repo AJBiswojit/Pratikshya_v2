@@ -16,9 +16,9 @@
  */
 
 import { MEDIA_TYPES, PRODUCT_MEDIA_ROLES } from "../../config/mediaTypes";
-import { imageRef } from "../../data/pratikshyaImageManifest";
+import { imageRef } from "../../data/mediaPlaceholder";
 import { getProductMedia } from "./mediaRepository";
-import { resolveLegacyMediaUrl } from "./mediaPaths";
+import { resolveMediaUrl } from "./mediaPaths";
 import { getProductMediaSet } from "./productMediaSet";
 
 /**
@@ -28,7 +28,7 @@ import { getProductMediaSet } from "./productMediaSet";
  */
 const asImageSource = (media) => ({
   id: media.id,
-  src: resolveLegacyMediaUrl(media.url || media.thumbnail),
+  src: resolveMediaUrl(media.url || media.thumbnail),
   alt: media.alt || media.title,
   category: media.categoryId || media.tags?.[0] || "default",
   width: media.width || undefined,

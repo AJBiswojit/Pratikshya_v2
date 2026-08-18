@@ -1,51 +1,46 @@
-/**
- * PRATIKSHYA FASHON — Resolver-facing rules tested against the ingestion
- * helpers (Node ESM, no Vite extension map required).
- */
+/** Canonical resolver-facing media rules. */
 
 import test from "node:test";
 import assert from "node:assert/strict";
 
+import { products as authoredProducts } from "../src/data/catalog/products.js";
+import { toStorefrontProduct } from "../src/data/products/index.js";
+import taxonomyRepository from "../src/services/taxonomyRepository.js";
 import {
-  USAGE_ROLES,
-  assignUsageRoles,
-  classifyPath,
-} from "../scripts/lib/mediaIngestion.mjs";
+  resolveAiMirrorImage,
+  resolveAiShoppingImage,
+  resolveCategoryCover,
+  resolveProductCover,
+} from "../src/services/media/mediaResolver.js";
 
-test("category isolation — a jewellery folder never becomes a saree", () => {
-  const earrings = classifyPath("media/accesories/earrings/a.jpeg");
-  const saree = classifyPath("media/women/saree/silk sarees/silk saree1/a.png");
-  assert.equal(earrings.categoryId, "jewellery");
-  assert.equal(saree.categoryId, "sarees");
-  assert.notEqual(earrings.categoryId, saree.categoryId);
+const products = authoredProducts.map(toStorefrontProduct);
+
+test("category covers remain isolated to their canonical taxonomy scope", () => {
+  for (const category of taxonomyRepository.activeCategories()) {
+    const member = authoredProducts.find((product) => product.category === category.id);
+    const cover = resolveCategoryCover(category);
+    assert.ok(member, `${category.id} has an authored product`);
+    assert.equal(cover.src, member.media.primary);
+    assert.ok(cover.src.includes(`/${category.departmentId}/${category.id}/`));
+  }
 });
 
-test("AI Mirror role is withheld from jewellery, bangles, anklets and innerwear", () => {
-  const cases = [
-    ["media/accesories/earrings/a.jpeg", "jewellery", "pf-056"],
-    ["media/accesories/bangles/a.jpeg", "bangles", "pf-046"],
-    ["media/women/innerwear/a.jpeg", "innerwear", "pf-065"],
-  ];
-  cases.forEach(([path, categoryId, productId]) => {
-    const roles = assignUsageRoles(
-      { originalPath: path, categoryId, productId },
-      { isFirstInSet: true, product: { id: productId } }
-    );
-    assert.ok(!roles.includes(USAGE_ROLES.AI_MIRROR), path);
-  });
-});
-
-test("eligible apparel product sets receive AI Shopping and AI Mirror roles", () => {
-  const roles = assignUsageRoles(
-    {
-      originalPath: "media/men/sherwani_marriage/s1/a.jpeg",
-      categoryId: "menswear",
-      productId: "pf-071",
-    },
-    { isFirstInSet: true, isFirstInCategory: true, product: { id: "pf-071", originalPrice: 49000 } }
+test("AI Mirror refuses excluded taxonomy while AI Shopping keeps product-owned media", () => {
+  const excluded = products.filter(
+    (product) => product.subcategory === "jewellery" || product.subcategory === "bangles" || product.subcategory === "innerwear"
   );
-  assert.ok(roles.includes(USAGE_ROLES.AI_MIRROR));
-  assert.ok(roles.includes(USAGE_ROLES.AI_SHOPPING));
-  assert.ok(roles.includes(USAGE_ROLES.SALE));
-  assert.ok(roles.includes(USAGE_ROLES.PRODUCT_PRIMARY));
+  assert.ok(excluded.length > 0);
+
+  for (const product of excluded) {
+    assert.equal(resolveAiMirrorImage(product), null, product.id);
+    assert.equal(resolveAiShoppingImage(product)?.src, resolveProductCover(product)?.src, product.id);
+  }
+});
+
+test("eligible apparel resolves the same canonical product cover for shopping and mirror", () => {
+  const product = products.find((candidate) => resolveAiMirrorImage(candidate));
+  assert.ok(product);
+  assert.equal(resolveAiMirrorImage(product)?.src, resolveProductCover(product)?.src);
+  assert.equal(resolveAiShoppingImage(product)?.src, resolveProductCover(product)?.src);
+  assert.ok(resolveProductCover(product)?.src.startsWith("/images/products/"));
 });

@@ -1,157 +1,84 @@
 /**
- * PRATIKSHYA FASHON — Unified media library audit (Phase 21.11).
+ * Audit the canonical Product Media architecture.
  *
- *   npm run audit:media
- *
- * Reports inventory, coverage, duplicates, needs-review, broken references
- * and — most importantly — hardcoded commercial image paths in application
- * components. Resolver-generated `/library/` URLs are not flagged.
- *
- * Fails (exit 1) when:
- *   · hardcoded commercial image references in components !== 0
- *   · a register record points at a missing local file
+ * Product photography is authored under /images/products or explicitly
+ * registered in the managed-media repository. UI components must resolve it
+ * from canonical Product records instead of embedding commercial file paths.
  */
 
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, relative } from "node:path";
 
 import { auditMediaLibrary } from "../src/services/media/mediaAudit.js";
-import { setupMigratedState } from "../tests/helpers/workflowTestState.js";
+import { setupCanonicalState } from "../tests/helpers/workflowTestState.js";
 
-setupMigratedState();
+setupCanonicalState();
 
 const ROOT = process.cwd();
-const COMPONENT_ROOTS = [
-  "src/components",
-  "src/pages",
-  "src/layouts",
-  "src/hooks",
-  "src/App.jsx",
-  "src/index.css",
-];
+const SOURCE_ROOTS = ["src/components", "src/pages", "src/layouts", "src/hooks", "src/App.jsx"];
+const SOURCE_EXTENSIONS = new Set([".js", ".jsx", ".ts", ".tsx"]);
 
-const SOURCE_EXTENSIONS = new Set([".js", ".jsx", ".ts", ".tsx", ".css"]);
-
-const walk = (abs, acc = []) => {
-  if (!existsSync(abs)) return acc;
-  const stat = statSync(abs);
+const walk = (path, files = []) => {
+  if (!existsSync(path)) return files;
+  const stat = statSync(path);
   if (stat.isFile()) {
-    if (SOURCE_EXTENSIONS.has(extname(abs))) acc.push(abs);
-    return acc;
+    if (SOURCE_EXTENSIONS.has(extname(path))) files.push(path);
+    return files;
   }
-  if (!stat.isDirectory()) return acc;
-  for (const entry of readdirSync(abs, { withFileTypes: true })) {
-    walk(join(abs, entry.name), acc);
+  if (stat.isDirectory()) {
+    readdirSync(path, { withFileTypes: true }).forEach((entry) => walk(join(path, entry.name), files));
   }
-  return acc;
+  return files;
 };
 
-/**
- * A commercial path is hardcoded when a component writes a literal
- * `/images/…`, `/library/<file>` or `/media/…` address. Mentions of the
- * folder itself (`public/library`) and generic placeholder copy are ignored.
- */
-const HARDCODED_PATTERN =
-  /(?:src|href|url|poster|thumbnail|image)\s*[:=]\s*[`'"](\/(?:images|library|media)\/[^`'"]+)[`'"]|`\/images\/\$\{|['"]\/images\/|url\(\s*['"]?\/(?:images|library|media)\//g;
+const componentViolations = SOURCE_ROOTS.flatMap((path) => walk(join(ROOT, path))).flatMap((path) => {
+  const source = readFileSync(path, "utf8");
+  const hits = [...source.matchAll(/["'`]\/images\/products\/[^"'`$]+["'`]/g)];
+  return hits.map((hit) => ({ file: relative(ROOT, path), snippet: hit[0] }));
+});
 
-const scanHardcodedReferences = () => {
-  const files = COMPONENT_ROOTS.flatMap((rel) => walk(join(ROOT, rel)));
-  const hits = [];
-  files.forEach((abs) => {
-    const source = readFileSync(abs, "utf8");
-    const rel = relative(ROOT, abs);
-    for (const match of source.matchAll(HARDCODED_PATTERN)) {
-      hits.push({
-        file: rel,
-        snippet: (match[0] || "").slice(0, 120),
-      });
-    }
-  });
-  return hits;
-};
-
-const countPublic = (relDir) => {
-  const abs = join(ROOT, relDir);
-  if (!existsSync(abs)) return 0;
+const countImages = (directory) => {
+  if (!existsSync(directory)) return 0;
   let count = 0;
-  const visit = (dir) => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const full = join(dir, entry.name);
-      if (entry.isDirectory()) visit(full);
-      else if (/\.(jpe?g|png|webp|avif|gif)$/i.test(entry.name)) count += 1;
-    }
-  };
-  visit(abs);
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) count += countImages(path);
+    else if (/\.(?:avif|gif|jpe?g|png|webp)$/i.test(entry.name)) count += 1;
+  }
   return count;
 };
 
 const report = auditMediaLibrary();
-const hardcoded = scanHardcodedReferences();
-const libraryFiles = countPublic("public/library");
-const imagesFiles = countPublic("public/images");
+const canonicalFileCount = countImages(join(ROOT, "public/images/products"));
+const retiredRoots = ["public/library", "public/media"].filter((path) => existsSync(join(ROOT, path)));
+const row = (label, value) => console.log(`${label.padEnd(40)} ${value}`);
 
-const line = (text = "") => console.log(text);
-const row = (label, value) => line(`${label.padEnd(36)} ${value}`);
-
-line("# MEDIA LIBRARY AUDIT — Phase 21.11");
-line();
-line("## INVENTORY");
-row("Total assets (register)", report.inventory.total);
-row("Canonical assets (/library)", report.inventory.canonical);
-row("Ingested assets", report.inventory.ingested);
-row("House plates", report.inventory.house);
-row("Legacy /images references", report.inventory.legacy);
-row("Migrated house plates", report.inventory.migrated);
-row("Unused (mapped, inactive)", report.inventory.unused);
-row("Duplicate assets", report.inventory.duplicates);
-row("Needs review", report.inventory.needsReview);
-row("Broken / missing files", report.inventory.broken);
-row("Files in public/library", libraryFiles);
-row("Files remaining in public/images", imagesFiles);
-line();
-
-line("## COVERAGE");
-row("Products with media", report.coverage.productsWithMedia);
-row("Products without media", report.coverage.productsWithoutMedia);
-row("Categories with media", `${report.coverage.categoriesWithMedia} / ${report.coverage.categoriesTotal}`);
-row("Collections with media", `${report.coverage.collectionsWithMedia} / ${report.coverage.collectionsTotal}`);
-line();
-
-line("## PRODUCT MEDIA STATUS");
-Object.entries(report.productStatuses).forEach(([status, count]) => row(status, count));
-line();
-
-line("## HOUSE PLATE MIGRATION");
-report.housePlates.forEach((entry) => {
-  line(`- ${entry.oldPath} → ${entry.newPath}  [${entry.id}]  ${entry.resolved ? "RESOLVED" : "MISSING"}`);
-});
-line();
-
-line("## HARDCODED COMMERCIAL IMAGE REFERENCES");
-row("Count", hardcoded.length);
-if (hardcoded.length) {
-  hardcoded.forEach((hit) => line(`- ${hit.file}: ${hit.snippet}`));
-} else {
-  line("0 — application components do not hard-code commercial image paths.");
-}
-line();
+console.log("# CANONICAL PRODUCT MEDIA AUDIT\n");
+row("Managed media records", report.inventory.total);
+row("Managed canonical-path records", report.inventory.canonical);
+row("Imported managed records", report.inventory.imported);
+row("Canonical product image files", canonicalFileCount);
+row("Products with resolved media", report.coverage.productsWithMedia);
+row("Products without resolved media", report.coverage.productsWithoutMedia);
+row("Categories with canonical cover", `${report.coverage.categoriesWithMedia} / ${report.coverage.categoriesTotal}`);
+row("Managed/authored missing files", report.missingFiles.length);
+row("Component path violations", componentViolations.length);
+row("Retired media roots", retiredRoots.length);
 
 if (report.missingFiles.length) {
-  line("## MISSING FILES");
-  report.missingFiles.forEach((entry) => line(`- ${entry.id}  ${entry.url}`));
-  line();
+  console.log("\n## Missing files");
+  report.missingFiles.forEach(({ id, url }) => console.log(`- ${id}: ${url}`));
 }
+if (componentViolations.length) {
+  console.log("\n## Hardcoded component Product Media paths");
+  componentViolations.forEach(({ file, snippet }) => console.log(`- ${file}: ${snippet}`));
+}
+if (retiredRoots.length) console.log(`\nRetired roots still exist: ${retiredRoots.join(", ")}`);
 
-const failedHouse = report.housePlates.filter((entry) => !entry.resolved);
-const ok =
-  hardcoded.length === 0 &&
-  report.missingFiles.length === 0 &&
-  failedHouse.length === 0 &&
-  report.inventory.broken === 0;
-
+const ok = report.missingFiles.length === 0 && componentViolations.length === 0 && retiredRoots.length === 0;
 if (!ok) {
-  line("FAIL: media library audit did not pass.");
+  console.log("\nFAIL: canonical Product Media audit did not pass.");
   process.exitCode = 1;
 } else {
-  line("PASS: one canonical media root, zero hardcoded commercial image references.");
+  console.log("\nPASS: Product Media resolves through canonical records with no retired media root.");
 }
