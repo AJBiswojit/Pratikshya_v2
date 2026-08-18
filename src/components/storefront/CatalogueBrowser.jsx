@@ -1,38 +1,38 @@
-import { SlidersHorizontal } from "lucide-react";
+/**
+ * PRATIKSHYA FASHON — Catalogue browser (redesigned).
+ *
+ * The discovery engine that every product listing renders.
+ *
+ * Layout (product-first):
+ *   Desktop (lg+):  [sticky filter sidebar]  [toolbar → active filters → product grid]
+ *   Mobile (<lg):   [sticky toolbar (Filter / Sort)]  [active filters]  [product grid]
+ *
+ * Product grid columns:
+ *   - 2 columns on mobile
+ *   - 2 columns on small tablet
+ *   - 3 columns on laptop
+ *   - 4 columns on xl desktop
+ *
+ * This component owns no catalogue data and no filtering logic itself —
+ * it delegates to the canonical `useCatalogueQuery` hook and the shared
+ * FilterPanel / FilterDrawer / ProductGrid components. It is strictly a
+ * layout surface that brings them together in a shopping-first form.
+ */
+
 import { AnimatePresence } from "framer-motion";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  AtelierButton,
-  EmptyState,
-  ProductGridSkeleton,
-  body,
-  eyebrow,
-  transition,
-} from "../../design-system";
+import { AtelierButton, EmptyState, ProductGridSkeleton } from "../../design-system";
 import { buildFacets } from "../../data/products/facets";
 import useCatalogueQuery from "../../hooks/useCatalogueQuery";
 import { resolveCollectionRoute } from "../../services/taxonomyRouting";
 import { cn } from "../../utils/cn";
 import ActiveFilters from "./ActiveFilters";
+import CatalogueToolbar from "./CatalogueToolbar";
 import FilterDrawer from "./FilterDrawer";
 import FilterPanel from "./FilterPanel";
 import ProductGrid from "./ProductGrid";
-import SortControl from "./SortControl";
 
-/**
- * The discovery engine.
- *
- * Every product-listing route on the site renders this component: the shop,
- * the eight category pages, the collections, the search results and the
- * inherited navigation paths. They differ only by the scope handed in, which
- * is why there is exactly one implementation of filtering, sorting, counting
- * and pagination to maintain.
- *
- * Layout is a two-column editorial spread — a quiet filter index on the left,
- * the grid on the right — collapsing to a single column with a drawer below
- * the laptop breakpoint.
- */
 export default function CatalogueBrowser({
   scopeFilters = {},
   searchFromUrl = false,
@@ -60,32 +60,28 @@ export default function CatalogueBrowser({
     loadMore,
   } = useCatalogueQuery({ scopeFilters, searchFromUrl });
 
-  /* Facets are counted against the route's scope, never the whole catalogue,
-     so a category page never offers a filter that would empty it. */
+  // Facets are counted against the route's scope, never the whole
+  // catalogue, so a category page never offers a filter that would empty it.
   const facets = useMemo(
     () => buildFacets(scoped, filters, scopeFilters),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [scoped, JSON.stringify(filters), JSON.stringify(scopeFilters)]
   );
 
-  const countLabel = total === 1 ? `1 curated piece` : `${total} curated ${unit}`;
-
   return (
-    <div className={cn("lg:flex lg:gap-10", className)}>
-      {/* Desktop filter index */}
-      <aside className="hidden lg:block w-52 shrink-0">
+    <div className={cn("lg:flex lg:gap-8 xl:gap-10", className)}>
+      {/* Desktop filter sidebar */}
+      <aside className="hidden lg:block w-56 xl:w-60 shrink-0">
         <div className="sticky top-28">
           <div className="flex items-baseline justify-between border-b border-ink/15 pb-4">
-            <h2 className={cn(eyebrow.section, "text-ink")}>Refine</h2>
+            <h2 className="font-ui text-[10px] uppercase tracking-[.25em] text-ink">
+              Refine
+            </h2>
             {activeCount > 0 ? (
               <button
                 type="button"
                 onClick={clearFilters}
-                className={cn(
-                  eyebrow.label,
-                  "text-brass underline underline-offset-4 hover:text-accent",
-                  transition.colors
-                )}
+                className="font-ui text-[10px] uppercase tracking-[.2em] text-brass underline underline-offset-4 hover:text-accent transition-colors"
               >
                 Clear
               </button>
@@ -97,70 +93,68 @@ export default function CatalogueBrowser({
             filters={filters}
             onToggle={toggleFilter}
             idPrefix="sidebar"
-            className="max-h-[calc(100vh-14rem)] overflow-y-auto pr-1"
+            className="max-h-[calc(100vh-14rem)] overflow-y-auto pr-1 pt-4"
           />
         </div>
       </aside>
 
-      {/* Results */}
+      {/* Results column */}
       <div className="min-w-0 flex-1">
-        {/* Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-ink/15 pb-5">
-          <p className={cn(body.caption, "text-taupe")} aria-live="polite">
-            {loading ? "Curating the selection" : countLabel}
-          </p>
-
-          <div className="flex items-center gap-5">
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(true)}
-              className={cn(
-                "lg:hidden inline-flex items-center gap-2 border border-mist px-4 py-2",
-                eyebrow.label,
-                "text-ink hover:border-ink",
-                transition.all
-              )}
-            >
-              <SlidersHorizontal size={13} strokeWidth={1.5} aria-hidden="true" />
-              Filter
-              {activeCount > 0 ? <span className="text-accent">({activeCount})</span> : null}
-            </button>
-
-            <SortControl value={sort} onChange={setSort} />
-          </div>
-        </div>
+        {/* Toolbar */}
+        <CatalogueToolbar
+          total={total}
+          sort={sort}
+          onSortChange={setSort}
+          onOpenFilters={() => setDrawerOpen(true)}
+          activeFilterCount={activeCount}
+        />
 
         <ActiveFilters
           chips={activeChips}
           onRemove={removeFilter}
           onClear={clearFilters}
-          className="pt-5"
+          className="pt-4 pb-2"
         />
 
         {/* Grid */}
-        <div className="pt-10">
+        <div className="pt-6 md:pt-8">
           {loading ? (
             <ProductGridSkeleton count={8} />
           ) : total === 0 ? (
             <EmptyState
               eyebrow="Nothing Matches"
-              title="Not quite the right piece"
-              description="Nothing in this selection matches every filter. Loosen one, or let us show you what the atelier is wearing this season."
+              title={
+                activeCount > 0
+                  ? "Not quite the right piece"
+                  : "No pieces available yet"
+              }
+              description={
+                activeCount > 0
+                  ? "Nothing in this selection matches every filter. Loosen one, or browse the full edit."
+                  : "This edit is being composed. New pieces arrive as they are catalogued."
+              }
               actions={
                 <>
                   {activeCount > 0 ? (
-                    <AtelierButton variant="primary" size="md" onClick={clearFilters}>
-                      Clear Filters
+                    <AtelierButton
+                      variant="primary"
+                      size="md"
+                      onClick={clearFilters}
+                    >
+                      Clear filters
                     </AtelierButton>
                   ) : null}
                   {emptyAction ?? (
                     <AtelierButton
                       as={Link}
-                      to={resolveCollectionRoute("featured")?.href ?? "/collection/featured"}
+                      to={
+                        resolveCollectionRoute("featured")?.href ??
+                        "/collection/featured"
+                      }
                       variant="outline"
                       size="md"
                     >
-                      Explore the Collection
+                      Explore the collection
                     </AtelierButton>
                   )}
                 </>
@@ -168,19 +162,19 @@ export default function CatalogueBrowser({
             />
           ) : (
             <>
-              <ProductGrid products={visible} />
+              <ProductGrid products={visible} columns={{ _: 2, md: 2, lg: 3, xl: 4 }} />
 
               {hasMore ? (
-                <div className="mt-16 md:mt-20 flex flex-col items-center gap-4">
+                <div className="mt-12 md:mt-16 flex flex-col items-center gap-4">
                   <AtelierButton variant="outline" size="lg" onClick={loadMore}>
-                    Load More
+                    Load more
                   </AtelierButton>
-                  <p className={cn(body.micro, "text-taupe")}>
+                  <p className="font-ui text-[10px] uppercase tracking-[.2em] text-taupe">
                     {`Showing ${visible.length} of ${total} · ${remaining} more`}
                   </p>
                 </div>
               ) : total > 12 ? (
-                <p className={cn(body.micro, "text-taupe mt-16 text-center")}>
+                <p className="font-ui text-[10px] uppercase tracking-[.2em] text-taupe mt-12 text-center">
                   {`That is all ${total} ${unit} in this edit.`}
                 </p>
               ) : null}
@@ -189,6 +183,7 @@ export default function CatalogueBrowser({
         </div>
       </div>
 
+      {/* Mobile filter drawer */}
       <AnimatePresence>
         {drawerOpen ? (
           <FilterDrawer
