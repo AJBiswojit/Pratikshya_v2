@@ -29,20 +29,21 @@ import catalogRepository, { PRODUCT_STATUS } from "../src/services/catalogReposi
 import mediaRepository from "../src/services/media/mediaRepository.js";
 import { commands } from "../src/services/workflow/productWorkflowCommands.js";
 import { changeProductId } from "../src/services/productWorkflow.js";
+import { nextCanonicalProductId } from "../src/config/productIdPrefixes.js";
 import {
   assignMediaToProduct,
   transferMediaOwnership,
   unassignMediaFromProduct,
 } from "../src/services/media/mediaOwnershipService.js";
 import { loadActivity, ACTIVITY_ACTIONS } from "../src/services/employees/activityService.js";
-import { setupBaseState, setupMigratedState } from "./helpers/workflowTestState.js";
+import { setupCanonicalState } from "./helpers/workflowTestState.js";
 
 beforeEach(() => {
-  setupMigratedState();
+  setupCanonicalState();
 });
 
 afterEach(() => {
-  setupBaseState();
+  setupCanonicalState();
 });
 
 const ADMIN = { adminId: "PF-ADM-00001", name: "House Admin" };
@@ -52,33 +53,30 @@ let scratchCounter = 0;
 
 const createScratch = () => {
   scratchCounter += 1;
-  const id = `AET-${String(scratchCounter).padStart(3, "0")}`;
-  const media = mediaRepository.create({
-    url: `/library/scratch-activity-events-${id.toLowerCase()}.webp`,
-    title: "Activity events scratch",
-    status: "ACTIVE",
-  });
   const created = catalogRepository.createDraftProduct(
     {
-      id,
       name: `Activity Events Scratch Piece ${scratchCounter}`,
-      category: "dupattas",
-      subcategory: "Printed Dupatta",
+      department: "women",
+      category: "essentials",
+      subcategory: "dupattas-stoles",
       description: "Scratch product for the Phase 3E activity event tests.",
-      sku: `${id}-SKU`,
+      sku: `ACTIVITY-${String(scratchCounter).padStart(3, "0")}-SKU`,
       price: 1500,
       compareAtPrice: 1900,
       pricing: { sellingPrice: 1500, mrp: 1900 },
       stock: 3,
       availability: "in-stock",
-      mediaIds: [media.id],
-      primaryMediaId: media.id,
-      galleryMediaIds: [media.id],
       reviewFlags: [],
     },
     ADMIN
   );
   assert.ok(created.ok, `scratch product must be created: ${created.error ?? ""}`);
+  const id = created.product.id;
+  const media = mediaRepository.create({
+    url: `/images/products/.test/${id}/primary.webp`,
+    title: "Activity events scratch",
+    status: "ACTIVE",
+  });
   assert.ok(
     assignMediaToProduct({ mediaId: media.id, productId: id, principal: ADMIN, actor: ADMIN }).ok
   );
@@ -138,7 +136,12 @@ const assertOneLifecycleEvent = (events, expectedAction, label) => {
 test("17. renaming a Product ID records exactly one PRODUCT_RENAMED_ID event", () => {
   const scratch = createScratch();
   const oldId = scratch.product.id;
-  const newId = `${oldId}X`;
+  const newId = nextCanonicalProductId(
+    catalogRepository.all(),
+    scratch.product.department,
+    scratch.product.category,
+    scratch.product.subcategory
+  );
 
   const mark = marker();
   const result = changeProductId(oldId, newId, ADMIN);

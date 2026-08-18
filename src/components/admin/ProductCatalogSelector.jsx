@@ -27,7 +27,7 @@ import { cn } from "../../utils/cn";
  *
  *   · Source of truth: `catalogRepository` (through `useProducts`), seeded by
  *     `src/data/catalog/products.js`. No separate marketing product list is
- *     ever created — Women, Bridal, Men and Kids all come from this one door.
+ *     ever created — every department comes from this one door.
  *   · Search covers name, id, SKU, department, category and subcategory.
  *   · Department / category / subcategory filters derive from
  *     `src/data/catalog/taxonomy.js` (never hardcoded here).

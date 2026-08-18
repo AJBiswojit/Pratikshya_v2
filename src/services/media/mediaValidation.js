@@ -1,5 +1,5 @@
 /**
- * PRATIKSHYA FASHON — Media validation (Phase 21.4).
+ * PRATIKSHYA FASHON — Managed media validation.
  *
  * Read-only checks over the live register. Nothing here writes, and
  * nothing is deleted. The admin library and the test suite both read
@@ -40,7 +40,7 @@ export const validateMediaRecord = (media) => {
     issues.push(issue("MISSING_FILE", media, "Record has no url."));
   }
   if (media.broken) {
-    issues.push(issue("BROKEN_PATH", media, "Ingestion marked this file as unreadable."));
+    issues.push(issue("BROKEN_PATH", media, "This media record is marked as unreadable."));
   }
   if (media.duplicateStatus === "DUPLICATE") {
     issues.push(issue("DUPLICATE", media, `Exact duplicate of ${media.duplicateOf || "another asset"}.`));

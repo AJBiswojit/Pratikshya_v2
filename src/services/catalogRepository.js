@@ -37,11 +37,6 @@ import {
 } from "./employees/activityService";
 import { DISCOUNT_TYPES, computePricing } from "../utils/pricing";
 import { formatINR } from "../utils/shopping";
-import { syncProductDraftRecords } from "./productDraftMigration";
-import {
-  syncCatalogueReconciliation,
-  syncCanonicalMediaAssignment,
-} from "./catalogueReconciliation";
 import {
   REVIEW_FLAG_LABELS,
   blockingReviewFlags,
@@ -49,8 +44,11 @@ import {
 } from "./productReviewFlags";
 import { unresolvedGroupConflictsFor } from "./media/productMediaGroups";
 import { getWorkflowCommands } from "./workflow/workflowCommandRegistry";
-
-
+import {
+  buildProductIdPrefix,
+  isCanonicalTaxonomyPath,
+  nextCanonicalProductId,
+} from "../config/productIdPrefixes";
 
 export const slugify = (value) =>
   String(value)
@@ -61,14 +59,6 @@ export const slugify = (value) =>
 
 const KEY = "pratikshya_products";
 export const PRODUCTS_CHANGED_EVENT = "pratikshya-products-changed";
-
-/**
- * One-time catalogue reset. Existing browser registers may contain the
- * retired frontend demo catalogue; clear that snapshot once, then preserve
- * every product subsequently created through the product workflow.
- */
-export const CATALOGUE_RESET_KEY = "pratikshya_catalogue_reset_2026_08_17";
-export const replaceStaleKidswearRows = (items) => Array.isArray(items) ? items : [];
 
 /* ------------------------------------------------------------------ */
 /* Frontend catalogue seed                                             */
@@ -87,15 +77,32 @@ const CATALOGUE_SEED_RAW = JSON.stringify(catalogueSeedProducts);
 export const catalogueSeedFingerprint = () =>
   `${catalogueSeedProducts.length}:${CATALOGUE_SEED_RAW.length}`;
 
-const mergeCatalogueSeed = (stored) => {
-  if (!Array.isArray(stored) || stored.length === 0) {
-    return healRead(CATALOGUE_SEED_RAW);
+const hasCanonicalIdentity = (record) => {
+  if (
+    !record?.id ||
+    !isCanonicalTaxonomyPath(record.department, record.category, record.subcategory)
+  ) return false;
+  try {
+    const prefix = buildProductIdPrefix(
+      record.department,
+      record.category,
+      record.subcategory
+    );
+    return new RegExp(`^${prefix}(?:-[A-Z0-9]+)*-\\d{4}$`).test(String(record.id));
+  } catch {
+    return false;
   }
-  const present = new Set(stored.map((record) => record && String(record.id)));
+};
+
+const mergeCatalogueSeed = (stored) => {
+  const canonicalStored = Array.isArray(stored) ? stored.filter(hasCanonicalIdentity) : [];
+  if (canonicalStored.length === 0) return healRead(CATALOGUE_SEED_RAW);
+
+  const present = new Set(canonicalStored.map((record) => String(record.id)));
   const missing = healRead(CATALOGUE_SEED_RAW).filter(
     (record) => !present.has(String(record.id))
   );
-  return missing.length ? [...stored, ...missing] : stored;
+  return missing.length ? [...canonicalStored, ...missing] : canonicalStored;
 };
 
 export const PRODUCT_STATUS = {
@@ -179,10 +186,6 @@ const read = () => {
   try {
     let raw = null;
     if (typeof localStorage !== "undefined") {
-      if (!localStorage.getItem(CATALOGUE_RESET_KEY)) {
-        localStorage.removeItem(KEY);
-        localStorage.setItem(CATALOGUE_RESET_KEY, "complete");
-      }
       raw = localStorage.getItem(KEY);
     } else {
       raw = memoryStorage;
@@ -191,10 +194,9 @@ const read = () => {
       return readCache.parsed;
     }
     const healed = mergeCatalogueSeed(healRead(raw));
-    /* Phase 3A — READ = READ ONLY. All sync/remap/reconciliation
-       operations moved to explicit runExplicitMigrations(). The frontend
-       catalogue seed is merged here, at read time, so the register and the
-       authored catalogue stay one product source. */
+    /* READ = READ ONLY. The authored catalogue seed is merged here so the
+       persisted register and authored catalogue stay one canonical product
+       source; media ownership and workflow transitions use explicit commands. */
     readCache = { raw: raw ?? null, parsed: healed };
     return healed;
   } catch {
@@ -335,18 +337,12 @@ const normaliseVariant = (variant, index, productId) => ({
 });
 
 /**
- * Merges any stored record — Phase 11 minimal rows included — into the
- * complete Phase 13 shape. Additive only: nothing already present is
- * dropped, and ids are never regenerated.
+ * Merges a stored canonical Product record into the complete editor shape.
+ * Identity is never inferred or regenerated: every Product must already
+ * carry the ID allocated by the canonical taxonomy-aware ID builder.
  */
 export const normaliseProductRecord = (raw = {}, index = 0) => {
-  /*
-   * Authored catalogue rows pre-date explicit ids. Their index has always
-   * been their storefront identity (`pf-001`, `pf-002`, …); keep that value
-   * deterministic so stock records can safely reference it across reads.
-   * Stored/workspace products already carry ids and are never changed.
-   */
-  const id = raw.id || `pf-${String(index + 1).padStart(3, "0")}`;
+  const id = raw.id || "";
   const name = raw.name || "";
   const slug = raw.slug || slugify(name || id);
   const pricing = normalisePricing(raw);
@@ -368,10 +364,10 @@ export const normaliseProductRecord = (raw = {}, index = 0) => {
   const isTrending = Boolean(raw.isTrending ?? flags.trending);
 
   const review = raw.review && typeof raw.review === "object" ? raw.review : {};
-  const status = normaliseProductStatus(raw.status) || (raw.published === false ? "DRAFT" : "PUBLISHED");
+  const status = normaliseProductStatus(raw.status) || PRODUCT_STATUS.DRAFT;
 
-  /* Authored catalogue plates (media.primary / media.gallery) mirror the
-     legacy `image` / `additionalImages` fields the media pipeline reads. */
+  /* Canonical authored Product Media also feeds the editor's flat image
+     fields; no media path is used to infer Product identity or taxonomy. */
   const authoredMedia = raw.media && typeof raw.media === "object" ? raw.media : null;
   const image = raw.image ?? authoredMedia?.primary ?? undefined;
   const additionalImages = asArray(raw.additionalImages).length
@@ -388,7 +384,7 @@ export const normaliseProductRecord = (raw = {}, index = 0) => {
     productId: raw.productId || id,
     name,
     slug,
-    sku: raw.sku || `PF-${String(index + 1).padStart(5, "0")}`,
+    sku: raw.sku || "",
     brand: raw.brand || "Pratikshya Fashon",
     productType: raw.productType || "fashion",
     productCode: raw.productCode || "",
@@ -398,7 +394,7 @@ export const normaliseProductRecord = (raw = {}, index = 0) => {
     /* Placement */
     category: raw.category || "",
     subcategory: raw.subcategory || "",
-    gender: raw.gender || "Women",
+    gender: raw.gender ?? "",
 
     /* Content */
     shortDescription: raw.shortDescription || "",
@@ -865,8 +861,12 @@ const validateProductIdChange = (id, newProductId) => {
   const existing = findNormalised(id);
   if (!existing) return { ok: false, error: "Product not found." };
   const target = String(newProductId || "").trim().toUpperCase();
-  if (!/^[A-Z0-9][A-Z0-9-]{1,14}$/.test(target)) {
-    return { ok: false, error: "Product ID must be letters, digits and dashes (2–15 characters)." };
+  const familyPrefix = String(existing.id).replace(/-\d{4}$/, "");
+  if (!new RegExp(`^${familyPrefix}-\\d{4}$`).test(target)) {
+    return {
+      ok: false,
+      error: `Product ID must remain in its canonical taxonomy family (${familyPrefix}-0001).`,
+    };
   }
   if (findNormalised(target) || findNormalised(String(newProductId).trim())) {
     return { ok: false, error: "That Product ID is already in use." };
@@ -878,6 +878,24 @@ const validateProductIdChange = (id, newProductId) => {
 /* Public repository                                                   */
 /* ------------------------------------------------------------------ */
 
+const allocateCanonicalProductId = (draft = {}) =>
+  nextCanonicalProductId(read(), draft.department, draft.category, draft.subcategory);
+
+const missingIdentityResult = () => ({
+  ok: false,
+  error: "Select a canonical department, category, and subcategory before creating the Product.",
+});
+
+const validateCanonicalIdentityMutation = (existing, patch = {}) => {
+  const candidate = { ...existing, ...patch, id: existing.id };
+  if (hasCanonicalIdentity(candidate)) return null;
+  return {
+    ok: false,
+    error:
+      "A Product's canonical taxonomy family cannot be changed after its Product ID is allocated. Create a new Product in the intended taxonomy path.",
+  };
+};
+
 export const catalogRepository = {
   /** Every product, in the complete Phase 13 shape. */
   all: allNormalised,
@@ -886,35 +904,45 @@ export const catalogRepository = {
 
   findBySlug: (slug) => findBySlugNormalised(slug),
 
-  /** Legacy Phase 11 entry point — kept so nothing upstream breaks. */
+  /** Persist an existing Product, or allocate a canonical ID for a new draft. */
   upsert: (product, actor = null) => {
     const draft = { ...product };
-    if (!draft.id) draft.id = `pf-${Date.now().toString(36)}`;
-    draft.status = draft.status || "DRAFT";
+    if (!draft.id) draft.id = allocateCanonicalProductId(draft);
+    if (!draft.id) return missingIdentityResult();
+    const existing = findNormalised(draft.id);
+    const invalid = existing
+      ? validateCanonicalIdentityMutation(existing, draft)
+      : hasCanonicalIdentity(draft)
+        ? null
+        : missingIdentityResult();
+    if (invalid) return invalid;
+    draft.status = draft.status || PRODUCT_STATUS.DRAFT;
     return writeProduct(draft, actor);
   },
 
-  /** Create a brand-new product. Returns `{ ok, product }`. */
+  /** Create a brand-new DRAFT with a taxonomy-derived canonical Product ID. */
   createProduct: (draft, actor = null) => {
-    const id = `pf-${Date.now().toString(36)}`;
+    const id = allocateCanonicalProductId(draft);
+    if (!id) return missingIdentityResult();
     const product = writeProduct(
-      { ...draft, id, createdAt: nowIso(), createdBy: actorLabel(actor) },
+      {
+        ...draft,
+        id,
+        status: PRODUCT_STATUS.DRAFT,
+        createdAt: nowIso(),
+        createdBy: actorLabel(actor),
+      },
       actor
     );
     return { ok: true, product };
   },
 
-  /**
-   * Phase 22 — create a product DRAFT.
-   *
-   * Unlike createProduct, the caller supplies the permanent Product ID
-   * (KID-007, MEN-001, …) and the record starts in DRAFT, so it is
-   * invisible to every customer-facing surface until a human publishes it.
-   */
+  /** Create a Product DRAFT; it remains storefront-hidden until publication. */
   createDraftProduct: (draft, actor = null) => {
-    const id = draft.id || `pf-${Date.now().toString(36)}`;
+    const id = allocateCanonicalProductId(draft);
+    if (!id) return missingIdentityResult();
     const product = writeProduct(
-      { ...draft, id, status: draft.status || PRODUCT_STATUS.DRAFT },
+      { ...draft, id, status: PRODUCT_STATUS.DRAFT },
       actor,
       {
         activity: {
@@ -936,6 +964,8 @@ export const catalogRepository = {
   updateProduct: (id, patch, actor = null, options = undefined) => {
     const existing = findNormalised(id);
     if (!existing) return { ok: false, error: "Product not found." };
+    const invalid = validateCanonicalIdentityMutation(existing, patch);
+    if (invalid) return invalid;
     const product = writeProduct({ ...patch, id: existing.id }, actor, options ?? {});
     return { ok: true, product };
   },
@@ -944,6 +974,8 @@ export const catalogRepository = {
   updateDraft: (id, patch, actor = null) => {
     const existing = findNormalised(id);
     if (!existing) return { ok: false, error: "Product not found." };
+    const invalid = validateCanonicalIdentityMutation(existing, patch);
+    if (invalid) return invalid;
     const product = writeProduct({ ...patch, id: existing.id }, actor, {
       activity: {
         action: ACTIVITY_ACTIONS.PRODUCT_UPDATED,
@@ -1037,7 +1069,7 @@ export const catalogRepository = {
    * Phase 2 FIX: approval no longer publishes. Approving moves the product
    * to the APPROVED canonical stage; an explicit, separately authorized
    * publishProduct is required to reach the storefront (same rule for every
-   * category, including Kids).
+   * department and category).
    */
   approveProduct: (id, actor = null) => catalogRepository._workflowCommand("approveProduct", id, actor),
 
@@ -1106,7 +1138,8 @@ export const catalogRepository = {
     if (!source) return { ok: false, error: "Product not found." };
     const at = nowIso();
     const label = actorLabel(actor);
-    const newId = `pf-${Date.now().toString(36)}`;
+    const newId = allocateCanonicalProductId(source);
+    if (!newId) return missingIdentityResult();
 
     let sku = `${source.sku}-COPY`;
     let counter = 2;
@@ -1342,8 +1375,8 @@ export const catalogMetrics = (items) => {
 
 export default catalogRepository;
 
-/** Phase 3B — persistent catalog write for explicit migration. */
-export const persistCatalogueState = (products, source = "explicit-migration") => {
+/** Test/support boundary for replacing the persisted canonical Product register. */
+export const persistCanonicalCatalogueState = (products, source = "canonical-state") => {
   try {
     const payload = JSON.stringify(products);
     if (typeof localStorage !== "undefined" && localStorage) {

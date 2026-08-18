@@ -33,7 +33,7 @@
  * Rules:
  *   · existing PUBLISHED records MUST remain PUBLISHED
  *   · existing ARCHIVED records MUST remain ARCHIVED
- *   · Kids records map through the same projection (no separate Kids stages)
+ *   · every department maps through the same projection
  *   · nothing here writes — projection is pure
  */
 

@@ -3,7 +3,10 @@ import { Archive, RotateCcw, Trash2 } from "lucide-react";
 import AdminPanel from "./AdminPanel";
 import StatusBadge from "../employee/StatusBadge";
 import { AtelierButton } from "../../design-system";
-import catalogRepository from "../../services/catalogRepository";
+import {
+  archiveProduct,
+  restoreProduct,
+} from "../../services/workflow/productWorkflowCommands";
 import {
   deleteProductPermanently,
   getProductLifecycleOptions,
@@ -50,7 +53,7 @@ export default function ProductLifecycleActions({ product, onChanged = null, onD
   };
 
   const archive = () => {
-    const result = catalogRepository.archiveProduct(product.id, actor);
+    const result = archiveProduct(product.id, actor);
     refresh(
       result.ok
         ? "Archived. The product is no longer storefront-visible; orders and media are preserved."
@@ -59,7 +62,7 @@ export default function ProductLifecycleActions({ product, onChanged = null, onD
   };
 
   const restore = () => {
-    const result = catalogRepository.restoreProduct(product.id, actor);
+    const result = restoreProduct(product.id, actor);
     refresh(result.ok ? "Restored to draft." : result.error);
   };
 

@@ -22,7 +22,6 @@ import { isVirtualTryOnEligibleProduct } from "../../services/aiMirror/aiMirrorE
 const isFreeSizeOnly = (sizes = []) => sizes.length === 0 || (sizes.length === 1 && sizes[0] === "Free Size");
 
 const sizeLabelFor = (product) => {
-  if (product.category === "kidswear") return "Age / Size";
   if (product.category === "bangles") return "Bangle Size";
   if (product.category === "sarees") return "Blouse Size";
   return "Size";

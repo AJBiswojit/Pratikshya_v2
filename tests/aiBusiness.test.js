@@ -27,6 +27,10 @@ import {
   formatINRCompact,
   resolveBusinessTopic,
 } from "../src/services/ai/business/aiBusinessService.js";
+import catalogRepository from "../src/services/catalogRepository.js";
+
+const [PRODUCT_A, PRODUCT_B, PRODUCT_C] = catalogRepository.all().slice(0, 3);
+assert.ok(PRODUCT_A && PRODUCT_B && PRODUCT_C, "canonical Product fixtures are available");
 
 /* ------------------------------------------------------------------ */
 /* Fixture snapshot — same shape as getAnalyticsSnapshot output        */
@@ -66,15 +70,15 @@ const makeSnapshot = (overrides = {}) => ({
   products: {
     hasData: true,
     sold: [
-      { productId: "pf-001", name: "Sambalpuri Pato Silk Saree", revenue: 37000, unitsSold: 2, orders: 2, returnUnits: 0 },
-      { productId: "pf-010", name: "Banarasi Katan Silk Saree in Gold", revenue: 42000, unitsSold: 1, orders: 1, returnUnits: 2 },
+      { productId: PRODUCT_A.id, name: PRODUCT_A.name, revenue: 37000, unitsSold: 2, orders: 2, returnUnits: 0 },
+      { productId: PRODUCT_B.id, name: PRODUCT_B.name, revenue: 42000, unitsSold: 1, orders: 1, returnUnits: 2 },
     ],
     topByRevenue: [
-      { productId: "pf-010", name: "Banarasi Katan Silk Saree in Gold", revenue: 42000, unitsSold: 1, orders: 1, returnUnits: 2 },
-      { productId: "pf-001", name: "Sambalpuri Pato Silk Saree", revenue: 37000, unitsSold: 2, orders: 2, returnUnits: 0 },
+      { productId: PRODUCT_B.id, name: PRODUCT_B.name, revenue: 42000, unitsSold: 1, orders: 1, returnUnits: 2 },
+      { productId: PRODUCT_A.id, name: PRODUCT_A.name, revenue: 37000, unitsSold: 2, orders: 2, returnUnits: 0 },
     ],
     topByUnits: [
-      { productId: "pf-001", name: "Sambalpuri Pato Silk Saree", revenue: 37000, unitsSold: 2, orders: 2, returnUnits: 0 },
+      { productId: PRODUCT_A.id, name: PRODUCT_A.name, revenue: 37000, unitsSold: 2, orders: 2, returnUnits: 0 },
     ],
   },
   customers: {
@@ -99,8 +103,8 @@ const makeSnapshot = (overrides = {}) => ({
     outOfStock: 1,
     retailValue: 5240000,
     lowStockRows: [
-      { id: "inv-1", productId: "pf-003", product: "Berhampuri Double Pallu Pato", sku: "PF-SARE-003", available: 1, threshold: 4, location: "Main Warehouse", status: "LOW_STOCK" },
-      { id: "inv-2", productId: "pf-010", product: "Banarasi Katan Silk Saree in Gold", sku: "PF-SARE-010", available: 2, threshold: 5, location: "Boutique Floor", status: "LOW_STOCK" },
+      { id: "inv-1", productId: PRODUCT_C.id, product: PRODUCT_C.name, sku: PRODUCT_C.sku, available: 1, threshold: 4, location: "Main Warehouse", status: "LOW_STOCK" },
+      { id: "inv-2", productId: PRODUCT_B.id, product: PRODUCT_B.name, sku: PRODUCT_B.sku, available: 2, threshold: 5, location: "Boutique Floor", status: "LOW_STOCK" },
     ],
   },
   returns: {
@@ -228,7 +232,7 @@ test("the sales insight quotes the snapshot's revenue, AOV and units", () => {
 test("the product insight names the fixture's top revenue piece", () => {
   const insight = buildProductInsight(makeSnapshot());
   assert.equal(insight.type, "PRODUCT_INSIGHT");
-  assert.ok(insight.text.includes("Banarasi Katan Silk Saree in Gold"));
+  assert.ok(insight.text.includes(PRODUCT_B.name));
   assert.ok(insight.text.includes(formatINRCompact(42000)));
   assert.ok(insight.text.includes("2 returned units") || insight.text.includes("2 returned unit"));
 });
@@ -258,7 +262,7 @@ test("inventory insight lists low-stock rows straight from the register", () => 
   assert.equal(insight.metrics[1].value, 3);
   assert.equal(insight.metrics[2].value, 1);
   assert.equal(insight.rows.length, 2);
-  assert.equal(insight.rows[0].label, "Berhampuri Double Pallu Pato");
+  assert.equal(insight.rows[0].label, PRODUCT_C.name);
   assert.equal(insight.rows[0].value, "1 left");
 
   const restock = buildInventoryInsight(snapshot, { restock: true });

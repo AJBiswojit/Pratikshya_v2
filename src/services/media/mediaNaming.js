@@ -10,7 +10,7 @@
  *   women-saree-banarasi-001-front-close.webp -> groupKey women-saree-banarasi-001, view front-close
  *
  * Standalone:
- *   kids-001.webp -> groupKey kids-001, view null
+ *   jewellery-001.webp -> groupKey jewellery-001, view null
  *   women-innerwear-001.webp -> groupKey women-innerwear-001, view null
  *
  * Deterministic, no visual guessing.
@@ -100,7 +100,7 @@ const extensionOf = (filename) => {
  *   {
  *     fileName: original filename with extension,
  *     baseName: filename without extension,
- *     filePath: /library/<fileName> if no path, else original,
+ *     filePath: the supplied path, or the filename when no path is supplied,
  *     groupKey: string,
  *     view: string|null,
  *     isStandalone: boolean,
@@ -113,7 +113,7 @@ export const parseMediaFilename = (inputPath) => {
   const fileName = raw.split("/").pop();
   const baseName = stripExtension(fileName).toLowerCase();
   const ext = extensionOf(fileName);
-  const filePath = raw.startsWith("/") ? raw : raw.includes("/") ? `/${raw}` : `/library/${fileName}`;
+  const filePath = raw.startsWith("/") ? raw : raw.includes("/") ? `/${raw}` : fileName;
 
   // try explicit suffix list (longest first)
   const sortedSuffixes = [...VIEW_SUFFIXES].sort((a, b) => b.length - a.length);

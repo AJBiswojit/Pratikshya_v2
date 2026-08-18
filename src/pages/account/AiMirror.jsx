@@ -11,7 +11,7 @@ import { useCart } from "../../context/CartContext";
 import { useWishlist } from "../../context/WishlistContext";
 import { AtelierButton } from "../../design-system";
 import { getProductByIdentifier } from "../../data/products";
-import { imageRef } from "../../data/pratikshyaImageManifest";
+import { imageRef } from "../../data/mediaPlaceholder";
 import { useProductCovers } from "../../hooks/useMedia";
 import { PRODUCTS_CHANGED_EVENT } from "../../services/catalogRepository";
 import { TAXONOMY_CHANGED_EVENT } from "../../services/taxonomyRepository";

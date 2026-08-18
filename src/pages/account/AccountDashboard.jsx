@@ -16,7 +16,7 @@ import {
   Rule,
 } from "../../design-system";
 import { getProductById, productHref } from "../../data/products";
-import { imageRef } from "../../data/pratikshyaImageManifest";
+import { imageRef } from "../../data/mediaPlaceholder";
 import { resolveCollectionCover } from "../../services/media/mediaResolver";
 import { useProductCovers } from "../../hooks/useMedia";
 import { useRecentlyViewed } from "../../hooks/useRecentlyViewed";

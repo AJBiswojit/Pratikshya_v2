@@ -159,7 +159,6 @@ export const getProductDependencies = (productId) => {
         (media.url || "").split("/").pop() ||
         media.id,
       role: media.role ?? null,
-      ingested: Boolean(media.ingested),
     })),
   };
 };

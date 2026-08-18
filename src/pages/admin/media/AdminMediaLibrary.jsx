@@ -223,8 +223,7 @@ export default function AdminMediaLibrary() {
         <AdminMetricCard label="Active" value={metrics.active} icon={Star} hint="Visible to customers" />
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">
-        <AdminMetricCard label="Ingested" value={metrics.ingested ?? 0} hint="Library ingestion" />
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         <AdminMetricCard
           label="Unmapped"
           value={metrics.unmapped ?? 0}
@@ -447,7 +446,6 @@ export default function AdminMediaLibrary() {
                       {item.mappingStatus === "UNMAPPED" ? <StatusBadge label="Unmapped" tone="alert" /> : null}
                       {item.mappingStatus === "NEEDS_REVIEW" ? <StatusBadge label="Review" tone="brass" /> : null}
                       {item.duplicateStatus === "DUPLICATE" ? <StatusBadge label="Duplicate" tone="muted" /> : null}
-                      {item.ingested ? <StatusBadge label="Ingested" tone="quiet" /> : null}
                       {item.demoPlaceholder ? <StatusBadge label="Demo" tone="muted" /> : null}
                       {item.scope === MEDIA_SCOPES.PRODUCT && item.productId && ownerStatusOf(item.productId) === null ? (
                         <StatusBadge label="Orphaned" tone="alert" />

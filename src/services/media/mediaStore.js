@@ -25,13 +25,12 @@ import {
   isValidUsageRole,
 } from "../../config/mediaTypes";
 import { SEED_MEDIA } from "../../data/media/seedMedia";
-import { getIngestedRecords } from "./ingestedMedia";
-import { resolveLegacyMediaUrl } from "./mediaPaths";
+import { resolveMediaUrl } from "./mediaPaths";
 
 /** Namespaced, in line with every other PRATIKSHYA FASHON storage key. */
 export const MEDIA_STORAGE_KEY = "pratikshya_media";
-/** One-time client migration: removes the retired demo register, not future uploads. */
-export const MEDIA_RESET_KEY = "pratikshya_media_reset_2026_08_17";
+/** Marks browser media storage as initialized for the canonical empty register. */
+export const CANONICAL_MEDIA_STATE_KEY = "pratikshya_canonical_media_state_2026_08_17";
 
 /** Broadcast so every open surface re-reads after a write. */
 export const MEDIA_CHANGED_EVENT = "pratikshya-media-changed";
@@ -77,9 +76,9 @@ export const normaliseMedia = (entry) => {
 
   /* An ephemeral preview address is dropped on the way in and on the way
      out — the record survives as metadata with a house fallback plate. */
-  const url = isEphemeralUrl(entry.url) ? "" : resolveLegacyMediaUrl(cleanString(entry.url));
-  const poster = isEphemeralUrl(entry.poster) ? "" : resolveLegacyMediaUrl(cleanString(entry.poster));
-  const thumbnail = isEphemeralUrl(entry.thumbnail) ? "" : resolveLegacyMediaUrl(cleanString(entry.thumbnail));
+  const url = isEphemeralUrl(entry.url) ? "" : resolveMediaUrl(cleanString(entry.url));
+  const poster = isEphemeralUrl(entry.poster) ? "" : resolveMediaUrl(cleanString(entry.poster));
+  const thumbnail = isEphemeralUrl(entry.thumbnail) ? "" : resolveMediaUrl(cleanString(entry.thumbnail));
 
   const productId = cleanString(entry.productId) || null;
   const placement = cleanString(entry.placement) || null;
@@ -159,7 +158,7 @@ export const normaliseMedia = (entry) => {
 
     /**
      * Reserved for a later phase. Structured now so automatic tagging or
-     * captioning can be added without a migration — nothing writes it yet.
+     * captioning can be added without reshaping stored media — nothing writes it yet.
      */
     ai: {
       tags: cleanList(entry.ai?.tags),
@@ -167,7 +166,7 @@ export const normaliseMedia = (entry) => {
       analysedAt: cleanString(entry.ai?.analysedAt) || null,
     },
 
-    /* Phase 21.4 — ingestion provenance. Optional on older records. */
+    /* Optional upload processing and mapping metadata. */
     originalPath: cleanString(entry.originalPath) || null,
     optimizedPath: cleanString(entry.optimizedPath) || null,
     originalFilename: cleanString(entry.originalFilename) || null,
@@ -191,7 +190,6 @@ export const normaliseMedia = (entry) => {
     width: Number.isFinite(Number(entry.width)) ? Number(entry.width) : null,
     height: Number.isFinite(Number(entry.height)) ? Number(entry.height) : null,
     aspectRatio: Number.isFinite(Number(entry.aspectRatio)) ? Number(entry.aspectRatio) : null,
-    ingested: Boolean(entry.ingested),
     large: Boolean(entry.large),
     lowResolution: Boolean(entry.lowResolution),
     broken: Boolean(entry.broken),
@@ -202,7 +200,7 @@ export const normaliseMedia = (entry) => {
     viewScore: Number.isFinite(Number(entry.viewScore)) ? Number(entry.viewScore) : null,
     isStandalone: entry.isStandalone !== undefined ? Boolean(entry.isStandalone) : null,
     filePath:
-      resolveLegacyMediaUrl(
+      resolveMediaUrl(
         cleanString(entry.filePath) || cleanString(entry.optimizedPath) || cleanString(entry.url)
       ) || null,
 
@@ -227,38 +225,16 @@ export const dedupeMedia = (items) => {
 let memoryMedia = null;
 
 /**
- * The seeded register is the Phase 12 house seed *plus* the Phase 21.4
- * ingested library, so every customer-facing surface reads one list. The
- * ingested adapter turns the build-time manifest into the same record shape
- * `normaliseMedia` already accepts; product-slotted assets become PRODUCT
- * scope, everything else stays UNASSIGNED but remains queryable by
- * categoryId / collectionId / usageRoles through the resolver.
+ * Fresh installations begin with the authored seed only (currently empty).
+ * Canonical catalogue media stays on each product record; Admin uploads enter
+ * this register explicitly and are never synthesized from filenames.
  */
-const seeded = () =>
-  dedupeMedia([...SEED_MEDIA, ...getIngestedRecords()].map(normaliseMedia).filter(Boolean));
+const seeded = () => dedupeMedia(SEED_MEDIA.map(normaliseMedia).filter(Boolean));
 
 /**
- * Reconcile a persisted register with the canonical seed.
- *
- * The seeded register (Phase 12 seed + Phase 21.4 ingested library) is the
- * single source of truth for baseline media. A browser that holds an OLDER
- * persisted copy in localStorage — snapshotted before a library asset was
- * added or corrected in the manifest — must not silently shadow the new
- * records. Otherwise the resolver (and therefore the homepage hero) keeps
- * serving stale data even though the manifest on disk is correct.
- *
- * We merge the persisted register UNDER the canonical seed:
- *   · canonical seed records that are missing from the persisted copy are
- *     added back (this is what restores hero001–hero005 after a library
- *     update), and
- *   · any record the operator created or edited — one that is not part of
- *     the canonical seed — is preserved as-is.
- *
- * `dedupeMedia` keeps the first occurrence by id, so the persisted copy wins
- * on id collision. That deliberately protects operator edits to existing
- * records; the only records we ever re-introduce are ones the persisted
- * register is missing entirely. Returns a fresh, de-duplicated array and
- * never mutates the inputs.
+ * Reconcile persisted records with any authored register seed while preserving
+ * operator-created records. Product media from the canonical catalogue is not
+ * copied into this register.
  */
 const reconcileWithCanonical = (persisted) => {
   const canonical = seeded();
@@ -278,17 +254,9 @@ const persistMedia = (items) => {
 };
 
 /**
- * Every media record, normalised and de-duplicated.
- *
- * An empty or unreadable register seeds itself from the house media so the
- * admin surfaces are never a blank page on a fresh browser.
- *
- * A persisted register that is out of date relative to the canonical seed
- * (e.g. it predates a library addition such as the hero001–hero005
- * replacement) is reconciled on read so stale storage can never shadow the
- * current manifest. The reconciled register is persisted once, which means a
- * browser carrying an older snapshot self-heals on the next load — no
- * manual cache clear required.
+ * Every managed media record, normalised and de-duplicated. An empty or
+ * unreadable register resolves to the authored seed. Persisted operator
+ * records remain authoritative and any future seed records are added by ID.
  */
 export const readMedia = () => {
   if (typeof window === "undefined") {
@@ -296,12 +264,11 @@ export const readMedia = () => {
     return memoryMedia;
   }
   try {
-    /* Existing installations can hold the old seeded/ingested demo register.
-       Remove it once as part of this explicit media reset; subsequent uploads
-       are retained normally because the marker is then present. */
-    if (!window.localStorage.getItem(MEDIA_RESET_KEY)) {
+    /* Existing installations can hold the retired demo register. Remove it
+       once; subsequent operator uploads are retained after the marker exists. */
+    if (!window.localStorage.getItem(CANONICAL_MEDIA_STATE_KEY)) {
       window.localStorage.removeItem(MEDIA_STORAGE_KEY);
-      window.localStorage.setItem(MEDIA_RESET_KEY, "complete");
+      window.localStorage.setItem(CANONICAL_MEDIA_STATE_KEY, "complete");
     }
     const stored = JSON.parse(window.localStorage.getItem(MEDIA_STORAGE_KEY));
     if (!Array.isArray(stored)) {
@@ -353,7 +320,7 @@ export const writeMedia = (items) => {
   return clean;
 };
 
-/** Drops the in-memory register so the next read reseeds (seed + ingested). */
+/** Drops the in-memory register so the next read restores the authored seed. */
 export const clearMediaMemory = () => {
   memoryMedia = null;
 };

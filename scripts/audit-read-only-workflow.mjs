@@ -1,5 +1,5 @@
 /**
- * Phase 3A — Audit: READ = READ ONLY.
+ * Audit: canonical catalogue reads are side-effect free.
  *
  * Uses persisted-state snapshots around the public read API and a focused
  * static check of catalogRepository.read(). Definitions of write commands
@@ -15,7 +15,7 @@ import { getLiveStorefrontProducts } from "../src/data/products/index.js";
 import { getProductMediaSet } from "../src/services/media/productMediaSet.js";
 import { loadActivity } from "../src/services/employees/activityService.js";
 import { getAllGroups } from "../src/services/media/productMediaGroups.js";
-import { setupBaseState } from "../tests/helpers/workflowTestState.js";
+import { setupCanonicalState } from "../tests/helpers/workflowTestState.js";
 
 const failures = [];
 const pass = (label) => console.log(`PASS: ${label}`);
@@ -64,15 +64,16 @@ const stateSnapshot = () =>
     groups: getAllGroups(),
   });
 
-console.log("# READ-ONLY WORKFLOW AUDIT — Phase 3A\n");
-setupBaseState();
+console.log("# READ-ONLY WORKFLOW AUDIT\n");
+setupCanonicalState();
+const canonicalId = catalogRepository.all()[0]?.id;
 
 const readChecks = [
   ["catalogRepository.all()", () => catalogRepository.all()],
-  ["catalogRepository.find()", () => catalogRepository.find("pf-001")],
+  ["catalogRepository.find()", () => catalogRepository.find(canonicalId)],
   ["queryCatalogue()", () => queryCatalogue({ search: "silk" })],
   ["getLiveStorefrontProducts()", () => getLiveStorefrontProducts()],
-  ["getProductMediaSet()", () => getProductMediaSet(catalogRepository.find("pf-001"))],
+  ["getProductMediaSet()", () => getProductMediaSet(catalogRepository.find(canonicalId))],
 ];
 
 readChecks.forEach(([label, read]) => {
@@ -92,22 +93,17 @@ if (!readBody) {
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/.*$/gm, "");
   const forbidden = [
-    "runExplicitMigrations",
-    "syncProductDraftRecords",
-    "syncCatalogueReconciliation",
-    "syncCanonicalMediaAssignment",
-    "syncKidswearRegister",
     "writeProduct(",
-    "persistCatalogueState(",
+    "persistCanonicalCatalogueState(",
     "assignToProduct(",
     "recordActivity(",
   ];
   const hits = forbidden.filter((signature) => executableReadBody.includes(signature));
   if (hits.length) fail(`catalogRepository.read() calls mutation paths: ${hits.join(", ")}`);
-  else pass("catalogRepository.read() contains no migration, reconciliation, ownership or activity writes");
+  else pass("catalogRepository.read() contains no catalogue, ownership, persistence, or activity writes");
 }
 
-setupBaseState();
+setupCanonicalState();
 console.log("\n# SUMMARY");
 console.log(`Checks: ${readChecks.length + 1} | Failures: ${failures.length}`);
 if (failures.length) {

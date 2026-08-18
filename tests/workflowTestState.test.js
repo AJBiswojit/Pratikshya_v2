@@ -1,4 +1,4 @@
-/** Phase 3B.2 — regression coverage for workflow fixture isolation. */
+/** Regression coverage for canonical workflow fixture isolation. */
 
 import test, { afterEach } from "node:test";
 import assert from "node:assert/strict";
@@ -9,17 +9,15 @@ import { getProductMediaSet } from "../src/services/media/productMediaSet.js";
 import { loadActivity } from "../src/services/employees/activityService.js";
 import { loadAdmins } from "../src/services/admin/adminAuthService.js";
 import { assignMediaToProduct } from "../src/services/media/mediaOwnershipService.js";
-import { runExplicitMigrations } from "../src/services/workflow/explicitMigrations.js";
 import {
-  getBaseFixtureSnapshot,
-  setupBaseState,
-  setupMigratedState,
+  getCanonicalFixtureSnapshot,
+  setupCanonicalState,
 } from "./helpers/workflowTestState.js";
 
-const confirmedKidsIds = (products) =>
-  products.filter((product) => /^KID-\d{3}$/.test(String(product.id))).map((product) => product.id);
+const admin = () =>
+  loadAdmins().find((candidate) => candidate.status === "ACTIVE" && ["SUPER_ADMIN", "ADMIN"].includes(candidate.role));
 
-const migrationSnapshot = () => ({
+const stateSnapshot = () => ({
   products: JSON.parse(productsRegisterRaw()),
   media: mediaRepository
     .getAll()
@@ -28,110 +26,91 @@ const migrationSnapshot = () => ({
   activity: loadActivity(),
 });
 
-const migrationAdmin = () =>
-  loadAdmins().find((admin) => admin.status === "ACTIVE" && ["SUPER_ADMIN", "ADMIN"].includes(admin.role));
+afterEach(setupCanonicalState);
 
-afterEach(() => {
-  setupBaseState();
+test("canonical isolation restores the authored persisted catalogue", () => {
+  const state = setupCanonicalState();
+  const captured = getCanonicalFixtureSnapshot();
+
+  assert.equal(state.state, "CANONICAL");
+  assert.equal(state.products.length, captured.products.length);
+  assert.deepEqual(
+    state.products.map((product) => product.id),
+    captured.products.map((product) => product.id)
+  );
+  assert.ok(state.products.some((product) => product.department === "kids"));
+  assert.ok(state.products.every((product) => catalogRepository.find(product.id)?.id === product.id));
 });
 
-test("fixture BASE isolation restores the original persisted catalogue", () => {
-  const base = setupBaseState();
-  const captured = getBaseFixtureSnapshot();
-
-  assert.equal(base.state, "BASE");
-  assert.equal(base.products.length, captured.products.length);
-  assert.deepEqual(confirmedKidsIds(base.products), []);
-  assert.ok(catalogRepository.find("pf-001"));
-});
-
-test("fixture MIGRATED isolation runs the explicit persisted migration", () => {
-  const migrated = setupMigratedState();
-
-  assert.equal(migrated.state, "MIGRATED");
-  assert.equal(migrated.migration.ok, true);
-  assert.equal(migrated.migration.productCount, 168);
-  assert.equal(confirmedKidsIds(migrated.products).length, 21);
-  assert.equal(JSON.parse(productsRegisterRaw()).length, 168);
-});
-
-test("a migrated test cannot contaminate a later BASE test", () => {
-  setupMigratedState();
-  assert.ok(catalogRepository.find("KID-001"));
-
-  const base = setupBaseState();
-  assert.equal(base.products.length, getBaseFixtureSnapshot().products.length);
-  assert.equal(catalogRepository.find("KID-001"), null);
-});
-
-test("fixture reset removes scratch products", () => {
-  setupMigratedState();
+test("a mutated test cannot contaminate the next canonical state", () => {
+  setupCanonicalState();
+  const template = catalogRepository.all()[0];
   const created = catalogRepository.createDraftProduct(
-    { id: "FIXTURE-PRODUCT-001", name: "Fixture scratch product", category: "sarees" },
-    migrationAdmin()
+    {
+      name: "Fixture scratch product",
+      department: template.department,
+      category: template.category,
+      subcategory: template.subcategory,
+    },
+    admin()
   );
-  assert.equal(created.ok, true);
-  assert.ok(catalogRepository.find("FIXTURE-PRODUCT-001"));
+  assert.equal(created.ok, true, created.error);
+  assert.ok(catalogRepository.find(created.product.id));
 
-  setupBaseState();
-  assert.equal(catalogRepository.find("FIXTURE-PRODUCT-001"), null);
+  const restored = setupCanonicalState();
+  assert.equal(catalogRepository.find(created.product.id), null);
+  assert.equal(restored.products.length, getCanonicalFixtureSnapshot().products.length);
 });
 
-test("fixture reset removes scratch media assigned through the ownership service", () => {
-  setupMigratedState();
-  catalogRepository.createDraftProduct(
-    { id: "FIXTURE-MEDIA-OWNER", name: "Fixture media owner", category: "sarees" },
-    migrationAdmin()
-  );
+test("canonical reset removes scratch media and ownership", () => {
+  setupCanonicalState();
+  const owner = catalogRepository.all()[0];
   const media = mediaRepository.create({
     id: "fixture-media-001",
-    url: "/library/fixture-media-001.webp",
+    url: `/images/products/test/${owner.id}/fixture.avif`,
     title: "Fixture scratch media",
     status: "ACTIVE",
   });
   const assigned = assignMediaToProduct({
     mediaId: media.id,
-    productId: "FIXTURE-MEDIA-OWNER",
-    principal: migrationAdmin(),
-    actor: migrationAdmin(),
+    productId: owner.id,
+    principal: admin(),
+    actor: admin(),
   });
   assert.equal(assigned.ok, true);
-  assert.equal(mediaRepository.getById(media.id).productId, "FIXTURE-MEDIA-OWNER");
+  assert.equal(mediaRepository.getById(media.id).productId, owner.id);
 
-  setupBaseState();
+  setupCanonicalState();
   assert.equal(mediaRepository.getById(media.id), null);
-  assert.equal(catalogRepository.find("FIXTURE-MEDIA-OWNER"), null);
 });
 
-test("fixture reset invalidates catalogue and product-media caches", () => {
-  setupMigratedState();
-  const migratedBangle = catalogRepository.find("pf-046");
-  const migratedSet = getProductMediaSet(migratedBangle);
-  assert.match(
-    String(migratedSet.primary?.fileName ?? ""),
-    /^jewellery-bangle-\d{3}\.webp$/,
-    "migrated record populates the canonical media-set cache"
-  );
+test("canonical reset invalidates product-media caches", () => {
+  setupCanonicalState();
+  const owner = catalogRepository.all()[0];
+  const authored = getProductMediaSet(owner).primary.src;
+  const media = mediaRepository.create({
+    id: "fixture-cover-001",
+    url: `/images/products/test/${owner.id}/cover.avif`,
+    title: "Fixture cover",
+    status: "ACTIVE",
+    productId: owner.id,
+    role: "COVER",
+  });
+  assert.ok(media);
+  assert.equal(getProductMediaSet(owner).primary.src, media.url);
 
-  setupBaseState();
-  assert.equal(catalogRepository.find("KID-001"), null, "catalogue cache must expose fresh BASE data");
-  const baseSet = getProductMediaSet(catalogRepository.find("pf-046"));
-  assert.doesNotMatch(
-    String(baseSet.primary?.fileName ?? ""),
-    /^jewellery-bangle-\d{3}\.webp$/,
-    "product-media cache must not retain the migrated ownership view"
-  );
+  setupCanonicalState();
+  assert.equal(getProductMediaSet(catalogRepository.find(owner.id)).primary.src, authored);
 });
 
-test("explicit migration is state-idempotent after a fresh BASE setup", () => {
-  setupBaseState();
-  const first = runExplicitMigrations();
-  const afterFirst = migrationSnapshot();
-  const second = runExplicitMigrations();
-  const afterSecond = migrationSnapshot();
+test("canonical reset is state-idempotent", () => {
+  setupCanonicalState();
+  const first = stateSnapshot();
+  setupCanonicalState();
+  const second = stateSnapshot();
+  setupCanonicalState();
+  const third = stateSnapshot();
 
-  assert.equal(first.ok, true);
-  assert.equal(second.ok, true);
-  assert.equal(second.changed, false);
-  assert.deepEqual(afterSecond, afterFirst);
+  assert.deepEqual(second, first);
+  assert.deepEqual(third, first);
 });

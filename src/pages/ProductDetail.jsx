@@ -19,7 +19,7 @@ import ProductPurchasePanel from "../components/product/ProductPurchasePanel";
 import ProductRecommendations from "../components/product/ProductRecommendations";
 import { getProductByIdentifier, toStorefrontProduct } from "../data/products";
 import { getProductRecommendations } from "../data/products/recommendations";
-import { imageRef } from "../data/pratikshyaImageManifest";
+import { imageRef } from "../data/mediaPlaceholder";
 import catalogRepository from "../services/catalogRepository";
 import taxonomyRepository from "../services/taxonomyRepository";
 

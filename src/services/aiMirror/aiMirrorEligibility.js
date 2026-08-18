@@ -7,17 +7,11 @@
  * clothing. New categories can be supported later without touching screens.
  */
 
-import taxonomyRepository from "../taxonomyRepository";
-
-/** Categories that are known, full-look apparel in the current catalogue. */
-const APPAREL_CATEGORY_IDS = new Set([
-  "sarees",
-  "lehengas",
-  "bridal-couture",
-  "kurtis-and-suits",
-  "menswear",
-  "kidswear",
-]);
+import {
+  categoriesForDepartment,
+  categoryLabel,
+  departmentForProduct,
+} from "../../data/products/departments";
 
 /**
  * These are intentionally checked first. A future taxonomy name such as
@@ -53,47 +47,26 @@ const EXCLUDED_TERMS = [
   "blouse",
 ];
 
-/** Category names an operator may use when they add future apparel taxonomy. */
-const APPAREL_TERMS = [
-  "saree",
-  "sari",
-  "lehenga",
-  "kurta",
-  "kurti",
-  "suit",
-  "dress",
-  "gown",
-  "apparel",
-  "ethnic wear",
-  "ethnicwear",
-  "women's clothing",
-  "womens clothing",
-  "men's ethnic",
-  "mens ethnic",
-  "sherwani",
-  "anarkali",
-  "sharara",
-  "clothing",
-  "kids wear",
-  "kidswear",
-];
-
 const normalise = (value) => String(value || "").toLowerCase().replace(/[-_/]+/g, " ");
 
-const categoryFor = (product) =>
-  taxonomyRepository.findCategory(product?.category) ??
-  taxonomyRepository.findCategory(product?.categoryLabel) ??
-  null;
+const taxonomyFor = (product) => {
+  const department = departmentForProduct(product);
+  const category = categoriesForDepartment(department).find(
+    (entry) => entry.value === product?.category
+  ) ?? null;
+  return { department, category };
+};
 
 /** The product fields used for taxonomy-safe intent matching. */
 export const virtualTryOnEligibilityText = (product) => {
-  const category = categoryFor(product);
+  const { department, category } = taxonomyFor(product);
   return normalise(
     [
       product?.category,
       product?.categoryLabel,
-      category?.id,
-      category?.name,
+      department,
+      category?.value,
+      category?.label,
       product?.subcategory,
       product?.productType,
       product?.name,
@@ -122,23 +95,18 @@ export const isVirtualTryOnEligibleProduct = (product) => {
   if (!product?.id) return false;
   if (isVirtualTryOnExcludedProduct(product)) return false;
 
-  const category = categoryFor(product);
-  if (APPAREL_CATEGORY_IDS.has(String(category?.id || product.category || "").toLowerCase())) {
-    return true;
-  }
-
-  const text = virtualTryOnEligibilityText(product);
-  return APPAREL_TERMS.some((term) => text.includes(term));
+  const { department, category } = taxonomyFor(product);
+  return Boolean(department && category);
 };
 
 /** A customer-facing filter label resolved through the existing taxonomy. */
 export const getVirtualTryOnCategoryLabel = (product) => {
-  const category = categoryFor(product);
-  return category?.name || product?.categoryLabel || product?.category || "Apparel";
+  const department = departmentForProduct(product);
+  return product?.categoryLabel || categoryLabel(department, product?.category) || "Apparel";
 };
 
 /** Stable, presentation-safe category id for selector filter buttons. */
 export const getVirtualTryOnCategoryKey = (product) =>
-  String(categoryFor(product)?.id || product?.category || "apparel").toLowerCase();
+  String(product?.category || "apparel").toLowerCase();
 
 export default isVirtualTryOnEligibleProduct;

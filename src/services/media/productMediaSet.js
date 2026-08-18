@@ -1,5 +1,5 @@
 /**
- * PRATIKSHYA FASHON — Canonical product media set (Phase 21.9).
+ * PRATIKSHYA FASHON — Canonical Product Media set.
  *
  * Product cards and product-detail galleries share this one helper.
  * It returns ONLY media that can be proved to belong to the given product.
@@ -7,14 +7,14 @@
  * Ownership (strongest first):
  *   1. Explicit media.productId === productId
  *   2. Explicit entry on the product's authored gallery / additionalImages
- *   3. Existing migration / group → product mapping (already stored as productId)
+ *   3. Explicit persisted Product Media claims (already stored as productId)
  *
  * Never selected merely because:
  *   · category / subcategory / taxonomy matches
  *   · filename looks similar
  *   · usage is CATEGORY_COVER or FEATURED
  *   · the file lives in the same folder
- *   · an authored hoverImage points at a shared house plate
+ *   · an authored hover image is not explicitly Product-owned
  *
  * Hover is deterministic:
  *   BACK → SIDE → LEFT/RIGHT → DETAIL/CLOSE → other product-owned gallery
@@ -35,10 +35,10 @@ import {
   MEDIA_TYPES,
   PRODUCT_MEDIA_ROLES,
 } from "../../config/mediaTypes";
-import { imageRef } from "../../data/pratikshyaImageManifest";
+import { imageRef } from "../../data/mediaPlaceholder";
 import { getAll, getById, getMediaVersion } from "./mediaRepository";
 import { getViewOrderScore, parseMediaFilename } from "./mediaNaming";
-import { isIngestedPhotographyUrl, resolveLegacyMediaUrl } from "./mediaPaths";
+import { isCanonicalMediaUrl, resolveMediaUrl } from "./mediaPaths";
 
 export const PRODUCT_MEDIA_STATUS = {
   OK: "OK",
@@ -184,7 +184,7 @@ const asImageSource = (media, product) => {
   if (!media) return null;
   if (typeof media === "string") {
     if (isUrl(media)) {
-      const src = resolveLegacyMediaUrl(media);
+      const src = resolveMediaUrl(media);
       return {
         id: media,
         src,
@@ -198,7 +198,7 @@ const asImageSource = (media, product) => {
     return referenced
       ? {
           ...referenced,
-          src: resolveLegacyMediaUrl(referenced.src) || referenced.src,
+          src: resolveMediaUrl(referenced.src) || referenced.src,
           productId: product?.id || null,
           fileName: referenced.src ? referenced.src.split("/").pop() : referenced.id,
         }
@@ -207,12 +207,12 @@ const asImageSource = (media, product) => {
   if (media.src) {
     return {
       ...media,
-      src: resolveLegacyMediaUrl(media.src) || media.src,
+      src: resolveMediaUrl(media.src) || media.src,
       productId: media.productId || product?.id || null,
       fileName: media.fileName || fileNameOf(media),
     };
   }
-  const src = resolveLegacyMediaUrl(media.url || media.thumbnail);
+  const src = resolveMediaUrl(media.url || media.thumbnail);
   if (!src) return null;
   return {
     id: media.id,
@@ -234,7 +234,7 @@ const authoredOwnedPlates = (product) => {
   if (!product) return [];
   const plates = [];
   const seen = new Set();
-  const push = (value) => {
+  const push = (value, metadata = {}) => {
     const source = asImageSource(value, product);
     if (!source?.src) return;
     const key = mediaIdentity(source);
@@ -242,16 +242,26 @@ const authoredOwnedPlates = (product) => {
     seen.add(key);
     plates.push({
       ...source,
+      ...metadata,
       productId: product.id,
       fromRepository: false,
     });
   };
 
-  /* The authored primary is owned by this product. Shared house plates used
-     as another product's hover are NOT owned — we never read hoverImage. */
-  push(product.image);
+  /* Canonical authored associations carry their role explicitly. The primary
+     must not lose to a gallery filename merely because lexical sorting places
+     `01` before `primary`. Shared authored hoverImage values are still ignored. */
+  push(product.media?.primary || product.image, {
+    role: PRODUCT_MEDIA_ROLES.COVER,
+    view: "front",
+  });
 
-  (Array.isArray(product.additionalImages) ? product.additionalImages : []).forEach(push);
+  const gallery = Array.isArray(product.media?.gallery) && product.media.gallery.length
+    ? product.media.gallery
+    : Array.isArray(product.additionalImages)
+      ? product.additionalImages
+      : [];
+  gallery.forEach((value) => push(value, { role: PRODUCT_MEDIA_ROLES.GALLERY }));
 
   return plates;
 };
@@ -296,11 +306,16 @@ const pickHover = (owned, primary) => {
 };
 
 const describeSource = (owned) => {
-  const fromLibrary = owned.some((item) => item.fromRepository || isIngestedPhotographyUrl(item.src));
-  const fromLegacy = owned.some((item) => !item.fromRepository && !isIngestedPhotographyUrl(item.src));
-  if (fromLibrary && fromLegacy) return "mixed";
-  if (fromLibrary) return "library";
-  if (fromLegacy) return "legacy";
+  const fromManagedRepository = owned.some((item) => item.fromRepository);
+  const fromCanonicalProduct = owned.some((item) => !item.fromRepository && isCanonicalMediaUrl(item.src));
+  const fromOtherAuthoredSource = owned.some(
+    (item) => !item.fromRepository && !isCanonicalMediaUrl(item.src)
+  );
+  const sourceCount = [fromManagedRepository, fromCanonicalProduct, fromOtherAuthoredSource].filter(Boolean).length;
+  if (sourceCount > 1) return "mixed";
+  if (fromManagedRepository) return "managed";
+  if (fromCanonicalProduct) return "canonical";
+  if (fromOtherAuthoredSource) return "authored";
   return "none";
 };
 
@@ -456,7 +471,7 @@ export const getProductMediaIndex = () => {
 };
 
 /**
- * Canonical helper. `product` is optional but required for authored/legacy
+ * Canonical helper. `product` is optional but required for authored
  * fallback — the register alone cannot invent an owned plate.
  *
  * Accepts either a product id or a product record as the first argument.
@@ -477,7 +492,19 @@ export const getProductMediaSet = (productIdOrProduct, productHint = null) => {
 
   // Build claims fingerprint for per-product cache
   const claimsKey = product
-    ? `${(product.mediaIds || []).join(",")}|${product.primaryMediaId || ""}|${(product.galleryMediaIds || []).join(",")}|${product.image ? (typeof product.image === "string" ? product.image : product.image.id || product.image.src || "") : ""}`
+    ? [
+        (product.mediaIds || []).join(","),
+        product.primaryMediaId || "",
+        (product.galleryMediaIds || []).join(","),
+        product.media?.primary || "",
+        (product.media?.gallery || []).join(","),
+        product.image
+          ? typeof product.image === "string"
+            ? product.image
+            : product.image.id || product.image.src || ""
+          : "",
+        (product.additionalImages || []).map(mediaIdentity).join(","),
+      ].join("|")
     : "no-product";
 
   const cached = mediaSetCache.map.get(id);

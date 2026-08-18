@@ -6,7 +6,7 @@
  * truth lives in the one catalogue repository. It is not a second media
  * system.
  *
- * Deterministic filename groups (kids-001-front / kids-001-side → one
+ * Deterministic filename groups (women-saree-001-front / women-saree-001-side → one
  * groupKey) are computed by the existing mediaNaming parser; this registry
  * records the human part:
  *   · GROUP AS ONE PRODUCT   (SAME_PRODUCT)

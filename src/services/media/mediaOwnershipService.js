@@ -36,6 +36,10 @@ import { getProductMediaSet } from "./productMediaSet.js";
 import { validateProductForPublish } from "../workflow/productPublishValidator.js";
 import { resolvePrincipal } from "../workflow/productWorkflowCommands.js";
 import {
+  getProductWorkflowState,
+  isEditableStage,
+} from "../workflow/productWorkflowState.js";
+import {
   ACTIVITY_ACTIONS,
   describeActor,
   loadActivity,
@@ -97,6 +101,20 @@ const assertProductTarget = (targetProductId) => {
   return { ok: true, product };
 };
 
+/** Product Media is part of the Product draft. Ownership changes therefore
+ * obey the same protected-stage rule as every other Product edit. */
+const assertEditableProduct = (product) => {
+  if (!product) return { ok: true };
+  const state = getProductWorkflowState(product);
+  if (isEditableStage(state.stage)) return { ok: true, product };
+  return {
+    ok: false,
+    error: `This product is ${state.label.toLowerCase()} and cannot be edited — return it to an editable stage first.`,
+    code: "PRODUCT_NOT_EDITABLE",
+    productId: product.id,
+  };
+};
+
 /** Revalidates a product (read-only) and summarizes the result. */
 const revalidateProduct = (product) => {
   if (!product) return null;
@@ -127,20 +145,17 @@ const validateOwnershipChange = ({ media, targetProductId, product, confirm, op 
     return { ok: false, error: `${fileNameOf(media)} is not assigned to any product.` };
   }
 
-  /* Phase 3F — house/hero artwork is marketing photography by identity.
-     A NEW assignment of it as product media is refused outright; legacy
-     product-scoped house plates keep their existing ownership and can
-     still be detached or renamed with their product. */
+  /* Hero and marketing artwork cannot be newly assigned as Product Media. */
   if (op === "assign" && targetProductId && isMarketingFileName(fileNameOf(media))) {
     return {
       ok: false,
-      error: `${fileNameOf(media)} is house/marketing artwork — marketing imagery cannot become product media.`,
+      error: `${fileNameOf(media)} is marketing artwork — marketing imagery cannot become product media.`,
     };
   }
 
   /* Phase 3F — category ↔ media-family safety. A men's product can never
      own bangle photography, innerwear can never own saree photography, and
-     so on. Filenames are judged only where the ingested naming convention
+     so on. Filenames are judged only where the recognized naming convention
      applies; unnamed scratch/studio files are not guessed at. On a rename
      the target record does not exist yet — the unchanged source category
      is validated instead. */
@@ -202,10 +217,16 @@ export const validateMediaOwnershipTransfer = ({
   if (requireTargetProduct) {
     const target = assertProductTarget(targetProductId);
     if (!target.ok) return target;
+    const targetEditable = assertEditableProduct(target.product);
+    if (!targetEditable.ok) return targetEditable;
   }
 
   const previousOwnerId = media.productId ? String(media.productId) : null;
   const owner = previousOwnerId ? catalogRepository.find(previousOwnerId) : null;
+  if (owner && previousOwnerId !== String(targetProductId)) {
+    const ownerEditable = assertEditableProduct(owner);
+    if (!ownerEditable.ok) return ownerEditable;
+  }
 
   return validateOwnershipChange({
     media,
@@ -235,9 +256,15 @@ export const transferMediaOwnership = ({
   if (!media) return { ok: false, error: "Media not found." };
   const target = assertProductTarget(targetProductId);
   if (!target.ok) return target;
+  const targetEditable = assertEditableProduct(target.product);
+  if (!targetEditable.ok) return targetEditable;
 
   const previousOwnerId = media.productId ? String(media.productId) : null;
   const owner = previousOwnerId ? catalogRepository.find(previousOwnerId) : null;
+  if (owner && previousOwnerId !== String(targetProductId)) {
+    const ownerEditable = assertEditableProduct(owner);
+    if (!ownerEditable.ok) return ownerEditable;
+  }
 
   const check = validateOwnershipChange({
     media,
@@ -317,6 +344,8 @@ export const assignMediaToProduct = ({
   if (!media) return { ok: false, error: "Media not found." };
   const target = assertProductTarget(productId);
   if (!target.ok) return target;
+  const targetEditable = assertEditableProduct(target.product);
+  if (!targetEditable.ok) return targetEditable;
 
   if (media.productId && String(media.productId) !== String(productId)) {
     return {
@@ -365,6 +394,8 @@ export const unassignMediaFromProduct = ({ mediaId, principal = null, actor = nu
   if (!previousOwnerId) return { ok: true, media, alreadyUnassigned: true };
 
   const owner = catalogRepository.find(previousOwnerId);
+  const ownerEditable = assertEditableProduct(owner);
+  if (!ownerEditable.ok) return ownerEditable;
   const detached = mediaRepository.assignToProduct(mediaId, null);
   if (!detached) return { ok: false, error: "Could not detach media." };
 

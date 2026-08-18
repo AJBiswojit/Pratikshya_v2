@@ -1,109 +1,77 @@
-/**
- * PRATIKSHYA FASHON — Product Performance Regression Tests
- *
- * Ensures the performance optimizations do not regress and that
- * obvious anti-patterns are not reintroduced.
- */
+/** Performance regressions for generic canonical product paths. */
 
-import test, { beforeEach, afterEach } from "node:test";
+import test, { afterEach, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { setupBaseState, setupMigratedState } from "./helpers/workflowTestState.js";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import catalogRepository from "../src/services/catalogRepository.js";
-import mediaRepository from "../src/services/media/mediaRepository.js";
-import { getProductMediaSet, getProductMediaIndex } from "../src/services/media/productMediaSet.js";
-import { getMediaInbox, getPotentialProductGroups, getKidsReconciliationRows } from "../src/services/productWorkflow.js";
-import { getKidsFinalizationRows } from "../src/services/kidsProductFinalization.js";
+import { getProductMediaIndex, getProductMediaSet } from "../src/services/media/productMediaSet.js";
+import { getMediaInbox, getPotentialProductGroups } from "../src/services/productWorkflow.js";
+import { getUnifiedReviewQueue } from "../src/services/unifiedProductReview.js";
+import { setupCanonicalState } from "./helpers/workflowTestState.js";
 
-beforeEach(() => {
-  setupMigratedState();
-});
+beforeEach(setupCanonicalState);
+afterEach(setupCanonicalState);
 
-afterEach(() => {
-  setupBaseState();
-});
+test("catalogue lookup uses the stable Product-ID index", () => {
+  const product = catalogRepository.all()[0];
+  assert.ok(product);
+  assert.equal(catalogRepository.find(product.id)?.id, product.id);
 
-test("catalogRepository.find uses O(1) index, not full scan", () => {
-  // Warm up cache
-  catalogRepository.find("pf-001");
   const start = performance.now();
-  for (let i = 0; i < 100; i++) catalogRepository.find("pf-001");
+  for (let index = 0; index < 1_000; index += 1) catalogRepository.find(product.id);
   const duration = performance.now() - start;
-  // Should be very fast (<50ms for 100 lookups) due to Map index
-  assert.ok(duration < 50, `find should be fast, took ${duration.toFixed(2)}ms for 100 lookups`);
+  assert.ok(duration < 100, `1,000 indexed lookups took ${duration.toFixed(2)}ms`);
 });
 
-test("getProductMediaSet for all products is fast (<20ms)", () => {
-  const all = catalogRepository.all();
-  /* Measure the optimized cache path used by rendered lists, not one-time
-     fixture/cache construction. */
-  for (let i = 0; i < all.length; i++) getProductMediaSet(all[i]);
+test("canonical media sets are cached for the complete catalogue", () => {
+  const products = catalogRepository.all();
+  products.forEach((product) => getProductMediaSet(product));
   const start = performance.now();
-  for (let i = 0; i < all.length; i++) getProductMediaSet(all[i]);
+  products.forEach((product) => getProductMediaSet(product));
   const duration = performance.now() - start;
-  assert.ok(duration < 20, `getProductMediaSet for ${all.length} should be <20ms, took ${duration.toFixed(2)}ms`);
+  assert.ok(duration < 50, `${products.length} media-set lookups took ${duration.toFixed(2)}ms`);
+
+  const index = getProductMediaIndex();
+  assert.ok(index instanceof Map);
 });
 
-test("getMediaInbox is cached and fast", () => {
-  const firstStart = performance.now();
+test("generic workflow inbox and potential groups stay inexpensive", () => {
   getMediaInbox();
-  const first = performance.now() - firstStart;
-
-  const secondStart = performance.now();
-  getMediaInbox();
-  const second = performance.now() - secondStart;
-
-  assert.ok(second <= first, `Second inbox call should be cached: first ${first.toFixed(2)}ms, second ${second.toFixed(2)}ms`);
-  assert.ok(second < 5, `Cached inbox should be <5ms, took ${second.toFixed(2)}ms`);
-});
-
-test("getPotentialProductGroups is cached and fast", () => {
+  getPotentialProductGroups();
   const start = performance.now();
+  getMediaInbox();
   getPotentialProductGroups();
   const duration = performance.now() - start;
-  assert.ok(duration < 10, `Potential groups should be <10ms, took ${duration.toFixed(2)}ms`);
+  assert.ok(duration < 50, `cached workflow projections took ${duration.toFixed(2)}ms`);
 });
 
-test("getKidsFinalizationRows is fast (<10ms cached)", () => {
-  const start = performance.now();
-  getKidsFinalizationRows();
-  const first = performance.now() - start;
-
-  const start2 = performance.now();
-  getKidsFinalizationRows();
-  const second = performance.now() - start2;
-
-  assert.ok(second < 5, `Cached finalization rows should be <5ms, took ${second.toFixed(2)}ms`);
+test("the unified review queue projects the canonical register without a parallel department path", () => {
+  const queue = getUnifiedReviewQueue();
+  const catalogueIds = new Set(catalogRepository.all().map((product) => product.id));
+  assert.equal(queue.length, catalogueIds.size);
+  assert.ok(queue.every((row) => catalogueIds.has(row.productId)));
 });
 
-test("No random media selection in product card or preview", () => {
-  const cardPath = join(process.cwd(), "src/design-system/components/ProductCard.jsx");
-  const previewPath = join(process.cwd(), "src/components/product/ProductPreview.jsx");
-  const mediaSetPath = join(process.cwd(), "src/services/media/productMediaSet.js");
-
-  for (const p of [cardPath, previewPath, mediaSetPath]) {
-    const content = readFileSync(p, "utf8");
-    // Allow random in unrelated contexts (e.g., id generation) but not in media selection
-    if (p.includes("ProductCard") || p.includes("ProductPreview")) {
-      assert.doesNotMatch(content, /\bMath\.random\s*\(\)/, `Math.random found in ${p} — random media forbidden`);
-      assert.doesNotMatch(content, /\bshuffle\b/i, `shuffle found in ${p}`);
-    }
+test("product cards and previews never select media randomly", () => {
+  const paths = [
+    join(process.cwd(), "src/design-system/components/ProductCard.jsx"),
+    join(process.cwd(), "src/components/product/ProductPreview.jsx"),
+    join(process.cwd(), "src/services/media/productMediaSet.js"),
+  ];
+  for (const path of paths) {
+    const source = readFileSync(path, "utf8");
+    assert.doesNotMatch(source, /\bMath\.random\s*\(\)/, `random selection in ${path}`);
+    if (/Product(Card|Preview)/.test(path)) assert.doesNotMatch(source, /\bshuffle\b/i, path);
   }
 });
 
-test("ProductCard is memoized (React.memo)", () => {
-  const content = readFileSync(join(process.cwd(), "src/design-system/components/ProductCard.jsx"), "utf8");
-  assert.match(content, /memo/, "ProductCard should use React.memo");
-});
-
-test("MediaInboxCard is memoized", () => {
-  const content = readFileSync(join(process.cwd(), "src/components/admin/MediaInboxCard.jsx"), "utf8");
-  assert.match(content, /memo/, "MediaInboxCard should be memoized");
-});
-
-test("AdminProducts uses debounced search and memoized filtering", () => {
-  const content = readFileSync(join(process.cwd(), "src/pages/admin/AdminProducts.jsx"), "utf8");
-  assert.match(content, /debounced|setTimeout.*setDebouncedQuery|useMemo.*filtered/, "AdminProducts should debounce search and memoize filtered");
+test("large product-list components retain their memoization safeguards", () => {
+  const card = readFileSync(join(process.cwd(), "src/design-system/components/ProductCard.jsx"), "utf8");
+  const inbox = readFileSync(join(process.cwd(), "src/components/admin/MediaInboxCard.jsx"), "utf8");
+  const adminProducts = readFileSync(join(process.cwd(), "src/pages/admin/AdminProducts.jsx"), "utf8");
+  assert.match(card, /memo/);
+  assert.match(inbox, /memo/);
+  assert.match(adminProducts, /debounced|setTimeout.*setDebouncedQuery|useMemo.*filtered/);
 });

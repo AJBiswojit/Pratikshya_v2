@@ -58,8 +58,8 @@ export const formatINR = (value) =>
 
 /**
  * Deterministic identity for a cart line: the product plus its selected
- * variant attributes. `pf-001 · Red · M` and `pf-001 · Red · L` are
- * different lines; adding `pf-001 · Red · M` twice merges into one.
+ * variant attributes. `Product-ID · Red · M` and `Product-ID · Red · L` are
+ * different lines; adding `Product-ID · Red · M` twice merges into one.
  */
 export const cartLineId = (productId, selection = {}) =>
   [productId, selection.color ?? "", selection.size ?? ""].join("::");

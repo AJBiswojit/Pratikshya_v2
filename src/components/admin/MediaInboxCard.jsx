@@ -18,10 +18,7 @@ import { Eye, PackagePlus, UserPlus } from "lucide-react";
 import StatusBadge from "../../components/employee/StatusBadge";
 import PratikshyaImage from "../../components/PratikshyaImage";
 import taxonomyRepository from "../../services/taxonomyRepository";
-import {
-  assignProductToEmployee,
-  createProductDraftFromMedia,
-} from "../../services/productWorkflow";
+import { assignProductToEmployee } from "../../services/productWorkflow";
 import { employeeFullName } from "../../utils/employee";
 import {
   EMPLOYEES_CHANGED_EVENT,
@@ -95,29 +92,6 @@ function MediaInboxCardComponent({ row, actor, onNotice }) {
     } catch { return target.assignedEmployeeId; }
   }, [row.assignedEmployeeName, draftClaim, owner]);
 
-  const createDraft = useCallback(() => {
-    if (busy) return;
-    setBusy("create");
-    setTimeout(() => {
-      const result = createProductDraftFromMedia({
-        mediaIds: [media.id],
-        categoryId: media.categoryId ?? row.categoryId ?? null,
-        actor,
-      });
-      if (result.ok) {
-        onNotice?.({
-          tone: result.conflicts.length ? "warn" : "ok",
-          text: result.conflicts.length
-            ? `Draft ${result.product.id} created, but ${result.conflicts.map((conflict) => `${conflict.file} is already assigned to ${conflict.ownerProductId}`).join("; ")}`
-            : `Draft product ${result.product.id} created from ${media.currentFilename || media.fileName || media.id}.`,
-        });
-      } else {
-        onNotice?.({ tone: "warn", text: result.error });
-      }
-      setBusy(null);
-    }, 0);
-  }, [busy, media, row.categoryId, actor, onNotice]);
-
   const assignTo = useCallback((target) => {
     if (!target?.assignedEmployeeId || busy) return;
     setBusy("assign");
@@ -170,11 +144,11 @@ function MediaInboxCardComponent({ row, actor, onNotice }) {
         {targetProduct ? (
           <Link to={`/admin/products/${targetProduct.id}`} className="inline-flex items-center gap-1 border border-ink px-2.5 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-ink transition-colors hover:bg-ink hover:text-ivory"><Eye size={11} aria-hidden="true" /> Open Product</Link>
         ) : null}
-        {!draftClaim ? (
-          <button type="button" disabled={busy === "create"} onClick={createDraft} className={`inline-flex items-center gap-1 border border-mist px-2.5 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-taupe transition-colors hover:border-accent hover:text-accent ${busy ? "opacity-40" : ""}`}><PackagePlus size={11} aria-hidden="true" /> {busy === "create" ? "Creating…" : "Create Draft"}</button>
-        ) : (
+        {!targetProduct ? (
+          <Link to="/admin/products/new" className="inline-flex items-center gap-1 border border-accent px-2.5 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-accent transition-colors hover:bg-accent hover:text-ivory"><PackagePlus size={11} aria-hidden="true" /> Create Product First</Link>
+        ) : draftClaim ? (
           <Link to={`/admin/products/review?draft=${draftClaim.id}`} className="inline-flex items-center gap-1 border border-accent px-2.5 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-accent transition-colors hover:bg-accent hover:text-ivory"><Eye size={11} aria-hidden="true" /> Review</Link>
-        )}
+        ) : null}
         {targetProduct ? (
           <button type="button" onClick={() => setAssigning((value) => !value)} className="inline-flex items-center gap-1 border border-mist px-2.5 py-1.5 font-ui text-[10px] uppercase tracking-[.12em] text-taupe transition-colors hover:border-ink hover:text-ink"><UserPlus size={11} aria-hidden="true" /> Assign</button>
         ) : null}

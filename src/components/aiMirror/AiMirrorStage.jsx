@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Camera, CameraOff, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import PratikshyaImage from "../PratikshyaImage";
-import { imageRef } from "../../data/pratikshyaImageManifest";
+import { imageRef } from "../../data/mediaPlaceholder";
 import { cn } from "../../utils/cn";
 
 const statusCopy = {

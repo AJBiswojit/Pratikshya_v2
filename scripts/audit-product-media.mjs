@@ -1,8 +1,8 @@
 /**
- * PRATIKSHYA FASHON — Product media consistency audit (Phase 21.9 + 22).
+ * PRATIKSHYA FASHON — canonical Product Media consistency audit.
  *
  * Reports every product (all statuses) with its resolved media set, then
- * summarises the Phase 22 product-media report:
+ * summarises the Product Media report:
  *
  *   total products, published, draft, review, archived
  *   products without media
@@ -28,9 +28,9 @@ import {
   PRODUCT_MEDIA_STATUS,
 } from "../src/services/media/productMediaSet.js";
 import mediaRepository from "../src/services/media/mediaRepository.js";
-import { setupMigratedState } from "../tests/helpers/workflowTestState.js";
+import { setupCanonicalState } from "../tests/helpers/workflowTestState.js";
 
-setupMigratedState();
+setupCanonicalState();
 
 const line = (text = "") => console.log(text);
 const pad = (value, width) => String(value ?? "—").padEnd(width);
@@ -189,7 +189,6 @@ if (failures.length) {
   process.exitCode = 1;
 } else {
   line(
-    "PASS: no cross-product media, no invalid references, no orphan media. " +
-      "(Duplicate-media rows are legacy house-seed plates, reported above for review.)"
+    "PASS: no cross-product media, invalid references, or orphan ownership."
   );
 }

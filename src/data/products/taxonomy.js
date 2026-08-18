@@ -202,10 +202,6 @@ export const navigationScopes = {
   "/men/kurta-pajama": { filters: { department: "men", category: "ethnic-wear", subcategory: "kurta-pajama" } },
   "/men/nehru-jackets": { filters: { department: "men", category: "ethnic-wear", subcategory: "nehru-jackets" } },
   "/men/groom": { filters: { department: "men", category: "groom" } },
-  "/kids/girls-dresses": { filters: { department: "kids", category: "girls", subcategory: "dresses" } },
-  "/kids/girls-casual-sets": { filters: { department: "kids", category: "girls", subcategory: "casual-sets" } },
-  "/kids/boys-casual-sets": { filters: { department: "kids", category: "boys", subcategory: "casual-sets" } },
-  "/kids/boys-tshirt-shorts": { filters: { department: "kids", category: "boys", subcategory: "t-shirt-shorts" } },
 };
 
 export const hasNavigationScope = (pathname) =>

@@ -3,7 +3,7 @@
  * runner and the media-exposure audit can import `src/*` modules unmodified.
  *
  * Usage:
- *   node --import ./scripts/node-loader/register.mjs scripts/audit-media-exposure.mjs
+ *   node --import ./scripts/node-loader/register.mjs scripts/audit-media.mjs
  */
 
 import { register } from "node:module";

@@ -85,11 +85,11 @@ export default function HeroCarousel({ slides: slideData = [], heroMedia }) {
   const count = slides.length;
 
   /* ------------------------------------------------------------------ */
-  /* Development-only hero runtime diagnostic (debug phase).             */
+  /* Development-only hero runtime diagnostic.                           */
   /*                                                                     */
   /* Reflects the ACTUAL runtime resolution chain — what the resolver    */
   /* returns through the existing media architecture, not just the       */
-  /* ingested manifest. Gated to dev so it is tree-shaken from a         */
+  /* managed repository. Gated to dev so it is tree-shaken from a        */
   /* production build and never reaches a customer.                      */
   /* ------------------------------------------------------------------ */
   useEffect(() => {

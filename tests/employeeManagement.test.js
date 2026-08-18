@@ -2,7 +2,7 @@
 
 import test, { beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
-import { setupBaseState, setupMigratedState } from "./helpers/workflowTestState.js";
+import { setupCanonicalState } from "./helpers/workflowTestState.js";
 
 import { INITIAL_ADMINS } from "../src/data/admin/adminAccounts.js";
 import { INITIAL_EMPLOYEES } from "../src/data/employees/mockEmployees.js";
@@ -29,6 +29,7 @@ import {
   verifyCredentials,
 } from "../src/services/employees/employeeService.js";
 import { assignProductToEmployee } from "../src/services/productWorkflow.js";
+import { products as canonicalProducts } from "../src/data/catalog/products.js";
 
 const memory = new Map();
 const events = new EventTarget();
@@ -69,11 +70,11 @@ beforeEach(() => memory.clear());
 
 
 beforeEach(() => {
-  setupMigratedState();
+  setupCanonicalState();
 });
 
 afterEach(() => {
-  setupBaseState();
+  setupCanonicalState();
 });
 
 test("1. Super Admin can access employee management", () => {
@@ -186,12 +187,13 @@ test("11. Existing employee records and immutable IDs remain intact across statu
 });
 
 test("12. Product Review assignment still accepts active legitimate employees and rejects inactive ones", () => {
-  const assigned = assignProductToEmployee("KID-001", MANAGER.employeeId, SUPER_ADMIN);
+  const productId = canonicalProducts[0].id;
+  const assigned = assignProductToEmployee(productId, MANAGER.employeeId, SUPER_ADMIN);
   assert.equal(assigned.ok, true);
-  assignProductToEmployee("KID-001", null, SUPER_ADMIN);
+  assignProductToEmployee(productId, null, SUPER_ADMIN);
 
   deactivateEmployee(loadEmployees(), MANAGER.employeeId, SUPER_ADMIN);
-  const rejected = assignProductToEmployee("KID-001", MANAGER.employeeId, SUPER_ADMIN);
+  const rejected = assignProductToEmployee(productId, MANAGER.employeeId, SUPER_ADMIN);
   assert.equal(rejected.ok, false);
   assert.match(rejected.error, /Only active employees/);
 });

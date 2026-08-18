@@ -3,7 +3,7 @@ import { Check, CheckCircle2, ChevronDown, Package, Search, X } from "lucide-rea
 import catalogRepository from "../../services/catalogRepository";
 import { AtelierButton } from "../../design-system";
 import PratikshyaImage from "../PratikshyaImage";
-import { imageRef } from "../../data/pratikshyaImageManifest";
+import { imageRef } from "../../data/mediaPlaceholder";
 import { cn } from "../../utils/cn";
 
 export default function MediaProductSelector({

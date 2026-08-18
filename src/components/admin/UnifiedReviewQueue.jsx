@@ -2,8 +2,8 @@
  * PRATIKSHYA FASHON — Unified Review Queue (Phase 3D).
  *
  * The ONE queue over the ONE product lifecycle. Every product in the
- * canonical register appears here exactly once. All departments (Women,
- * Bridal, Men, Kids) are rows in the same queue with the same treatment.
+ * canonical register appears here exactly once. Every canonical department
+ * is represented in the same queue.
  *
  *   catalogue → workflow projection → review query → unified review queue
  *
@@ -13,13 +13,12 @@
  * assignment, review flags, media readiness, taxonomy / price / name /
  * grouping validity and missing information.
  *
- * Bulk selection + bulk approve:
- *   · Select All respects the current filtered result (never hidden rows)
+ * Workflow-aware bulk selection:
+ *   · Select All respects the complete current filtered result
  *   · Selection identity is the stable Product ID
- *   · Filter changes clear selection (matches Product Management safety)
- *   · APPROVE SELECTED runs the canonical bulkApprove command, which calls
- *     approveProduct per id — the exact same validation / workflow rules as
- *     individual REVIEW → APPROVE. Blocked products keep their real reasons.
+ *   · mixed selections expose separate Submit / Approve / Publish actions
+ *   · every action delegates each ID to the canonical individual command;
+ *     blockers keep their exact validator messages and never change stage
  *
  * PERFORMANCE OPTIMIZATION:
  *   · rows come from the cached unified projection — rebuilt once per
@@ -28,7 +27,8 @@
  *   · paginated rendering (first 25, load more)
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, Search } from "lucide-react";
 import StatusBadge from "../employee/StatusBadge";
 import { useProducts } from "../../hooks/useProducts";
@@ -43,12 +43,14 @@ import {
   flagsInUnifiedQueue,
   getUnifiedReviewQueue,
 } from "../../services/unifiedProductReview";
-import {
-  WORKFLOW_STAGE_LABELS,
-  isApprovableStage,
-} from "../../services/workflow/productWorkflowState";
+import { WORKFLOW_STAGE_LABELS } from "../../services/workflow/productWorkflowState";
+import { validateProductForPublish } from "../../services/workflow/productPublishValidator";
 import { reviewFlagLabel } from "../../services/productReviewFlags";
-import { bulkApproveProducts } from "../../services/productWorkflow";
+import {
+  bulkApproveProducts,
+  bulkPublishProducts,
+  bulkSubmitProducts,
+} from "../../services/productWorkflow";
 import { categoryLabels } from "../../data/products/taxonomy";
 
 const PAGE_SIZE = 25;
@@ -69,45 +71,223 @@ const stageTone = {
   ARCHIVED: "muted",
 };
 
+export const BULK_WORKFLOW_ACTIONS = Object.freeze({
+  submit: Object.freeze({
+    id: "submit",
+    label: "Submit",
+    pastLabel: "Submitted",
+    noun: "submission",
+    sourceStages: Object.freeze([WORKFLOW_STAGES.DRAFT]),
+  }),
+  approve: Object.freeze({
+    id: "approve",
+    label: "Approve",
+    pastLabel: "Approved",
+    noun: "approval",
+    sourceStages: Object.freeze([WORKFLOW_STAGES.SUBMITTED]),
+  }),
+  publish: Object.freeze({
+    id: "publish",
+    label: "Publish",
+    pastLabel: "Published",
+    noun: "publication",
+    sourceStages: Object.freeze([WORKFLOW_STAGES.APPROVED]),
+  }),
+});
+
+const ACTION_ORDER = ["submit", "approve", "publish"];
+const actionFor = (actionId) => BULK_WORKFLOW_ACTIONS[actionId] ?? null;
+const rowMatchesAction = (row, action) => Boolean(action?.sourceStages.includes(row?.stage));
+const uniqueMessages = (messages = []) => [
+  ...new Set(messages.map((message) => String(message || "").trim()).filter(Boolean)),
+];
+
+const wrongStageMessage = (row, action) => {
+  if (action.id === "submit") {
+    if (row.stage === WORKFLOW_STAGES.PUBLISHED) return "This product is already published.";
+    if (row.stage === WORKFLOW_STAGES.ARCHIVED) return "Archived products cannot be submitted.";
+    return `Products in the ${String(row.stageLabel ?? row.stage).toLowerCase()} stage cannot be submitted for review.`;
+  }
+  if (action.id === "approve") {
+    return `Only submitted products can be approved (current stage: ${row.stageLabel ?? row.stage}).`;
+  }
+  return `Admin review incomplete — approve ${row.productId} before publishing (DRAFT → SUBMITTED → APPROVED → PUBLISHED).`;
+};
+
 /**
- * Preview eligibility using the same facts the queue already carries.
- * The bulk command still re-runs approveProduct (full validation) per id —
- * this preview only powers the confirmation dialog so the admin sees
- * ready vs blocked before confirming.
+ * Action-specific preview. It invokes the canonical validator instead of
+ * duplicating MRP, selling-price, description, media, taxonomy, grouping,
+ * review-flag, category, or other business rules in the UI.
  */
-const previewBulkEligibility = (rows, selectedIds) => {
-  const selected = selectedIds
-    .map((id) => rows.find((row) => String(row.productId) === String(id)))
-    .filter(Boolean);
+export const previewBulkEligibility = (rows = [], actionId) => {
+  const action = actionFor(actionId);
+  if (!action) return { action: null, selected: [], ready: [], blocked: [] };
+  const selected = (Array.isArray(rows) ? rows : []).filter(Boolean);
   const ready = [];
   const blocked = [];
+
   selected.forEach((row) => {
-    /* Matches approveProduct: already APPROVED / PUBLISHED succeed as no-ops. */
-    if (
-      row.canApprove ||
-      row.stage === WORKFLOW_STAGES.APPROVED ||
-      row.stage === WORKFLOW_STAGES.PUBLISHED
-    ) {
+    if (!rowMatchesAction(row, action)) {
+      blocked.push({
+        productId: row.productId,
+        name: row.name,
+        reasons: [wrongStageMessage(row, action)],
+        issues: [],
+      });
+      return;
+    }
+    const validation = validateProductForPublish(row.product);
+    if (validation.ok) {
       ready.push(row);
       return;
     }
-    const reasons = [];
-    /* Stage blocks only when the product is not in an approvable stage —
-       same wording as approveProduct. Validation blockers keep their own
-       canonical messages (MRP, description, media, …). */
-    if (!isApprovableStage(row.stage)) {
-      reasons.push(`Only submitted products can be approved (current stage: ${row.stageLabel ?? row.stage}).`);
-    }
-    (row.blockingIssues ?? []).forEach((issue) => {
-      if (issue?.message) reasons.push(issue.message);
+    blocked.push({
+      productId: row.productId,
+      name: row.name,
+      reasons: uniqueMessages(validation.issues.map((issue) => issue.message)),
+      issues: validation.issues,
     });
-    if (!reasons.length) {
-      reasons.push(`Only submitted products can be approved (current stage: ${row.stageLabel ?? row.stage}).`);
-    }
-    blocked.push({ productId: row.productId, name: row.name, reasons: [...new Set(reasons)] });
   });
-  return { selected, ready, blocked };
+  return { action, selected, ready, blocked };
 };
+
+export const composeSelectedWorkflow = (rows = []) => {
+  const counts = new Map();
+  rows.forEach((row) => {
+    const key = row.stage || "UNKNOWN";
+    const current = counts.get(key) ?? {
+      stage: key,
+      label: row.stageLabel || WORKFLOW_STAGE_LABELS[key] || key,
+      count: 0,
+    };
+    counts.set(key, { ...current, count: current.count + 1 });
+  });
+  return [...counts.values()];
+};
+
+const executeBulkAction = (actionId, ids, actor) => {
+  if (actionId === "submit") return bulkSubmitProducts(ids, actor);
+  if (actionId === "approve") return bulkApproveProducts(ids, actor);
+  if (actionId === "publish") return bulkPublishProducts(ids, actor);
+  return { ok: false, error: "Unknown bulk workflow action.", applied: 0, skipped: ids.length };
+};
+
+const resultReasons = (entry) =>
+  uniqueMessages(entry?.errors?.length ? entry.errors : entry?.error ? [entry.error] : []);
+
+function BulkWorkflowConfirmDialog({ action, preview, busy, onCancel, onConfirm }) {
+  const confirmRef = useRef(null);
+
+  useEffect(() => {
+    if (!action || typeof document === "undefined") return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    confirmRef.current?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape" && !busy) onCancel();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [action, busy, onCancel]);
+
+  if (!action || typeof document === "undefined") return null;
+  const readyCount = preview.ready.length;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-ink/55 px-4 py-8 backdrop-blur-sm"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget && !busy) onCancel();
+      }}
+    >
+      <section
+        className="flex max-h-full w-full max-w-2xl flex-col overflow-hidden border border-champagne/45 bg-canvas shadow-2xl"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bulk-workflow-title"
+        aria-describedby="bulk-workflow-description"
+      >
+        <header className="border-b border-mist px-6 py-5">
+          <p className="font-ui text-[9px] uppercase tracking-[.22em] text-accent">Workflow confirmation</p>
+          <h3 id="bulk-workflow-title" className="mt-1 font-display text-xl text-ink">
+            {action.label} selected products
+          </h3>
+          <p id="bulk-workflow-description" className="mt-2 font-ui text-xs leading-relaxed text-taupe">
+            Every Product ID runs through the canonical individual {action.label} command. Blocked products
+            remain unchanged and keep the exact validation messages shown below.
+          </p>
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
+          <dl className="grid grid-cols-3 gap-3 text-center">
+            <div className="border border-mist bg-ivory/50 p-3">
+              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-taupe">Selected</dt>
+              <dd className="mt-1 font-display text-2xl text-ink">{preview.selected.length}</dd>
+            </div>
+            <div className="border border-ink/20 bg-ivory/50 p-3">
+              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-ink">
+                Ready to {action.label.toLowerCase()}
+              </dt>
+              <dd className="mt-1 font-display text-2xl text-ink">{readyCount}</dd>
+            </div>
+            <div className="border border-accent/40 bg-accent/[0.05] p-3">
+              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-accent">Blocked</dt>
+              <dd className="mt-1 font-display text-2xl text-accent">{preview.blocked.length}</dd>
+            </div>
+          </dl>
+
+          {preview.blocked.length ? (
+            <div className="mt-5 border border-accent/40 bg-accent/[0.05] px-4 py-3">
+              <p className="font-ui text-[10px] uppercase tracking-[.16em] text-accent">
+                Blocker details by Product ID
+              </p>
+              <ul className="mt-3 max-h-72 space-y-3 overflow-y-auto pr-1">
+                {preview.blocked.map((entry) => (
+                  <li key={entry.productId} className="border-t border-accent/20 pt-2 first:border-0 first:pt-0">
+                    <span className="font-ui text-[12px] font-medium text-ink">{entry.productId}</span>
+                    {entry.name ? <span className="ml-2 font-ui text-[11px] text-taupe">{entry.name}</span> : null}
+                    <ul className="mt-1 list-disc space-y-1 pl-5 font-ui text-[11px] leading-relaxed text-accent">
+                      {entry.reasons.map((reason) => <li key={reason}>{reason}</li>)}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="mt-5 border border-mist bg-ivory/50 px-4 py-3 font-ui text-xs text-ink">
+              Every selected product is ready for this transition.
+            </p>
+          )}
+        </div>
+
+        <footer className="flex items-center justify-end gap-2 border-t border-mist bg-ivory/40 px-6 py-4">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={onCancel}
+            className="border border-mist px-4 py-2 font-ui text-[10px] uppercase tracking-[.14em] text-taupe hover:border-ink hover:text-ink disabled:opacity-40"
+          >
+            Cancel
+          </button>
+          <button
+            ref={confirmRef}
+            type="button"
+            disabled={busy || readyCount === 0}
+            onClick={onConfirm}
+            className="border border-accent bg-accent px-4 py-2 font-ui text-[10px] uppercase tracking-[.14em] text-ivory disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {busy ? `${action.label} in progress…` : readyCount ? `${action.label} ${readyCount}` : "No products ready"}
+          </button>
+        </footer>
+      </section>
+    </div>,
+    document.body
+  );
+}
 
 export default function UnifiedReviewQueue({
   focusId = null,
@@ -128,7 +308,7 @@ export default function UnifiedReviewQueue({
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [selected, setSelected] = useState([]);
   const [bulkBusy, setBulkBusy] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmActionId, setConfirmActionId] = useState(null);
   const [bulkResult, setBulkResult] = useState(null);
 
   const filtered = useMemo(() => filterUnifiedReviewQueue(rows, filters), [rows, filters]);
@@ -139,25 +319,27 @@ export default function UnifiedReviewQueue({
     setFilters((current) => ({ ...current, quick }));
     setVisible(PAGE_SIZE);
     setSelected([]);
-    setConfirmOpen(false);
+    setConfirmActionId(null);
     setBulkResult(null);
   };
   const setFilter = (key, value) => {
     setFilters((current) => ({ ...current, [key]: value }));
     setVisible(PAGE_SIZE);
     setSelected([]);
-    setConfirmOpen(false);
+    setConfirmActionId(null);
     setBulkResult(null);
   };
 
-  /* Drop selections that no longer exist in the register (after archive/delete). */
+  /* Reconcile by stable Product ID after each transition. Under the ALL
+     workflow filter a transitioned product remains selected so its next-stage
+     action appears; stage/quick filters remove IDs that are no longer visible. */
   useEffect(() => {
-    const present = new Set(rows.map((row) => String(row.productId)));
+    const present = new Set(filtered.map((row) => String(row.productId)));
     setSelected((current) => {
       const next = current.filter((id) => present.has(String(id)));
       return next.length === current.length ? current : next;
     });
-  }, [rows]);
+  }, [filtered]);
 
   const shown = filtered.slice(0, visible);
 
@@ -166,7 +348,7 @@ export default function UnifiedReviewQueue({
     setSelected((current) =>
       current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id]
     );
-    setConfirmOpen(false);
+    setConfirmActionId(null);
     setBulkResult(null);
   }, []);
 
@@ -175,77 +357,97 @@ export default function UnifiedReviewQueue({
 
   const toggleSelectAll = useCallback(() => {
     setSelected(allVisibleSelected ? [] : filtered.map((row) => String(row.productId)));
-    setConfirmOpen(false);
+    setConfirmActionId(null);
     setBulkResult(null);
   }, [allVisibleSelected, filtered]);
 
   const clearSelection = useCallback(() => {
     setSelected([]);
-    setConfirmOpen(false);
+    setConfirmActionId(null);
     setBulkResult(null);
   }, []);
 
-  const eligibility = useMemo(
-    () => previewBulkEligibility(filtered, selected),
-    [filtered, selected]
+  const selectedRows = useMemo(() => {
+    const ids = new Set(selected.map(String));
+    return rows.filter((row) => ids.has(String(row.productId)));
+  }, [rows, selected]);
+  const workflowComposition = useMemo(
+    () => composeSelectedWorkflow(selectedRows),
+    [selectedRows]
+  );
+  const actionTargets = useMemo(
+    () => Object.fromEntries(
+      ACTION_ORDER.map((actionId) => {
+        const action = actionFor(actionId);
+        return [actionId, selectedRows.filter((row) => rowMatchesAction(row, action))];
+      })
+    ),
+    [selectedRows]
+  );
+  const activeAction = actionFor(confirmActionId);
+  const activePreview = useMemo(
+    () => previewBulkEligibility(confirmActionId ? actionTargets[confirmActionId] : [], confirmActionId),
+    [actionTargets, confirmActionId]
   );
 
-  const openConfirm = useCallback(() => {
-    if (!selected.length || bulkBusy) return;
+  const openConfirm = useCallback((actionId) => {
+    if (!actionTargets[actionId]?.length || bulkBusy) return;
     setBulkResult(null);
-    setConfirmOpen(true);
-  }, [selected, bulkBusy]);
+    setConfirmActionId(actionId);
+  }, [actionTargets, bulkBusy]);
 
-  const runBulkApprove = useCallback(() => {
-    if (!selected.length || bulkBusy) return;
+  const runBulkAction = useCallback(() => {
+    if (!activeAction || !activePreview.ready.length || bulkBusy) return;
+    const action = activeAction;
+    /* Every action-specific target is passed to the canonical bulk adapter,
+       including preview-blocked IDs. The individual command revalidates each
+       one at execution time and returns the authoritative result. */
+    const ids = activePreview.selected.map((row) => String(row.productId));
     setBulkBusy(true);
-    setConfirmOpen(false);
-    /* Snapshot the ids now — clear selection after the command finishes so
-       the result summary can still reference them. */
-    const ids = [...selected];
+    setConfirmActionId(null);
     setTimeout(() => {
-      const result = bulkApproveProducts(ids, actor);
-      const approved = (result.results ?? []).filter((entry) => entry.ok);
-      const blocked = (result.results ?? []).filter((entry) => !entry.ok);
-      const summary = {
-        ok: Boolean(result.ok),
-        applied: result.applied ?? approved.length,
-        skipped: result.skipped ?? blocked.length,
-        approved: approved.map((entry) => entry.id),
-        blocked: blocked.map((entry) => ({
-          productId: entry.id,
-          reasons: entry.errors?.length
-            ? entry.errors
-            : ["This product could not be approved."],
-        })),
-        error: result.error ?? null,
-      };
-      setBulkResult(summary);
-      setSelected([]);
-      setBulkBusy(false);
-
-      if (onNotice) {
-        if (!result.ok) {
-          onNotice({ tone: "warn", text: result.error || "Bulk approval could not run." });
-        } else if (summary.skipped === 0) {
+      try {
+        const result = executeBulkAction(action.id, ids, actor);
+        const entries = Array.isArray(result.results)
+          ? result.results
+          : ids.map((id) => ({ id, ok: false, errors: [result.error || "Workflow action failed."] }));
+        const succeeded = entries.filter((entry) => entry.ok);
+        const blocked = entries
+          .filter((entry) => !entry.ok)
+          .map((entry) => ({ productId: entry.id, reasons: resultReasons(entry) }));
+        const summary = {
+          action,
+          ok: Boolean(result.ok),
+          applied: result.applied ?? succeeded.length,
+          skipped: result.skipped ?? blocked.length,
+          blocked,
+          error: result.ok ? null : result.error || `Bulk ${action.noun} could not run.`,
+        };
+        setBulkResult(summary);
+        if (onNotice) {
           onNotice({
-            tone: "ok",
-            text: `Approval completed. Approved: ${summary.applied} product${summary.applied === 1 ? "" : "s"}.`,
-          });
-        } else if (summary.applied === 0) {
-          onNotice({
-            tone: "warn",
-            text: `Approval completed. Approved: 0 products. Blocked: ${summary.skipped} product${summary.skipped === 1 ? "" : "s"}. Review the blockers below.`,
-          });
-        } else {
-          onNotice({
-            tone: "ok",
-            text: `Approval completed. Approved: ${summary.applied} product${summary.applied === 1 ? "" : "s"}. Blocked: ${summary.skipped} product${summary.skipped === 1 ? "" : "s"}.`,
+            tone: !result.ok || blocked.length ? "warn" : "ok",
+            text: result.ok
+              ? `${action.label} completed. ${action.pastLabel}: ${summary.applied}. Blocked: ${summary.skipped}.`
+              : summary.error,
           });
         }
+      } catch (error) {
+        const message = error?.message || `Bulk ${action.noun} could not run.`;
+        setBulkResult({
+          action,
+          ok: false,
+          applied: 0,
+          skipped: ids.length,
+          blocked: ids.map((productId) => ({ productId, reasons: [message] })),
+          error: message,
+        });
+        onNotice?.({ tone: "warn", text: message });
+      } finally {
+        setBulkBusy(false);
       }
     }, 0);
-  }, [selected, bulkBusy, actor, onNotice]);
+  }, [activeAction, activePreview, actor, bulkBusy, onNotice]);
 
   return (
     <div>
@@ -384,114 +586,55 @@ export default function UnifiedReviewQueue({
         </label>
       </div>
 
-      {/* Bulk selection toolbar — mirrors Product Management visual language */}
+      {/* Workflow-aware bulk toolbar — stable IDs, action-specific groups. */}
       {selected.length ? (
-        <div className="mb-5 flex flex-wrap items-center gap-2 border border-mist/80 bg-canvas p-3">
-          <p className="mr-2 font-ui text-[11px] uppercase tracking-[.16em] text-ink font-medium">
-            {selected.length} selected{bulkBusy ? " · processing…" : ""}
-          </p>
-          <button
-            type="button"
-            disabled={bulkBusy}
-            onClick={openConfirm}
-            className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink disabled:opacity-40"
-          >
-            <Check size={11} className="mr-1 inline" aria-hidden="true" /> Approve selected
-          </button>
-          <button
-            type="button"
-            onClick={clearSelection}
-            disabled={bulkBusy}
-            className="ml-auto font-ui text-[10px] uppercase tracking-[.14em] text-taupe underline-offset-4 hover:text-accent hover:underline disabled:opacity-40"
-          >
-            Clear
-          </button>
-        </div>
-      ) : null}
-
-      {/* Confirmation dialog — ready vs blocked, never force-approve */}
-      {confirmOpen && selected.length ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="bulk-approve-title"
-          className="mb-5 border border-mist/80 bg-canvas p-4"
-        >
-          <h3 id="bulk-approve-title" className="font-ui text-[11px] uppercase tracking-[.18em] text-ink">
-            Approve selected products
-          </h3>
-          <dl className="mt-3 grid gap-1 font-ui text-sm text-ink sm:grid-cols-3">
-            <div>
-              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-taupe">Selected</dt>
-              <dd className="font-medium">{eligibility.selected.length}</dd>
-            </div>
-            <div>
-              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-taupe">Ready for approval</dt>
-              <dd className="font-medium">{eligibility.ready.length}</dd>
-            </div>
-            <div>
-              <dt className="font-ui text-[9px] uppercase tracking-[.16em] text-taupe">Blocked</dt>
-              <dd className="font-medium">{eligibility.blocked.length}</dd>
-            </div>
-          </dl>
-
-          {eligibility.blocked.length ? (
-            <div className="mt-3 border border-accent/40 bg-accent/[0.05] px-3 py-3">
-              <p className="font-ui text-[11px] text-ink">
-                The {eligibility.blocked.length} blocked product{eligibility.blocked.length === 1 ? "" : "s"} will not be approved.
-                Review the validation warnings before continuing.
-              </p>
-              <ul className="mt-2 space-y-2">
-                {eligibility.blocked.map((entry) => (
-                  <li key={entry.productId} className="font-ui text-[12px] text-cocoa">
-                    <span className="font-medium text-ink">{entry.productId}</span>
-                    <ul className="mt-0.5 list-disc pl-4 text-accent">
-                      {entry.reasons.map((reason) => (
-                        <li key={`${entry.productId}-${reason}`}>{reason}</li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-
-          <p className="mt-3 font-ui text-[10px] text-taupe">
-            Each product runs through the same Approve command used by individual review —
-            including validation, workflow stage and authorization. Approval never publishes.
-          </p>
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mb-5 border border-mist/80 bg-canvas p-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="mr-1 font-ui text-[11px] font-medium uppercase tracking-[.16em] text-ink">
+              {selected.length} selected{bulkBusy ? " · processing…" : ""}
+            </p>
+            <span className="font-ui text-[9px] uppercase tracking-[.14em] text-taupe">Workflow</span>
+            {workflowComposition.map((entry) => (
+              <span
+                key={entry.stage}
+                className="border border-mist bg-ivory/70 px-2 py-1 font-ui text-[9px] uppercase tracking-[.12em] text-ink"
+              >
+                {entry.count} {entry.label}
+              </span>
+            ))}
             <button
               type="button"
-              onClick={() => setConfirmOpen(false)}
-              className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe transition-colors hover:border-ink hover:text-ink"
+              onClick={clearSelection}
+              disabled={bulkBusy}
+              className="ml-auto font-ui text-[10px] uppercase tracking-[.14em] text-taupe underline-offset-4 hover:text-accent hover:underline disabled:opacity-40"
             >
-              Cancel
+              Clear
             </button>
-            {eligibility.ready.length ? (
-              <button
-                type="button"
-                disabled={bulkBusy}
-                onClick={runBulkApprove}
-                className="border border-accent px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-accent transition-colors hover:bg-accent hover:text-ivory disabled:opacity-40"
-              >
-                Approve {eligibility.ready.length} eligible product{eligibility.ready.length === 1 ? "" : "s"}
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className="border border-mist px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-taupe opacity-40"
-              >
-                No eligible products
-              </button>
-            )}
+          </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {ACTION_ORDER.map((actionId) => {
+              const action = actionFor(actionId);
+              const count = actionTargets[actionId].length;
+              if (!count) return null;
+              return (
+                <button
+                  key={actionId}
+                  type="button"
+                  disabled={bulkBusy}
+                  onClick={() => openConfirm(actionId)}
+                  aria-label={`${action.label} selected products (${count})`}
+                  className="border border-ink px-3 py-1.5 font-ui text-[10px] uppercase tracking-[.14em] text-ink transition-colors hover:bg-ink hover:text-ivory disabled:opacity-40"
+                >
+                  <Check size={11} className="mr-1 inline" aria-hidden="true" /> {action.label} {count}
+                </button>
+              );
+            })}
           </div>
         </div>
       ) : null}
 
-      {/* Post-run result — accurate approved / blocked breakdown */}
+      {/* Post-run result — exact action, success and blocker breakdown. */}
       {bulkResult ? (
         <div
           role="status"
@@ -505,7 +648,7 @@ export default function UnifiedReviewQueue({
           <p className="font-medium">
             {bulkResult.error
               ? bulkResult.error
-              : `Approval completed. Approved: ${bulkResult.applied} product${bulkResult.applied === 1 ? "" : "s"}${
+              : `${bulkResult.action.label} completed. ${bulkResult.action.pastLabel}: ${bulkResult.applied} product${bulkResult.applied === 1 ? "" : "s"}${
                   bulkResult.skipped
                     ? `. Blocked: ${bulkResult.skipped} product${bulkResult.skipped === 1 ? "" : "s"}.`
                     : "."
@@ -514,12 +657,12 @@ export default function UnifiedReviewQueue({
           {bulkResult.blocked?.length ? (
             <div className="mt-2">
               <p className="font-ui text-[10px] uppercase tracking-[.16em] text-taupe">Blocked products</p>
-              <ul className="mt-1 space-y-1.5">
+              <ul className="mt-1 max-h-52 space-y-1.5 overflow-y-auto">
                 {bulkResult.blocked.map((entry) => (
                   <li key={entry.productId} className="text-[12px]">
                     <span className="font-medium">{entry.productId}</span>
                     <ul className="list-disc pl-4 text-accent">
-                      {entry.reasons.map((reason) => (
+                      {(entry.reasons.length ? entry.reasons : ["Workflow action failed."]).map((reason) => (
                         <li key={`${entry.productId}-${reason}`}>{reason}</li>
                       ))}
                     </ul>
@@ -537,6 +680,15 @@ export default function UnifiedReviewQueue({
           </button>
         </div>
       ) : null}
+
+      <BulkWorkflowConfirmDialog
+        action={activeAction}
+        preview={activePreview}
+        busy={bulkBusy}
+        onCancel={() => { if (!bulkBusy) setConfirmActionId(null); }}
+        onConfirm={runBulkAction}
+      />
+
 
       {/* The queue ------------------------------------------------------ */}
       {!filtered.length ? (
@@ -657,7 +809,7 @@ export default function UnifiedReviewQueue({
 
       <p className="mt-4 font-ui text-[10px] leading-relaxed text-taupe">
         One queue over one lifecycle — {rows.length} products. All departments use the same review system.
-        Bulk approve runs the same canonical Approve command as individual review.
+        Bulk Submit, Approve and Publish run the same canonical commands as individual review.
       </p>
     </div>
   );

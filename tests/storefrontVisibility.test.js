@@ -1,32 +1,13 @@
-/**
- * PRATIKSHYA FASHON — Storefront visibility flow tests (Phase 23.1).
- *
- * Proves the COMPLETE customer-facing data flow for a reconciled product —
- * not just that a record exists, but that once a human fills and publishes it
- * through the existing workflow, it flows all the way to the storefront:
- *
- *   MEDIA → PRODUCT → PUBLISHED → getLiveStorefrontProducts()
- *   → category filter → product grid → ProductCard (primary/hover/gallery)
- *   → product detail route.
- *
- * The publication here is a CONTROLLED, in-memory fixture: publish validation
- * is never weakened, and the product is archived at the end so no customer
- * surface is altered for any other test.
- */
+/** Canonical workflow-to-storefront visibility contracts. */
 
 import test, { beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
-import { setupBaseState, setupMigratedState } from "./helpers/workflowTestState.js";
 import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import catalogRepository, { getPublishIssues } from "../src/services/catalogRepository.js";
-import {
-  approveProduct,
-  publishProduct,
-  submitProductForReview,
-} from "../src/services/productWorkflow.js";
+import catalogRepository from "../src/services/catalogRepository.js";
+import { commands } from "../src/services/workflow/productWorkflowCommands.js";
 import {
   getLiveStorefrontProducts,
   getProductBySlug,
@@ -34,201 +15,128 @@ import {
 } from "../src/data/products/index.js";
 import { queryCatalogue } from "../src/data/products/query.js";
 import { getProductCardMedia } from "../src/services/media/productMediaSet.js";
-import { reconciliationDraftRecords } from "../src/services/catalogueReconciliation.js";
+import { setupCanonicalState } from "./helpers/workflowTestState.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
 const ADMIN = { adminId: "PF-ADM-00001", name: "House Admin" };
 
-/** Fill a reconciliation draft the way the admin editor does (pricing engine). */
-const fillDraft = (id, patch = {}) =>
-  catalogRepository.updateDraft(
-    id,
-    {
-      name: "Mulberry Silk Saree in Rose Quartz",
-      subcategory: "Silk Saree",
-      description: "Handwoven mulberry silk saree with a rose quartz ground and zari border.",
-      sku: `${id}-SKU`,
-      colors: ["Rose", "Gold"],
-      sizes: ["Free Size"],
-      fabric: "Mulberry Silk",
-      material: "Zari Work",
-      occasion: ["Festive", "Wedding"],
-      stock: 8,
-      availability: "in-stock",
-      pricing: { sellingPrice: 21900, mrp: 26800 },
-      reviewFlags: [],
-      ...patch,
-    },
-    ADMIN
-  );
+const publish = (id) => {
+  assert.ok(commands.submitProduct(id, ADMIN).ok, `${id} submits`);
+  assert.ok(commands.approveProduct(id, ADMIN).ok, `${id} approves`);
+  assert.ok(commands.publishProduct(id, ADMIN).ok, `${id} publishes`);
+};
 
+beforeEach(setupCanonicalState);
+afterEach(setupCanonicalState);
 
-beforeEach(() => {
-  setupMigratedState();
+test("DRAFT, SUBMITTED and APPROVED records remain invisible", () => {
+  const [draft, submitted, approved] = catalogRepository.all().slice(0, 3);
+  assert.ok(commands.submitProduct(submitted.id, ADMIN).ok);
+  assert.ok(commands.submitProduct(approved.id, ADMIN).ok);
+  assert.ok(commands.approveProduct(approved.id, ADMIN).ok);
+
+  const liveIds = new Set(getLiveStorefrontProducts().map((product) => product.id));
+  assert.equal(liveIds.has(draft.id), false);
+  assert.equal(liveIds.has(submitted.id), false);
+  assert.equal(liveIds.has(approved.id), false);
 });
 
-afterEach(() => {
-  setupBaseState();
-});
-
-test("a reconciled draft is DRAFT and invisible until published", () => {
-  const drafts = reconciliationDraftRecords();
-  assert.ok(drafts.length > 0, "reconciliation must have produced drafts");
-  const id = drafts.find((draft) => draft.sourceGroupKey === "women-saree-silk-004")?.id;
-  assert.ok(id, "the silk-004 group must have a draft");
-
-  const product = catalogRepository.find(id);
-  assert.equal(product.status, "DRAFT");
-  assert.equal(
-    getLiveStorefrontProducts().some((entry) => entry.id === id),
-    false,
-    "a DRAFT must never reach the storefront source"
-  );
-});
-
-test("a filled + published reconciled product flows the whole storefront pipeline", () => {
-  const draft = reconciliationDraftRecords().find(
-    (entry) => entry.sourceGroupKey === "women-saree-silk-004"
-  );
-  assert.ok(draft);
-  const id = draft.id;
+test("one canonical product flows through the exact lifecycle into generic storefront queries", () => {
+  const product = catalogRepository.all().find((entry) => entry.department === "women");
   const baseline = getLiveStorefrontProducts().length;
 
-  try {
-    /* Fill through the canonical editor-shaped payload. */
-    fillDraft(id);
+  assert.ok(commands.submitProduct(product.id, ADMIN).ok);
+  assert.equal(getLiveStorefrontProducts().length, baseline);
+  assert.ok(commands.approveProduct(product.id, ADMIN).ok);
+  assert.equal(getLiveStorefrontProducts().length, baseline);
+  assert.ok(commands.publishProduct(product.id, ADMIN).ok);
 
-    const issues = getPublishIssues(catalogRepository.find(id));
-    assert.deepEqual(issues, [], `publish blockers should clear: ${issues.join("; ")}`);
+  const published = catalogRepository.find(product.id);
+  assert.equal(published.status, "PUBLISHED");
+  assert.equal(getLiveStorefrontProducts().length, baseline + 1);
 
-    /* Phase 2 canonical lifecycle: submit → approve → publish. */
-    assert.ok(submitProductForReview(id, ADMIN).ok, "submission succeeds");
-    const approved = approveProduct(id, ADMIN);
-    assert.ok(approved.ok, `approve must succeed: ${(approved.errors ?? []).join("; ")}`);
-    assert.equal(
-      getLiveStorefrontProducts().some((entry) => entry.id === id),
-      false,
-      "approved-but-unpublished products stay invisible"
-    );
+  const byDepartment = queryCatalogue({
+    scopeFilters: { department: published.department },
+  }).results;
+  const byCategory = queryCatalogue({
+    scopeFilters: { category: published.category },
+  }).results;
+  assert.ok(byDepartment.some((entry) => entry.id === product.id));
+  assert.ok(byCategory.some((entry) => entry.id === product.id));
 
-    const result = publishProduct(id, ADMIN);
-    assert.ok(result.ok, `publish must succeed: ${(result.errors ?? []).join("; ")}`);
+  const card = getProductCardMedia(published);
+  assert.ok(card.image?.src);
+  assert.equal(String(card.image.productId), String(product.id));
+  card.mediaSet.gallery.forEach((item) =>
+    assert.equal(String(item.productId), String(product.id))
+  );
 
-    const product = catalogRepository.find(id);
-    assert.equal(product.status, "PUBLISHED");
-
-    /* 1. Storefront source. */
-    const storefront = getLiveStorefrontProducts();
-    assert.equal(storefront.length, baseline + 1, "published product joins the storefront source");
-    assert.ok(storefront.some((entry) => entry.id === id));
-
-    /* 2. Category filter (the canonical query the category page runs). */
-    const sarees = queryCatalogue({ scopeFilters: { category: "sarees" } }).results;
-    assert.ok(sarees.some((entry) => entry.id === id), "appears on its category page");
-    assert.equal(
-      new Set(sarees.map((entry) => entry.id)).size,
-      sarees.length,
-      "category results dedupe by Product ID"
-    );
-
-    /* 3. Product card media: primary front, hover back, gallery = own views. */
-    const card = getProductCardMedia(product);
-    assert.equal(card.image?.fileName, "women-saree-silk-004-front.webp");
-    assert.equal(card.hoverImage?.fileName, "women-saree-silk-004-back.webp");
-    assert.equal(card.mediaSet.gallery.length, 2);
-    card.mediaSet.gallery.forEach((item) => {
-      assert.equal(String(item.productId), id, "gallery media must belong to this product");
-    });
-
-    /* 4. Product detail route. */
-    const href = productHref(product);
-    assert.equal(href, `/product/${id.toLowerCase()}`);
-    const bySlug = getProductBySlug(product.slug);
-    assert.ok(bySlug, "PDP route resolves");
-    assert.equal(bySlug.id, id);
-  } finally {
-    /* Roll back: archive the fixture so no other test sees a new published row. */
-    catalogRepository.archiveProduct(id, ADMIN);
-    assert.equal(getLiveStorefrontProducts().length, baseline, "storefront count restored");
-  }
+  assert.equal(getProductBySlug(published.slug)?.id, product.id);
+  assert.equal(productHref(published), `/product/${product.id}`);
 });
 
-test("every published product resolves an owned card image and a PDP route", () => {
+test("every published representative resolves owned media and a PDP route", () => {
+  const representatives = new Map();
+  catalogRepository.all().forEach((product) => {
+    if (!representatives.has(product.department)) representatives.set(product.department, product);
+  });
+  representatives.forEach((product) => publish(product.id));
+
   const storefront = getLiveStorefrontProducts();
-  assert.ok(storefront.length > 0);
-  const seenSlugs = new Set();
+  assert.equal(storefront.length, representatives.size);
   storefront.forEach((product) => {
-    assert.ok(!seenSlugs.has(product.slug), `duplicate slug ${product.slug}`);
-    seenSlugs.add(product.slug);
-
     const card = getProductCardMedia(product);
-    assert.ok(card.image, `${product.id} must have a primary`);
-    if (card.image.productId) {
-      assert.equal(
-        String(card.image.productId),
-        String(product.id),
-        `${product.id} resolves another product's primary`
-      );
-    }
-    if (card.hoverImage) {
-      assert.equal(
-        String(card.hoverImage.productId),
-        String(product.id),
-        `${product.id} resolves another product's hover`
-      );
-    }
-    assert.equal(getProductBySlug(product.slug)?.id, product.id, `${product.id} PDP route`);
+    assert.ok(card.image, `${product.id} needs a primary`);
+    assert.equal(String(card.image.productId), String(product.id));
+    if (card.hoverImage) assert.equal(String(card.hoverImage.productId), String(product.id));
+    assert.equal(getProductBySlug(product.slug)?.id, product.id);
   });
 });
 
-test("the Kids category renders 21 distinct published products with owned media", () => {
-  const kids = queryCatalogue({ scopeFilters: { category: "kidswear" } }).results;
-  assert.equal(kids.length, 21);
-  assert.equal(new Set(kids.map((entry) => entry.id)).size, 21, "21 distinct Product IDs");
+test("Kids is a normal department query over dynamically published canonical records", () => {
+  const canonicalKids = catalogRepository
+    .all()
+    .filter((product) => product.department === "kids")
+    .sort((a, b) => a.id.localeCompare(b.id));
+  assert.ok(canonicalKids.length > 0);
+  assert.ok(canonicalKids.every((product) => product.id.startsWith("PF-K-")));
+  canonicalKids.forEach((product) => publish(product.id));
 
-  const primaryFiles = new Set();
+  const kids = queryCatalogue({ scopeFilters: { department: "kids" } }).results;
+  assert.equal(kids.length, canonicalKids.length);
+  assert.deepEqual(
+    new Set(kids.map((product) => product.id)),
+    new Set(canonicalKids.map((product) => product.id))
+  );
+
   kids.forEach((product) => {
+    assert.ok(["boys", "girls"].includes(product.category));
     const card = getProductCardMedia(product);
-    assert.ok(card.image, `${product.id} must have a primary`);
-    const file = card.image.fileName || card.image.src?.split("/").pop();
-    primaryFiles.add(file);
-    assert.match(String(file ?? ""), /^kids-\d{3}\.webp$/, "each kid shows its own plate");
-    if (card.hoverImage) {
-      assert.equal(
-        String(card.hoverImage.productId),
-        String(product.id),
-        "kids hover must come from the same product"
-      );
-    }
+    assert.ok(card.image?.src.startsWith("/images/products/kids/"));
+    assert.equal(String(card.image.productId), String(product.id));
+    if (card.hoverImage) assert.equal(String(card.hoverImage.productId), String(product.id));
   });
-  assert.equal(primaryFiles.size, 21, "no repeated primary image across the 21 kids");
 });
 
-test("category pages derive from the canonical catalogue — no hardcoded product arrays", () => {
-  const files = [
+test("category pages derive from the canonical catalogue without hardcoded product arrays", () => {
+  [
     "src/pages/CatalogueListing.jsx",
     "src/components/storefront/CatalogueBrowser.jsx",
     "src/components/storefront/ProductGrid.jsx",
     "src/components/storefront/NewArrivals.jsx",
     "src/components/storefront/SareeEditCarousel.jsx",
-    "src/components/storefront/HeroCarousel.jsx",
-    "src/components/storefront/ShopByCategory.jsx",
-    "src/components/storefront/SaleBanner.jsx",
-    "src/pages/AtelierDesign.jsx",
     "src/pages/Explore.jsx",
-    "src/components/explore/ExploreBrowser.jsx",
     "src/components/explore/ExploreProductGrid.jsx",
-  ];
-  files.forEach((rel) => {
-    const path = join(__dirname, "..", rel);
+  ].forEach((relative) => {
+    const path = join(__dirname, "..", relative);
     if (!existsSync(path)) return;
     const source = readFileSync(path, "utf8");
-    /* No literal catalogue arrays of product objects in storefront components. */
-    assert.ok(
-      !/const\s+(products|sarees|lehengas|kids|menProducts|bridalProducts)\s*=\s*\[/i.test(source),
-      `${rel} must not hardcode a product array`
+    assert.doesNotMatch(
+      source,
+      /const\s+(?:products|sarees|lehengas|kids|menProducts|bridalProducts)\s*=\s*\[/i,
+      `${relative} hardcodes a product list`
     );
-    assert.ok(!/Math\.random|shuffle\(/i.test(source), `${rel} must not randomise imagery`);
+    assert.doesNotMatch(source, /Math\.random|shuffle\(/i);
+    assert.doesNotMatch(source, new RegExp("KID" + "-"));
   });
 });

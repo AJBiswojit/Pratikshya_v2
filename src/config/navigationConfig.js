@@ -10,10 +10,10 @@
  * router at the same time.
  *
  * Imagery is referenced by manifest id only (see
- * `src/data/pratikshyaImageManifest.js`) — never by URL.
+ * `src/data/mediaPlaceholder.js`) — never by URL.
  */
 
-import { catalogueRoutes } from "../data/catalog/taxonomy";
+import { catalogueRoutes, departments } from "../data/catalog/taxonomy";
 
 export const brand = {
   name: "PRATIKSHYA FASHON",
@@ -31,150 +31,30 @@ export const brand = {
  * its mega menu and a single editorial feature panel.
  */
 export const primaryNavigation = [
-  {
-    id: "women",
-    label: "Women",
-    to: "/women",
-    eyebrow: "Women's Collection",
-    description:
-      "Sarees, lehengas and everyday essentials selected for drape, detail and the occasion they will become part of.",
-    columns: [
-      {
-        title: "Sarees",
-        links: [
-          { label: "Banarasi Sarees", to: "/women/sarees/banarasi" },
-          { label: "Cotton Sarees", to: "/women/sarees/cotton" },
-          { label: "Silk Sarees", to: "/women/sarees/silk" },
-          { label: "All Sarees", to: "/women/sarees" },
-        ],
-      },
-      {
-        title: "Lehengas",
-        links: [
-          { label: "Bridal Lehengas", to: "/women/lehengas/bridal" },
-          { label: "Party Lehengas", to: "/women/lehengas/party" },
-          { label: "Designer Lehengas", to: "/women/lehengas/designer" },
-        ],
-      },
-      {
-        title: "Essentials",
-        links: [
-          { label: "Kurtis + Suits", to: "/women/essentials/kurtis-suits" },
-          { label: "Innerwear", to: "/women/essentials/innerwear" },
-          { label: "Dupattas + Stoles", to: "/women/essentials/dupattas-stoles" },
-        ],
-      },
-    ],
+  ...departments.map((department) => ({
+    id: department.id,
+    label: department.name,
+    to: department.path,
+    eyebrow: department.eyebrow,
+    description: department.description,
+    columns: department.categories.map((category) => ({
+      title: category.name,
+      links: [
+        ...category.subcategories.map((subcategory) => ({
+          label: subcategory.name,
+          to: subcategory.path,
+        })),
+        { label: `All ${category.name}`, to: category.path },
+      ],
+    })),
     feature: {
       image: null,
-      eyebrow: "Heritage Weaves",
-      title: "The Saree Edit",
-      caption: "Cotton · silk · Banarasi · festive.",
-      to: "/women/sarees/silk",
+      eyebrow: department.eyebrow,
+      title: `The ${department.name} Edit`,
+      caption: department.description,
+      to: department.path,
     },
-  },
-  {
-    id: "bridal",
-    label: "Bridal",
-    to: "/bridal",
-    eyebrow: "Bridal + Wedding",
-    description:
-      "Bridal sarees, wedding lehengas and ceremonial pieces composed for every part of the celebration.",
-    columns: [
-      {
-        title: "The Bride",
-        links: [
-          { label: "Bridal Sarees", to: "/bridal/the-bride/sarees" },
-          { label: "Bridal Lehengas", to: "/bridal/the-bride/lehengas" },
-          { label: "Reception Wear", to: "/bridal/the-bride/reception-wear" },
-        ],
-      },
-      {
-        title: "Celebrations",
-        links: [
-          { label: "Mehendi + Haldi", to: "/bridal/celebrations/mehendi-haldi" },
-          { label: "Sangeet Edit", to: "/bridal/celebrations/sangeet" },
-          { label: "Trousseau Edit", to: "/bridal/celebrations/trousseau" },
-        ],
-      },
-      {
-        title: "Finishing Touches",
-        links: [
-          { label: "Bridal Jewellery", to: "/bridal/finishing-touches/jewellery" },
-          { label: "Bridal Bangles", to: "/bridal/finishing-touches/bangles" },
-          { label: "Groom Collection", to: "/men/groom/groom-collection" },
-        ],
-      },
-    ],
-    feature: {
-      image: null,
-      eyebrow: "Wedding Atelier",
-      title: "The Celebration Edit",
-      caption: "For the promises that become heirlooms.",
-      to: "/bridal/the-bride/lehengas",
-    },
-  },
-  {
-    id: "men",
-    label: "Men",
-    to: "/men",
-    eyebrow: "Men + Groom",
-    description:
-      "Kurta pajama, Nehru jackets and groom edits, tailored for the celebration.",
-    columns: [
-      {
-        title: "Ethnic Wear",
-        links: [
-          { label: "Kurta Pajama", to: "/men/ethnic-wear/kurta-pajama" },
-          { label: "Nehru Jackets", to: "/men/ethnic-wear/nehru-jackets" },
-        ],
-      },
-      {
-        title: "Groom",
-        links: [
-          { label: "Groom Collection", to: "/men/groom/groom-collection" },
-        ],
-      },
-    ],
-    feature: {
-      image: null,
-      eyebrow: "Ceremonial Wardrobe",
-      title: "The Groom Edit",
-      caption: "A considered ceremonial wardrobe.",
-      to: "/men/groom/groom-collection",
-    },
-  },
-  {
-    id: "kids",
-    label: "Kids",
-    to: "/kids",
-    eyebrow: "Little Heirlooms",
-    description:
-      "Girls' dresses, boys' tee-and-shorts sets and everyday coordinates for the youngest guests.",
-    columns: [
-      {
-        title: "Girls",
-        links: [
-          { label: "Dresses", to: "/kids/girls/dresses" },
-          { label: "Casual Sets", to: "/kids/girls/casual-sets" },
-        ],
-      },
-      {
-        title: "Boys",
-        links: [
-          { label: "T-Shirt & Shorts", to: "/kids/boys/t-shirt-shorts" },
-          { label: "Casual Sets", to: "/kids/boys/casual-sets" },
-        ],
-      },
-    ],
-    feature: {
-      image: null,
-      eyebrow: "Little Heirlooms",
-      title: "The Kids Edit",
-      caption: "Everyday coordinates for the youngest guests.",
-      to: "/kids",
-    },
-  },
+  })),
   {
     id: "collections",
     label: "Collections",
@@ -235,7 +115,6 @@ export const searchSuggestions = [
   "Pato Saree",
   "Bridal Bangles",
   "Men's Kurta",
-  "Kids Festive",
 ];
 
 /* ------------------------------------------------------------------ */
@@ -259,7 +138,7 @@ export const footerNavigation = [
       { label: "Bridal", to: "/bridal" },
       { label: "Wedding Wear", to: "/bridal/the-bride/lehengas" },
       { label: "Men + Groom", to: "/men/groom" },
-      { label: "Kids Festive", to: "/kids" },
+      { label: "New Arrivals", to: "/collections/new-arrivals" },
     ],
   },
   {

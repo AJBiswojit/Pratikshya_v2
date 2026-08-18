@@ -18,9 +18,8 @@
  * Rules this module obeys:
  *   · it is a PROJECTION — it never persists anything. There is no second
  *     product register, no second review register, no storage key.
- *   · Kids products are rows in the SAME queue — Kids is a category filter,
- *     not a separate workflow. The Kids validator runs inside the universal
- *     validator, exactly as it does for every canonical command.
+ *   · products from every department are rows in the same queue and use the
+ *     same validator and canonical commands.
  *   · every readiness/flag/status value comes from the canonical validator
  *     output or the canonical workflow projection — no duplicated rules.
  *
@@ -175,8 +174,7 @@ const queueFingerprint = () => {
 
 /**
  * Every product in the canonical register, projected for review — the ONE
- * unified review queue. Kids products are rows here too; there is no
- * separate Kids queue. Uncached variant for tests and audits.
+ * unified review queue. Uncached variant for tests and audits.
  */
 export const getUnifiedReviewQueueUncached = () => {
   const products = catalogRepository.all();
@@ -209,7 +207,6 @@ export const getUnifiedReviewRow = (productId) =>
  * Quick lenses — the top-level tabs of the workspace. Each maps onto a
  * canonical fact; none invents new state:
  *   ALL               everything in the register
- *   KIDS              the Kids category concern
  *   DRAFT             editable operational stage (status DRAFT)
  *   SUBMITTED         status PENDING_REVIEW (in the Admin's court)
  *   PENDING_APPROVAL  submitted and still waiting for an Admin decision
@@ -251,7 +248,7 @@ export const matchesQuickFilter = (row, quick) => {
 export const UNIFIED_FILTER_DEFAULTS = {
   quick: "ALL",
   stage: "ALL", // any WORKFLOW_STAGES value
-  department: "ALL", // ALL | women | bridal | men | kids
+  department: "ALL", // ALL or any canonical department id
   category: "ALL", // any taxonomy category id
   assignment: "ALL", // ALL | ASSIGNED | UNASSIGNED
   flag: "ALL", // ALL | ANY | a specific REVIEW_FLAGS value
@@ -337,8 +334,10 @@ export const flagsInUnifiedQueue = (rows = getUnifiedReviewQueue()) =>
 
 /** Department options for the department filter. */
 export const departmentsInUnifiedQueue = (rows = getUnifiedReviewQueue()) => {
-  const present = [...new Set(rows.map((row) => row.department).filter(Boolean))];
-  return DEPARTMENT_OPTIONS.filter((dept) => present.includes(dept.id));
+  const present = new Set(rows.map((row) => row.department).filter(Boolean));
+  return DEPARTMENT_OPTIONS
+    .filter((department) => present.has(department.value))
+    .map((department) => ({ id: department.value, label: department.label }));
 };
 
 export { REVIEW_FLAGS, WORKFLOW_STAGES };

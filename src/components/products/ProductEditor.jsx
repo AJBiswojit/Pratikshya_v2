@@ -7,8 +7,11 @@
  * second product system.
  *
  * Workflow:
- *   DRAFT → PENDING_REVIEW → PUBLISHED   (approved)
- *   PENDING_REVIEW → REJECTED → DRAFT    (returned to the author)
+ *   DRAFT → SUBMITTED → APPROVED → PUBLISHED
+ *   SUBMITTED → RETURNED → DRAFT (returned to the author with a reason)
+ *
+ * Creation, editing, and every transition call the universal workflow
+ * command layer. The editor never writes lifecycle status itself.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -17,6 +20,18 @@ import { AlertTriangle, ArrowLeft, ArrowRight, RotateCcw, Archive } from "lucide
 import { AtelierButton } from "../../design-system";
 import catalogRepository, { getPublishIssues } from "../../services/catalogRepository";
 import inventoryRepository from "../../services/inventory/inventoryRepository";
+import {
+  archiveProduct,
+  createProduct,
+  publishProduct,
+  restoreProduct,
+  saveProductDraft,
+  submitProduct,
+} from "../../services/workflow/productWorkflowCommands";
+import {
+  WORKFLOW_STAGES,
+  getProductWorkflowState,
+} from "../../services/workflow/productWorkflowState";
 import { computePricing } from "../../utils/pricing";
 import { PRODUCT_STATUSES, REVIEW_STATES } from "../../config/productCatalogConfig";
 import { departmentForProduct } from "../../data/products/departments";
@@ -228,7 +243,7 @@ export default function ProductEditor({
 
   /* --- persistence -------------------------------------------------- */
 
-  const buildPayload = (statusOverride = null) => {
+  const buildPayload = () => {
     const pricing = {
       ...draft.pricing,
       mrp: Number(draft.pricing.mrp) || 0,
@@ -237,26 +252,33 @@ export default function ProductEditor({
       taxRate: Number(draft.pricing.taxRate) || 0,
     };
 
-    let status = statusOverride ?? draft.status ?? PRODUCT_STATUSES.DRAFT;
-
-    /*
-     * An employee's edit of a published piece never silently republishes —
-     * it returns to review, exactly as the approval workflow requires.
-     */
-    if (
-      !canPublish &&
-      draft.exists &&
-      savedProduct?.status === PRODUCT_STATUSES.PUBLISHED &&
-      status === PRODUCT_STATUSES.PUBLISHED
-    ) {
-      status = PRODUCT_STATUSES.PENDING_REVIEW;
-    }
+    /* Product identity and lifecycle fields are command-owned. Normalized
+       records include them for display, but the editor must never send them
+       back as an editable patch. */
+    const commandOwnedFields = new Set([
+      "id",
+      "productId",
+      "exists",
+      "status",
+      "review",
+      "workflow",
+      "published",
+      "publishedAt",
+      "publishedBy",
+      "createdAt",
+      "createdBy",
+      "updatedAt",
+      "updatedBy",
+      "history",
+      "priceHistory",
+    ]);
+    const editableDraft = Object.fromEntries(
+      Object.entries(draft).filter(([field]) => !commandOwnedFields.has(field))
+    );
 
     return {
-      ...draft,
-      exists: undefined,
+      ...editableDraft,
       pricing,
-      status,
       stock: Number(draft.stock) || 0,
       lowStockThreshold: Number(draft.lowStockThreshold) || 0,
       variants: draft.variants.map((variant) => ({
@@ -272,11 +294,11 @@ export default function ProductEditor({
     };
   };
 
-  const persist = (statusOverride = null) => {
-    const payload = buildPayload(statusOverride);
+  const persist = () => {
+    const payload = buildPayload();
     const result = draft.exists
-      ? catalogRepository.updateProduct(draft.id, payload, actor)
-      : catalogRepository.createProduct(payload, actor);
+      ? saveProductDraft(draft.id, payload, actor)
+      : createProduct(payload, actor);
     if (!result.ok) {
       setFeedback({ kind: "error", message: result.error || "The product could not be saved." });
       return null;
@@ -341,7 +363,7 @@ export default function ProductEditor({
     }
     const product = persist();
     if (!product) return;
-    const result = catalogRepository.submitForReview(product.id, actor);
+    const result = submitProduct(product.id, actor);
     if (!result.ok) {
       announce(result.error || "Submission failed.", "error");
       return;
@@ -354,14 +376,15 @@ export default function ProductEditor({
   };
 
   const handlePublish = () => {
-    const blocking = [errors.name, errors.sku, errors.category, errors.description, errors.variants, errors.slug].filter(Boolean);
-    if (blocking.length || pricingErrors.length) {
-      announce("Resolve the highlighted issues before publishing.", "error");
+    if (!draft.id) return;
+    if (dirty) {
+      announce(
+        "Approved products cannot be edited during publication. Return the product to an editable stage before changing it.",
+        "error"
+      );
       return;
     }
-    const product = persist();
-    if (!product) return;
-    const result = catalogRepository.publishProduct(product.id, actor);
+    const result = publishProduct(draft.id, actor);
     if (!result.ok) {
       announce((result.errors ?? [result.error]).join(" "), "error");
       return;
@@ -375,7 +398,7 @@ export default function ProductEditor({
 
   const handleArchive = () => {
     if (!draft.id) return;
-    const result = catalogRepository.archiveProduct(draft.id, actor);
+    const result = archiveProduct(draft.id, actor);
     if (result.ok) {
       const nextDraft = draftFromProduct(result.product);
       setDraft(nextDraft);
@@ -386,7 +409,7 @@ export default function ProductEditor({
 
   const handleRestore = () => {
     if (!draft.id) return;
-    const result = catalogRepository.restoreProduct(draft.id, actor);
+    const result = restoreProduct(draft.id, actor);
     if (result.ok) {
       const nextDraft = draftFromProduct(result.product);
       setDraft(nextDraft);
@@ -435,8 +458,10 @@ export default function ProductEditor({
     );
   }
 
-  const employeePublishWarning =
-    !canPublish && draft.exists && savedProduct?.status === PRODUCT_STATUSES.PUBLISHED;
+  const workflowState = getProductWorkflowState(draft);
+  const editorLocked = draft.exists && !workflowState.editable;
+  const readyToPublish =
+    canPublish && draft.exists && workflowState.stage === WORKFLOW_STAGES.APPROVED;
 
   return (
     <div className="pb-24">
@@ -510,11 +535,12 @@ export default function ProductEditor({
         ) : null}
       </div>
 
-      {employeePublishWarning ? (
+      {editorLocked ? (
         <p className="mb-6 flex items-start gap-3 border border-amber-500/40 bg-amber-500/10 p-4 font-ui text-sm text-amber-900">
           <AlertTriangle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-          This product is live. Saving your changes will move it back to review, and it will be
-          hidden from customers until an admin or manager approves it again.
+          This product is {workflowState.label.toLowerCase()} and cannot be edited in that lifecycle
+          stage. Use Product Review to approve, publish, return, or archive it through the canonical
+          workflow.
         </p>
       ) : null}
 
@@ -526,7 +552,9 @@ export default function ProductEditor({
         className="border border-mist/80 bg-surface/40 p-5 sm:p-7"
       >
         {section === "basics" ? <SectionBasics draft={draft} patch={patch} errors={errors} isNew={isNew} /> : null}
-        {section === "attributes" ? <SectionAttributes draft={draft} patch={patch} errors={errors} /> : null}
+        {section === "attributes" ? (
+          <SectionAttributes draft={draft} patch={patch} errors={errors} isNew={isNew} />
+        ) : null}
         {section === "pricing" ? <SectionPricing draft={draft} patch={patch} /> : null}
         {section === "variants" ? <SectionVariants draft={draft} patch={patch} errors={errors} /> : null}
         {section === "content" ? <SectionContent draft={draft} patch={patch} /> : null}
@@ -585,22 +613,32 @@ export default function ProductEditor({
             </AtelierButton>
           ) : null}
 
-          <AtelierButton variant="outline" size="chip" onClick={handleSaveDraft}>
+          <AtelierButton
+            variant="outline"
+            size="chip"
+            onClick={handleSaveDraft}
+            disabled={editorLocked}
+          >
             Save draft
           </AtelierButton>
-          <AtelierButton variant="outline" size="chip" onClick={handleSaveAndContinue}>
+          <AtelierButton
+            variant="outline"
+            size="chip"
+            onClick={handleSaveAndContinue}
+            disabled={editorLocked}
+          >
             Save &amp; continue
           </AtelierButton>
 
-          {canPublish ? (
+          {readyToPublish ? (
             <AtelierButton size="chip" onClick={handlePublish}>
-              Publish
+              Publish approved product
             </AtelierButton>
-          ) : (
+          ) : !editorLocked ? (
             <AtelierButton size="chip" onClick={handleSubmitForReview}>
               Submit for review
             </AtelierButton>
-          )}
+          ) : null}
         </div>
       </div>
 

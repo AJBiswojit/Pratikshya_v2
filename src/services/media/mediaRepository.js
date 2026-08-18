@@ -185,7 +185,7 @@ export const getMarketingMedia = (placement = null, options = {}) => {
   return items.slice().sort((a, b) => a.sortOrder - b.sortOrder || byRecency(a, b));
 };
 
-/** Library media that has not been given a job yet. */
+/** Managed media that has not been given a scope yet. */
 export const getUnassignedMedia = () => {
   ensureCache();
   return cachedAll.filter((item) => item.scope === MEDIA_SCOPES.UNASSIGNED).sort(byRecency);
@@ -202,12 +202,6 @@ export const getByEmployee = (employeeId) => {
   if (!employeeId) return [];
   ensureCache();
   return cachedAll.filter((item) => item.uploadedByEmployeeId === employeeId).sort(byRecency);
-};
-
-/** Ingested library records (Phase 21.4). */
-export const getIngestedMedia = () => {
-  ensureCache();
-  return cachedAll.filter((item) => item.ingested).sort(byRecency);
 };
 
 /** Assets that could not be confidently mapped to taxonomy or a product. */
@@ -763,7 +757,6 @@ export const getMediaMetrics = () => {
     activeMarketing: marketing.filter((item) => item.status === MEDIA_STATUS.ACTIVE).length,
     productsWithMedia: productIds.length,
     productsNeedingCover: needsCover.length,
-    ingested: items.filter((item) => item.ingested).length,
     unmapped: items.filter((item) => item.mappingStatus === MAPPING_STATUS.UNMAPPED).length,
     needsReview: items.filter(
       (item) =>
@@ -776,13 +769,13 @@ export const getMediaMetrics = () => {
         item.duplicateStatus === DUPLICATE_STATUS.POSSIBLE_DUPLICATE
     ).length,
     large: items.filter((item) => item.large).length,
-    optimized: items.filter((item) => item.ingested && item.optimizedPath).length,
+    optimized: items.filter((item) => item.optimizedPath).length,
     lowResolution: items.filter((item) => item.lowResolution).length,
     broken: items.filter((item) => item.broken).length,
   };
 };
 
-/** Restores the seeded register (Phase 12 seed + ingested library). */
+/** Clears persisted managed media and restores the authored seed (currently empty). */
 export const resetMedia = () => {
   clearMediaMemory();
   lastRawRef = null;
@@ -811,7 +804,6 @@ const mediaRepository = {
   getUnassignedMedia,
   getPendingReview,
   getByEmployee,
-  getIngestedMedia,
   getUnmappedMedia,
   getDuplicateMedia,
   getNeedsReviewMedia,

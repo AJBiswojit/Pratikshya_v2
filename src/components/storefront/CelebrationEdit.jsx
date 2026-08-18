@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { ArrowUpRight } from "lucide-react";
-import { imageRef } from "../../data/pratikshyaImageManifest";
+import { imageRef } from "../../data/mediaPlaceholder";
 import { MARKETING_PLACEMENTS } from "../../config/mediaTypes";
 import { useActivePlacementMedia } from "../../hooks/useMedia";
 import { resolvePlacementImage } from "../../services/media/marketingMediaSource";

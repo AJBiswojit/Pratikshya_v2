@@ -1,9 +1,9 @@
 /**
  * PRATIKSHYA FASHON — Category ↔ media-family safety (Phase 3F).
  *
- * A deterministic validation layer between product categories and the
- * ingested library's filename families. Filenames are used ONLY to
- * recognise which product family a photograph belongs to — never to
+ * A deterministic validation layer between product categories and optional
+ * imported-media filename families. Filenames are used ONLY to recognize an
+ * explicit studio naming convention — never to
  * fabricate names, prices or taxonomy.
  *
  *   women-innerwear-007.webp  → family "women-innerwear" → innerwear only
@@ -20,13 +20,11 @@
  *   · Innerwear never receives bangles / sarees / menswear / jewellery.
  *   · Bangles never receive sarees / earrings / innerwear / menswear.
  *   · Sarees never receive jewellery / innerwear / menswear.
- *   · Kids plates stay on kidswear (the 21-plate identity lock is stricter
- *     still and lives in kidsProductIdentity).
  *   · Files without a recognised family (scratch/test/marketing uploads)
  *     are NOT judged here — filename semantics only apply where the
- *     ingested naming convention applies.
+ *     recognized studio naming convention applies.
  *
- * Marketing/house plates are a separate world: they are never a canonical
+ * Marketing artwork is a separate scope: it is never a canonical
  * product family, and marketing-scope isolation is enforced upstream in
  * the ownership service.
  */
@@ -73,11 +71,6 @@ export const MEDIA_FAMILIES = [
     pattern: /^men-[a-z]/i,
     categories: ["menswear"],
   },
-  {
-    family: "kids",
-    pattern: /^kids-\d+/i,
-    categories: ["kidswear"],
-  },
 ];
 
 /** House/marketing artwork — never a canonical product family. */
@@ -118,7 +111,7 @@ export const isMarketingFileName = (fileOrMedia) =>
  *   · ok: true  — no recognised family (not judged) or family allows it
  *   · ok: false — the family exists and the category is outside it
  *
- * Deliberately does not judge files outside the ingested naming
+ * Deliberately does not judge files outside the recognized studio naming
  * convention: a scratch upload or a renamed studio file carries no
  * deterministic semantics, and guessing is forbidden.
  */

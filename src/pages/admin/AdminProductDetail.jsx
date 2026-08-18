@@ -14,7 +14,20 @@ import AdminPage from "../../components/admin/AdminPage";
 import AdminPanel from "../../components/admin/AdminPanel";
 import StatusBadge from "../../components/employee/StatusBadge";
 import { AtelierButton } from "../../design-system";
-import catalogRepository, { getPublishIssues } from "../../services/catalogRepository";
+import { getPublishIssues } from "../../services/catalogRepository";
+import {
+  approveProduct,
+  archiveProduct,
+  duplicateProduct,
+  publishProduct,
+  restoreProduct,
+  returnProduct,
+  unpublishProduct,
+} from "../../services/workflow/productWorkflowCommands";
+import {
+  WORKFLOW_STAGES,
+  getProductWorkflowState,
+} from "../../services/workflow/productWorkflowState";
 import inventoryRepository from "../../services/inventory/inventoryRepository";
 import { useInventory } from "../../context/InventoryContext";
 import { useProduct } from "../../hooks/useProducts";
@@ -73,6 +86,7 @@ export default function AdminProductDetail() {
   }
 
   const cover = resolveProductCover(product);
+  const workflowState = getProductWorkflowState(product);
   const computed = computePricing(product.pricing);
   const issues = getPublishIssues(product);
   const productActivity = activityForProduct(activity, product.id);
@@ -122,8 +136,9 @@ export default function AdminProductDetail() {
             size="chip"
             variant="outline"
             onClick={() => {
-              const result = catalogRepository.duplicateProduct(product.id, actor);
+              const result = duplicateProduct(product.id, actor);
               if (result.ok) navigate(`/admin/products/${result.product.id}/edit`);
+              else setNotice(result.error);
             }}
           >
             <Copy size={12} aria-hidden="true" /> Duplicate
@@ -173,31 +188,32 @@ export default function AdminProductDetail() {
             ) : null}
 
             <div className="mt-4 flex flex-wrap gap-2">
-              {product.status === "PENDING_REVIEW" ? (
+              {workflowState.stage === WORKFLOW_STAGES.SUBMITTED ||
+              workflowState.stage === WORKFLOW_STAGES.IN_ADMIN_REVIEW ? (
                 <>
-                  <AtelierButton size="chip" onClick={() => run(() => catalogRepository.approveProduct(product.id, actor), "Approved — awaiting publication.")}>
+                  <AtelierButton size="chip" onClick={() => run(() => approveProduct(product.id, actor), "Approved — awaiting publication.")}>
                     Approve
                   </AtelierButton>
                   <AtelierButton size="chip" variant="outline" onClick={() => setRejecting((open) => !open)}>
-                    Reject
+                    Return
                   </AtelierButton>
                 </>
-              ) : product.status === "PUBLISHED" ? (
-                <AtelierButton variant="outline" size="chip" onClick={() => run(() => catalogRepository.unpublishProduct(product.id, actor), "Moved back to draft.")}>
+              ) : workflowState.stage === WORKFLOW_STAGES.PUBLISHED ? (
+                <AtelierButton variant="outline" size="chip" onClick={() => run(() => unpublishProduct(product.id, actor), "Moved back to draft.")}>
                   Unpublish
                 </AtelierButton>
-              ) : product.status !== "ARCHIVED" ? (
-                <AtelierButton size="chip" onClick={() => run(() => catalogRepository.publishProduct(product.id, actor), "Published to the storefront.")}>
+              ) : workflowState.stage === WORKFLOW_STAGES.APPROVED ? (
+                <AtelierButton size="chip" onClick={() => run(() => publishProduct(product.id, actor), "Published to the storefront.")}>
                   Publish
                 </AtelierButton>
               ) : null}
 
-              {product.status === "ARCHIVED" ? (
-                <AtelierButton variant="outline" size="chip" onClick={() => run(() => catalogRepository.restoreProduct(product.id, actor), "Restored to draft.")}>
+              {workflowState.stage === WORKFLOW_STAGES.ARCHIVED ? (
+                <AtelierButton variant="outline" size="chip" onClick={() => run(() => restoreProduct(product.id, actor), "Restored to draft.")}>
                   Restore
                 </AtelierButton>
               ) : (
-                <AtelierButton variant="outline" size="chip" onClick={() => run(() => catalogRepository.archiveProduct(product.id, actor), "Archived. Historical orders keep their reference.")}>
+                <AtelierButton variant="outline" size="chip" onClick={() => run(() => archiveProduct(product.id, actor), "Archived. Historical orders keep their reference.")}>
                   Archive
                 </AtelierButton>
               )}
@@ -209,15 +225,15 @@ export default function AdminProductDetail() {
                 onSubmit={(event) => {
                   event.preventDefault();
                   run(
-                    () => catalogRepository.rejectProduct(product.id, rejection.trim() || "Missing product details.", actor),
-                    "Rejected — returned to draft."
+                    () => returnProduct(product.id, rejection.trim() || "Missing product details.", actor),
+                    "Returned to draft for revision."
                   );
                   setRejecting(false);
                   setRejection("");
                 }}
               >
                 <label htmlFor="reject-reason" className="font-ui text-[10px] uppercase tracking-[.16em] text-ink">
-                  Rejection reason
+                  Return reason
                 </label>
                 <textarea
                   id="reject-reason"
@@ -228,7 +244,7 @@ export default function AdminProductDetail() {
                   className="w-full border border-mist bg-canvas px-3 py-2 font-ui text-sm outline-none focus:border-accent"
                 />
                 <div className="flex gap-2">
-                  <AtelierButton type="submit" size="chip">Reject product</AtelierButton>
+                  <AtelierButton type="submit" size="chip">Return product</AtelierButton>
                   <AtelierButton type="button" variant="outline" size="chip" onClick={() => setRejecting(false)}>
                     Cancel
                   </AtelierButton>

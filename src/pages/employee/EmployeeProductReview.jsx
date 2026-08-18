@@ -28,6 +28,7 @@ import {
   employeeAssignedProducts,
   employeeCanEditProduct,
   getProductWorkflowView,
+  mediaFileName,
   saveEmployeeDraft,
   submitProductForReview,
 } from "../../services/productWorkflow";
@@ -35,7 +36,6 @@ import { getPublishIssues } from "../../services/catalogRepository";
 import { CATEGORY_OPTIONS, getProductStatusLabel } from "../../config/productCatalogConfig";
 import taxonomyRepository from "../../services/taxonomyRepository";
 import { formatINR } from "../../utils/shopping";
-import { kidsFileNameOf } from "../../services/kidsProductIdentity";
 import { reviewFlagLabel } from "../../services/productReviewFlags";
 
 const fieldClass =
@@ -144,7 +144,7 @@ export default function EmployeeProductReview() {
   const view = useMemo(() => selected ? getProductWorkflowView(selected) : null, [selected]);
   /* Generic publish validation for all products — same rules for every department. */
   const issues = useMemo(() => selected ? getPublishIssues(selected) : [], [selected]);
-  const mediaFileName = kidsFileNameOf(view?.mediaSet?.primary) || null;
+  const primaryFileName = mediaFileName(view?.mediaSet?.primary) || null;
   const nameNeedsReview = false;
 
   const discountPercent = (() => {
@@ -269,7 +269,7 @@ export default function EmployeeProductReview() {
                 <dl className="grid gap-x-6 gap-y-1 border border-mist bg-canvas px-4 py-3 font-ui text-[11px] text-taupe sm:grid-cols-2 lg:grid-cols-3">
                   <div className="flex gap-2">
                     <dt className="uppercase tracking-[.14em] text-taupe/70">Media file</dt>
-                    <dd className="text-ink">{mediaFileName ?? "—"}</dd>
+                    <dd className="text-ink">{primaryFileName ?? "—"}</dd>
                   </div>
                   <div className="flex gap-2">
                     <dt className="uppercase tracking-[.14em] text-taupe/70">Category</dt>

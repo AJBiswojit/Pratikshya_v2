@@ -40,7 +40,7 @@ export default function AtelierDesign() {
           marketing register and resolves the assigned products through the
           canonical catalogue; a placement with nothing curated stays absent,
           so the homepage never changes unless the Admin Portal curates it.
-          Lehenga and Kids use the shared rail; bespoke seams (Saree Edit,
+          Catalogue-backed sections use the shared rail; bespoke seams (Saree Edit,
           Bride & Groom, New Arrivals) read the same register internally. */}
       <PlacementProductRail placementId={MARKETING_PLACEMENTS.LEHENGA_SECTION} />
 

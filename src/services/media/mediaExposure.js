@@ -1,25 +1,15 @@
 /**
- * PRATIKSHYA FASHON — Media exposure audit (Phase 21.5).
- *
- * Phase 21.4 built the media register; this module proves that the register
- * actually reaches the customer-facing surfaces. It is a measurement, not a
- * second distribution layer: it asks the *same* resolver every storefront
- * component uses, for every surface, and reports which media records are
- * actually returned.
- *
- * A record is "exposed" only when one of the real customer surfaces resolves
- * it. Anything mapped but never returned by any surface is reported as
- * "mapped but unused" so it can be fixed rather than silently hidden.
- *
- * Pure and deterministic — no React, no writes, no filesystem scans. It reads
- * the register through the repository and the resolver through the resolver,
- * so the numbers always reflect what a customer would actually see.
+ * Read-only media exposure measurement over the canonical storefront
+ * resolvers. Authored Product Media stays on canonical products; managed
+ * Admin uploads remain in the generic media repository. This module measures
+ * both paths without copying product records or inventing media ownership.
  */
 
 import { MEDIA_SCOPES, MEDIA_STATUS, PRODUCT_MEDIA_ROLES } from "../../config/mediaTypes";
 import { getLiveStorefrontProducts } from "../../data/products";
+import { departments as canonicalDepartments } from "../../data/catalog/taxonomy";
 import taxonomyRepository from "../taxonomyRepository";
-import { isIngestedPhotographyUrl } from "./mediaPaths";
+import { isCanonicalMediaUrl } from "./mediaPaths";
 import mediaRepository from "./mediaRepository";
 import {
   resolveAiMirrorImage,
@@ -158,7 +148,6 @@ export const auditMediaExposure = () => {
   const unmapped = all.filter((media) => media.mappingStatus === "UNMAPPED");
   const needsReview = all.filter((media) => media.mappingStatus === "NEEDS_REVIEW");
   const broken = all.filter((media) => media.broken);
-  const ingested = all.filter((media) => media.ingested);
 
   const surfaces = collectSurfaces();
   const consumedIds = uniqueShown(surfaces);
@@ -168,7 +157,7 @@ export const auditMediaExposure = () => {
   /* Category coverage — for every active customer-facing category. */
   const categoryCoverage = taxonomyRepository.activeCategories().map((category) => {
     const cover = resolveCategoryCover(category);
-    const hasLibrary = isIngestedPhotographyUrl(cover?.src);
+    const hasCanonicalMedia = isCanonicalMediaUrl(cover?.src);
     const media = mediaRepository.getMediaByCategory(category.id, { publicOnly: true });
     return {
       id: category.id,
@@ -176,26 +165,27 @@ export const auditMediaExposure = () => {
       mediaAvailable: media.length,
       mediaDisplayed: cover?.id || null,
       src: cover?.src || null,
-      fallbackUsed: !hasLibrary,
+      fallbackUsed: !hasCanonicalMedia,
     };
   });
 
-  /* Product coverage — dedicated (ingested) media vs legacy plates vs none. */
+  /* Product coverage — managed repository media, authored canonical media, or none. */
   const liveProducts = getLiveStorefrontProducts();
   const productCoverage = {
     withDedicatedMedia: [],
-    usingLegacyMedia: [],
+    usingCanonicalMedia: [],
     withoutMedia: [],
   };
   liveProducts.forEach((product) => {
-    const dedicated = mediaRepository
-      .getProductMedia(product.id, { publicOnly: true, type: "IMAGE" })
-      .filter((media) => media.ingested);
+    const dedicated = mediaRepository.getProductMedia(product.id, {
+      publicOnly: true,
+      type: "IMAGE",
+    });
     const cover = resolveProductCover(product);
     if (dedicated.length) {
       productCoverage.withDedicatedMedia.push({ id: product.id, name: product.name, count: dedicated.length });
-    } else if (cover?.id) {
-      productCoverage.usingLegacyMedia.push({ id: product.id, name: product.name });
+    } else if (isCanonicalMediaUrl(cover?.src)) {
+      productCoverage.usingCanonicalMedia.push({ id: product.id, name: product.name });
     } else {
       productCoverage.withoutMedia.push({ id: product.id, name: product.name });
     }
@@ -218,7 +208,6 @@ export const auditMediaExposure = () => {
   return {
     inventory: {
       total: all.length,
-      ingested: ingested.length,
       mapped: mapped.length,
       unmapped: unmapped.length,
       needsReview: needsReview.length,
@@ -255,27 +244,26 @@ export const auditMediaExposure = () => {
 
 /* Mirrors `ShopByCategory`'s presentation grouping so the per-section report
    reports the cards in the same order the customer sees them. */
-const HOMEPAGE_GROUPS = [
-  { id: "women", label: "Women", categories: ["sarees", "lehengas", "bridal-couture", "kurtis-and-suits", "dupattas"] },
-  { id: "men", label: "Men", categories: ["menswear"] },
-  { id: "kids", label: "Kids", categories: ["kidswear"] },
-  { id: "accessories", label: "Accessories", categories: ["bangles", "jewellery"] },
-  { id: "innerwear", label: "Innerwear", categories: ["innerwear"] },
-];
+const HOMEPAGE_GROUPS = canonicalDepartments.map((department) => ({
+  id: department.id,
+  label: department.name,
+  categories: department.categories.map((category) => category.id),
+}));
 
 /** Resolver fallback reason → customer-facing source classification. */
 const SOURCE_CLASSIFICATION = {
-  DIRECT: "REAL_LIBRARY",
+  DIRECT: "CANONICAL_MEDIA",
   PRODUCT_GALLERY: "PRODUCT_GALLERY",
   TAXONOMY_PRODUCT: "TAXONOMY_DERIVED",
   RELATED_TAXONOMY: "TAXONOMY_DERIVED",
-  HOUSE_FALLBACK: "HOUSE_FALLBACK",
+  EDITORIAL_FALLBACK: "EDITORIAL_FALLBACK",
   NO_SOURCE_MEDIA: "NO_SOURCE_MEDIA",
 };
 
-/** One resolved plate → the report row, proving the actual file it points at. */
+/** One resolved source → a report row proving the concrete canonical address. */
 const describeResolved = (source) => {
-  if (!source || !source.id) {
+  const canonical = isCanonicalMediaUrl(source?.src);
+  if (!source?.src && !source?.id) {
     return {
       mediaId: null,
       filename: null,
@@ -283,15 +271,14 @@ const describeResolved = (source) => {
       reason: source?.reason ?? null,
       source: source?.reason ? SOURCE_CLASSIFICATION[source.reason] ?? null : null,
       mapped: false,
-      library: false,
+      canonical: false,
       fallback: true,
       scope: null,
       status: null,
       broken: false,
     };
   }
-  const media = mediaRepository.getById(source.id) ?? null;
-  const library = Boolean(source.src?.includes("/library/"));
+  const media = source.id ? mediaRepository.getById(source.id) ?? null : null;
   const filename =
     media?.currentFilename ||
     media?.fileName ||
@@ -306,17 +293,19 @@ const describeResolved = (source) => {
           ? "PRODUCT_GALLERY"
           : media.role
       : (media.usageRoles || []).join(",") || null
-    : null;
-  const reason = source.reason ?? (library ? "DIRECT" : null);
+    : canonical
+      ? "AUTHORED_PRODUCT_MEDIA"
+      : null;
+  const reason = source.reason ?? (canonical ? "DIRECT" : null);
   return {
-    mediaId: source.id,
+    mediaId: source.id ?? null,
     filename,
     usage,
     reason,
-    source: SOURCE_CLASSIFICATION[reason] ?? (library ? "REAL_LIBRARY" : "NO_SOURCE_MEDIA"),
+    source: SOURCE_CLASSIFICATION[reason] ?? (canonical ? "CANONICAL_MEDIA" : "NO_SOURCE_MEDIA"),
     mapped: media ? media.mappingStatus === "MAPPED" : false,
-    library,
-    fallback: !library,
+    canonical,
+    fallback: !canonical,
     scope: media
       ? media.productId
         ? "PRODUCT"
@@ -325,7 +314,9 @@ const describeResolved = (source) => {
           : media.categoryId
             ? "CATEGORY"
             : "—"
-      : "FALLBACK",
+      : canonical
+        ? "PRODUCT"
+        : "FALLBACK",
     status: media?.status ?? null,
     broken: Boolean(media?.broken),
   };

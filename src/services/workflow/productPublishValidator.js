@@ -16,7 +16,6 @@
  *   · review/lifecycle requirements (approval before publication)
  *   · legacy review flags — mapped to structured issues WITHOUT duplicating
  *     a condition the data already proves (data truth is authoritative)
- *   · category validator plug-ins (e.g. Kids) appended to the same result
  *
  * Severity: "error" blocks publish; "warning" does not (e.g. publishing into
  * an inactive category is allowed but the product will be invisible).
@@ -25,11 +24,15 @@
 import { computePricing } from "../../utils/pricing.js";
 import { isVideo } from "../../config/mediaTypes.js";
 import taxonomyRepository from "../taxonomyRepository.js";
+import {
+  DEPARTMENT_OPTIONS,
+  categoriesForDepartment,
+  subcategoriesForDepartmentCategory,
+} from "../../data/products/departments.js";
 import mediaRepository from "../media/mediaRepository.js";
 import { getProductMediaSet, resolveProductMediaClaims } from "../media/productMediaSet.js";
 import { unresolvedGroupConflictsFor } from "../media/productMediaGroups.js";
 import { REVIEW_FLAGS, REVIEW_FLAG_LABELS } from "../productReviewFlags.js";
-import { CATEGORY_VALIDATORS } from "./kidsValidator.js";
 import { WORKFLOW_STAGES, getProductWorkflowState } from "./productWorkflowState.js";
 
 export const ISSUE_SEVERITY = {
@@ -74,8 +77,6 @@ const isPlaceholderName = (name) => {
   if (!clean) return true;
   if (clean.startsWith("untitled")) return true;
   if (clean === "not yet defined" || clean === "undefined") return true;
-  if (clean.startsWith("kids piece")) return true;
-  if (clean.startsWith("kids product")) return true;
   if (clean.startsWith("uncatalogued")) return true;
   return false;
 };
@@ -148,9 +149,6 @@ export const reviewFlagIssues = (product, context = {}) => {
   if (flags.has(REVIEW_FLAGS.CONFLICT_UNRESOLVED) && !hasOwnershipConflict) {
     addFlag(REVIEW_FLAGS.CONFLICT_UNRESOLVED);
   }
-  if (flags.has(REVIEW_FLAGS.KIDS_MIGRATION_REVIEW)) {
-    addFlag(REVIEW_FLAGS.KIDS_MIGRATION_REVIEW);
-  }
   return issues;
 };
 
@@ -184,29 +182,70 @@ const priceStatus = (product) => {
 
 const taxonomyStatus = (product) => {
   const issues = [];
+  const departmentId = String(product.department ?? "").trim();
   const categoryId = String(product.category ?? "").trim();
+  const subcategoryId = String(product.subcategory ?? "").trim();
+
+  const department = DEPARTMENT_OPTIONS.find((entry) => entry.value === departmentId);
+  if (!departmentId) {
+    issues.push(error("DEPARTMENT_REQUIRED", "taxonomy", "Department is required."));
+  } else if (!department) {
+    issues.push(
+      error(
+        "DEPARTMENT_INVALID",
+        "taxonomy",
+        `Department “${departmentId}” does not exist in the canonical taxonomy.`,
+        ISSUE_SOURCES.TAXONOMY
+      )
+    );
+  }
+
+  const category = department
+    ? categoriesForDepartment(departmentId).find((entry) => entry.value === categoryId)
+    : null;
   if (!categoryId) {
     issues.push(error("CATEGORY_REQUIRED", "taxonomy", "Category is required."));
-  } else {
-    const category = taxonomyRepository.findCategory(categoryId);
-    if (!category) {
-      issues.push(
-        error("CATEGORY_INVALID", "taxonomy", `Category “${categoryId}” does not exist in the taxonomy.`, ISSUE_SOURCES.TAXONOMY)
-      );
-    } else if (category.status !== "ACTIVE") {
+  } else if (department && !category) {
+    issues.push(
+      error(
+        "CATEGORY_INVALID",
+        "taxonomy",
+        `Category “${categoryId}” does not belong to department “${departmentId}”.`,
+        ISSUE_SOURCES.TAXONOMY
+      )
+    );
+  } else if (category) {
+    const managedCategory = taxonomyRepository.findCategory(categoryId);
+    if (managedCategory?.status !== "ACTIVE") {
       issues.push(
         warning(
           "CATEGORY_INACTIVE",
           "taxonomy",
-          `Category “${category.name}” is not ACTIVE — publishing now will keep the product hidden from the storefront.`,
+          `Category “${category.label}” is not ACTIVE — publishing now will keep the product hidden from the storefront.`,
           ISSUE_SOURCES.TAXONOMY
         )
       );
     }
   }
-  if (!String(product.subcategory ?? "").trim()) {
+
+  const subcategory = category
+    ? subcategoriesForDepartmentCategory(departmentId, categoryId).find(
+        (entry) => entry.value === subcategoryId
+      )
+    : null;
+  if (!subcategoryId) {
     issues.push(error("SUBCATEGORY_REQUIRED", "taxonomy", "Subcategory is required."));
+  } else if (category && !subcategory) {
+    issues.push(
+      error(
+        "SUBCATEGORY_INVALID",
+        "taxonomy",
+        `Subcategory “${subcategoryId}” does not belong to ${departmentId}/${categoryId}.`,
+        ISSUE_SOURCES.TAXONOMY
+      )
+    );
   }
+
   return { valid: issues.length === 0, issues };
 };
 
@@ -391,12 +430,7 @@ export const validateProductForPublish = (product, context = {}) => {
     );
   }
 
-  /* 11. Category validators (Kids and future categories) */
   const category = String(product.category ?? "").trim();
-  const categoryValidator = CATEGORY_VALIDATORS[category];
-  if (categoryValidator) {
-    issues.push(...categoryValidator(product, context));
-  }
 
   /* Deduplicate (code, message). */
   const seen = new Set();

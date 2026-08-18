@@ -20,9 +20,6 @@ import {
 export const AI_MIRROR_HISTORY_PREFIX = "pratikshya_ai_mirror_recent_";
 export const AI_MIRROR_HISTORY_LIMIT = 8;
 
-/** Existing catalogue ids intentionally surfaced first for a ready-to-demo edit. */
-const DEMO_EDIT_PRIORITY = ["pf-005", "pf-010", "pf-024", "pf-064", "pf-078", "pf-001"];
-
 const historyKey = (customerId) => `${AI_MIRROR_HISTORY_PREFIX}${String(customerId || "guest")}`;
 
 /**
@@ -34,8 +31,6 @@ const historyKey = (customerId) => `${AI_MIRROR_HISTORY_PREFIX}${String(customer
 export const getVirtualTryOnProducts = () => {
   const repositoryProducts = new Set(catalogRepository.all().map((product) => String(product.id)));
 
-  const priority = new Map(DEMO_EDIT_PRIORITY.map((id, index) => [id, index]));
-
   return getLiveStorefrontProducts()
     .filter((product) => repositoryProducts.has(String(product.id)))
     .filter(isVirtualTryOnEligibleProduct)
@@ -46,9 +41,12 @@ export const getVirtualTryOnProducts = () => {
       mirrorCategoryLabel: getVirtualTryOnCategoryLabel(product),
     }))
     .sort((left, right) => {
-      const leftPriority = priority.get(left.id) ?? Number.MAX_SAFE_INTEGER;
-      const rightPriority = priority.get(right.id) ?? Number.MAX_SAFE_INTEGER;
-      return leftPriority - rightPriority;
+      const merchandisingPriority = (product) =>
+        (product.isFeatured ? 2 : 0) + (product.isNew ? 1 : 0);
+      return (
+        merchandisingPriority(right) - merchandisingPriority(left) ||
+        String(left.id).localeCompare(String(right.id))
+      );
     });
 };
 

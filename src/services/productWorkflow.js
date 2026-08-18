@@ -20,9 +20,8 @@
  *   · visual similarity is a review signal, never automatic identity
  *
  * PERFORMANCE OPTIMIZATION:
- *   · getMediaInbox, getPotentialProductGroups, getKidsReconciliationRows,
- *     getKidsFinalizationRows (via finalization module), and getWorkflowMetrics
- *     are memoized against catalogVersion + mediaVersion + groupsVersion.
+ *   · Media inbox, potential groups and workflow metrics are memoized against
+ *     catalogue, media and group versions.
  *   · Employee-assigned products uses index instead of full scan when possible.
  *   · Heavy group building is cached.
  */
@@ -46,7 +45,6 @@ import {
   setGroupProduct,
 } from "./media/productMediaGroups";
 import { MEDIA_SCOPES, MEDIA_STATUS, MAPPING_STATUS, DUPLICATE_STATUS } from "../config/mediaTypes";
-import { DEFAULT_PRODUCT_ID_PREFIX, PRODUCT_ID_PREFIXES } from "../config/productCatalogConfig";
 import { PERMISSIONS } from "../config/employeePermissions";
 import { EMPLOYEE_STATUS, canEmployeeLogin } from "../config/employeeStatus";
 import { hasPermission } from "./employees/authorization";
@@ -63,26 +61,11 @@ import {
   blockingReviewFlags,
   isPlaceholderProductName,
 } from "./productReviewFlags";
-import {
-  KIDS_MERGE_REFUSED_ERROR,
-  confirmedKidsProductIdsIn,
-  isConfirmedKidsProductId,
-  kidsProductIdForFile,
-  wouldMergeConfirmedKids,
-} from "./kidsProductIdentity";
+
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
-
-export const productIdPrefixFor = (categoryId) =>
-  PRODUCT_ID_PREFIXES[categoryId] ?? DEFAULT_PRODUCT_ID_PREFIX;
-
-export const genderForCategory = (categoryId) => {
-  if (categoryId === "kidswear") return "Kids";
-  if (categoryId === "menswear") return "Men";
-  return "Women";
-};
 
 export const mediaFileName = (media) =>
   String(
@@ -92,17 +75,6 @@ export const mediaFileName = (media) =>
       media?.id ||
       ""
   );
-
-const identityMatcher = (identityKeys) => (value) => {
-  if (!value) return false;
-  const id = typeof value === "string" ? value : value?.id ?? value?.src ?? "";
-  return identityKeys.has(String(id));
-};
-
-const numberFromGroupKey = (groupKey) => {
-  const match = String(groupKey || "").match(/(\d+)$/);
-  return match ? Number(match[1]) : null;
-};
 
 const note = (action, summary, actor, productId = null) => {
   try {
@@ -139,8 +111,6 @@ let workflowCache = {
   inboxFingerprint: null,
   potentialGroups: null,
   potentialGroupsFingerprint: null,
-  kidsReconciliation: null,
-  kidsReconciliationFingerprint: null,
 };
 
 const getGroupsFingerprint = () => {
@@ -153,38 +123,6 @@ const getGroupsFingerprint = () => {
 };
 
 const makeFingerprint = (catalogV, mediaV, extra = "") => `${catalogV}|${mediaV}|${extra}`;
-
-/* ------------------------------------------------------------------ */
-/* Stable Product IDs                                                  */
-/* ------------------------------------------------------------------ */
-
-/**
- * The next permanent Product ID for a category: KID-001, MEN-001, …
- * Deterministic — scans the register, never random, never regenerated,
- * never derived from a product name.
- */
-export const nextStableProductId = (categoryId, preferredNumber = null) => {
-  const prefix = productIdPrefixFor(categoryId);
-  const all = catalogRepository.all();
-  const taken = new Set(all.map((product) => String(product.id)));
-
-  if (preferredNumber != null && Number.isFinite(Number(preferredNumber))) {
-    const candidate = `${prefix}-${String(preferredNumber).padStart(3, "0")}`;
-    if (!taken.has(candidate)) return candidate;
-  }
-
-  let number = 1;
-  while (taken.has(`${prefix}-${String(number).padStart(3, "0")}`)) number += 1;
-  return `${prefix}-${String(number).padStart(3, "0")}`;
-};
-
-/** The preferred Product ID for a set of media, derived from its group. */
-export const preferredProductIdForMedia = (mediaItems = [], categoryId = null) => {
-  const numbers = [...new Set(mediaItems.map((media) => numberFromGroupKey(media?.groupKey)).filter((n) => n != null))];
-  const preferredNumber = numbers.length === 1 ? numbers[0] : null;
-  const prefixCategory = categoryId || mediaItems[0]?.categoryId || null;
-  return nextStableProductId(prefixCategory, preferredNumber);
-};
 
 /* ------------------------------------------------------------------ */
 /* Ownership validation                                                */
@@ -216,8 +154,7 @@ export const validateMediaAssignment = (mediaId, targetProductId) => {
  *
  * The authoritative, authorized ownership command is now the media
  * ownership service (`mediaOwnershipService.transferMediaOwnership`), which
- * authenticates the actor, applies the confirmed Kids plate lock, enforces
- * marketing isolation, requires explicit confirmation for contested
+ * authenticates the actor, enforces marketing isolation, requires explicit confirmation for contested
  * reassignment, cleans stale previous-owner references and revalidates both
  * products. This function is kept so existing callers keep working.
  */
@@ -229,87 +166,6 @@ export const transferMediaOwnership = (mediaId, targetProductId, actor = null, {
 export const unassignProductMedia = (mediaId, actor = null) =>
   safeUnassignMedia({ mediaId, principal: actor });
 
-/* ------------------------------------------------------------------ */
-/* Product drafts                                                      */
-/* ------------------------------------------------------------------ */
-
-/**
- * CREATE PRODUCT FROM MEDIA — the controlled action.
- *
- * 1. resolves a stable Product ID from the media group
- * 2. creates a DRAFT product (never auto-published)
- * 3. attaches the media as claims (primary + gallery)
- * 4. never guesses a name, price or classification
- * 5. reports any contested ownership instead of reassigning anything
- */
-export const createProductDraftFromMedia = ({
-  mediaIds,
-  categoryId = null,
-  subcategory = "",
-  employeeId = null,
-  actor = null,
-} = {}) => {
-  if (employeeId) {
-    const employee = getEmployee(loadEmployees(), employeeId);
-    if (!employee) return { ok: false, error: "Employee not found." };
-    if (employee.status !== EMPLOYEE_STATUS.ACTIVE) {
-      return { ok: false, error: "Only active employees can receive new product assignments." };
-    }
-  }
-  const ids = (Array.isArray(mediaIds) ? mediaIds : [mediaIds]).filter(Boolean);
-  const mediaItems = ids.map((id) => mediaRepository.getById(id)).filter(Boolean);
-  if (!mediaItems.length) return { ok: false, error: "Select at least one media asset." };
-
-  /* Phase 22.2 — never fold two confirmed Kids products into one draft. */
-  if (wouldMergeConfirmedKids(mediaItems.map(mediaFileName))) {
-    return {
-      ok: false,
-      error: KIDS_MERGE_REFUSED_ERROR,
-      confirmedKidsProductIds: confirmedKidsProductIdsIn(mediaItems.map(mediaFileName)),
-    };
-  }
-
-  const category = categoryId || mediaItems[0].categoryId || "";
-  const id = preferredProductIdForMedia(mediaItems, category);
-  const conflicts = [];
-  mediaItems.forEach((media) => {
-    const check = validateMediaAssignment(media.id, id);
-    if (!check.ok) {
-      conflicts.push({
-        mediaId: media.id,
-        file: mediaFileName(media),
-        ownerProductId: check.ownerProductId,
-        ownerProductName: check.ownerProductName,
-      });
-    }
-  });
-
-  const result = catalogRepository.createDraftProduct(
-    {
-      id,
-      name: "",
-      category,
-      subcategory,
-      gender: genderForCategory(category),
-      description: "",
-      shortDescription: "",
-      mediaIds: mediaItems.map((media) => media.id),
-      primaryMediaId: mediaItems[0].id,
-      galleryMediaIds: mediaItems.map((media) => media.id),
-      price: 0,
-      compareAtPrice: null,
-      currency: "INR",
-      stock: 0,
-      status: PRODUCT_STATUS.DRAFT,
-      assignedEmployeeId: employeeId || null,
-      reviewFlags: conflicts.length ? ["MEDIA_OWNERSHIP_REVIEW"] : [],
-    },
-    actor
-  );
-
-  return { ok: true, product: result.product, conflicts };
-};
-
 /** Assign a product draft to an authorized employee — COMPATIBILITY WRAPPER
     around the universal workflow command (Super Admin only). */
 export const assignProductToEmployee = (productId, employeeId, actor = null) =>
@@ -319,6 +175,10 @@ export const assignProductToEmployee = (productId, employeeId, actor = null) =>
     workflow command. Publishing stays with the approver. */
 export const submitProductForReview = (productId, actor = null) =>
   workflowCommands.submitProduct(productId, actor);
+
+/** Bulk submit — per-ID delegation to the canonical individual Submit. */
+export const bulkSubmitProducts = (productIds = [], actor = null) =>
+  workflowCommands.bulkSubmit(productIds, actor);
 
 /** Approve — COMPATIBILITY WRAPPER around the universal workflow command.
     Phase 2 FIX: approval does NOT publish; the product moves to APPROVED and
@@ -344,6 +204,10 @@ export const returnProduct = (productId, reason = "", actor = null) =>
 export const publishProduct = (productId, actor = null) =>
   workflowCommands.publishProduct(productId, actor);
 
+/** Bulk publish — per-ID delegation to the canonical individual Publish. */
+export const bulkPublishProducts = (productIds = [], actor = null) =>
+  workflowCommands.bulkPublish(productIds, actor);
+
 /** Archive — COMPATIBILITY WRAPPER around the universal workflow command. */
 export const archiveProduct = (productId, actor = null) =>
   workflowCommands.archiveProduct(productId, actor);
@@ -362,8 +226,7 @@ export const archiveProduct = (productId, actor = null) =>
  *   activity event
  *
  * The workflow no longer calls `mediaRepository.assignToProduct` directly,
- * so the confirmed Kids plate lock, marketing isolation and contested-
- * ownership rules apply to a rename exactly as they apply to any other
+ * so marketing isolation and contested-ownership rules apply to a rename exactly as they apply to any other
  * ownership change. Old-ID media can never end up silently attached to an
  * unrelated product: the transfer target is the renamed record itself, and
  * the rename is rolled back if any asset refuses to follow.
@@ -623,7 +486,7 @@ export const getMediaInbox = () => {
  *
  * Deterministic signals only:
  *   · filename multi-view groups (the existing naming/grouping system)
- *   · ingestion flags (NEEDS_REVIEW / POSSIBLE_DUPLICATE)
+ *   · import-review flags (NEEDS_REVIEW / POSSIBLE_DUPLICATE)
  *   · the human decision register
  *
  * Visual similarity alone never proves identity — every candidate asks a
@@ -683,7 +546,7 @@ export const getPotentialProductGroupsUncached = () => {
       id: `filename-${group.groupKey}`,
       kind: "FILENAME_GROUP",
       reason: flagged
-        ? `The naming convention groups these ${group.files.length} views as one product, and ingestion flagged ${flaggedCount} asset(s) for review. Confirm: one product, or separate products?`
+        ? `The naming convention groups these ${group.files.length} views as one product, and import review flagged ${flaggedCount} asset(s). Confirm: one product, or separate products?`
         : `One product, ${group.files.length} views (${[...new Set(group.files.map((file) => file.view).filter(Boolean))].join(", ")})`,
       media: rows,
       existingProductId: group.productId ?? null,
@@ -778,16 +641,6 @@ export const decideProductGroup = ({
   const mediaItems = ids.map((id) => mediaRepository.getById(id)).filter(Boolean);
   if (!mediaItems.length) return { ok: false, error: "The group has no media assets." };
 
-  /* Phase 22.2 — the 21 Kids assets are CONFIRMED separate products. No
-     similarity signal, and no group decision, may merge two of them. */
-  if (decision === GROUP_DECISIONS.SAME_PRODUCT && wouldMergeConfirmedKids(mediaItems.map(mediaFileName))) {
-    return {
-      ok: false,
-      error: KIDS_MERGE_REFUSED_ERROR,
-      confirmedKidsProductIds: confirmedKidsProductIdsIn(mediaItems.map(mediaFileName)),
-    };
-  }
-
   let product = null;
   let conflictCount = 0;
 
@@ -800,10 +653,10 @@ export const decideProductGroup = ({
         if (!moved.ok) conflictCount += 1;
       });
     } else {
-      const created = createProductDraftFromMedia({ mediaIds: ids, actor });
-      if (!created.ok) return created;
-      product = created.product;
-      conflictCount = created.conflicts.length;
+      return {
+        ok: false,
+        error: "Select an existing canonical Product before assigning this media group.",
+      };
     }
   }
 
@@ -838,25 +691,8 @@ export const decideProductGroup = ({
 };
 
 /* ------------------------------------------------------------------ */
-/* Phase 22.1 — Kids reconciliation                                    */
+/* Review readiness and corrections                                    */
 /* ------------------------------------------------------------------ */
-
-/** The five human decisions for a Kids ownership conflict. */
-export const KIDS_CONFLICT_ACTIONS = {
-  KEEP_EXISTING: "KEEP_EXISTING",
-  TRANSFER: "TRANSFER",
-  MERGE: "MERGE",
-  SEPARATE: "SEPARATE",
-  REVIEW_LATER: "REVIEW_LATER",
-};
-
-export const KIDS_CONFLICT_ACTION_LABELS = {
-  [KIDS_CONFLICT_ACTIONS.KEEP_EXISTING]: "Keep Existing Product",
-  [KIDS_CONFLICT_ACTIONS.TRANSFER]: "Transfer to KID Product",
-  [KIDS_CONFLICT_ACTIONS.MERGE]: "Merge into Existing Product",
-  [KIDS_CONFLICT_ACTIONS.SEPARATE]: "Create Separate Product",
-  [KIDS_CONFLICT_ACTIONS.REVIEW_LATER]: "Review Later",
-};
 
 /** A draft is ready when nothing — flags, conflicts or validation — stands between it and the storefront. */
 export const isReadyToPublish = (product) => {
@@ -868,197 +704,6 @@ export const isReadyToPublish = (product) => {
   return getPublishIssues(product).length === 0;
 };
 
-/** KID-001 … KID-021 with their full workflow view, for the admin desk. */
-export const getKidsReconciliationRowsUncached = () => {
-  const products = catalogRepository
-    .all()
-    .filter((product) => /^KID-\d{3}$/.test(String(product.id)))
-    .filter((product) => product.status !== PRODUCT_STATUS.ARCHIVED);
-
-  const rows = [];
-  for (let i = 0; i < products.length; i += 1) {
-    const product = products[i];
-    const view = getProductWorkflowView(product);
-    rows.push({
-      product,
-      mediaSet: view.mediaSet,
-      conflicts: view.conflicts,
-      issues: view.issues,
-      blockers: blockingReviewFlags(product.reviewFlags),
-      ready: isReadyToPublish(product),
-    });
-  }
-  rows.sort((a, b) => a.product.id.localeCompare(b.product.id));
-  return rows;
-};
-
-export const getKidsReconciliationRows = () => {
-  const catalogV = catalogRepository.getVersion ? catalogRepository.getVersion() : 0;
-  const mediaV = mediaRepository.getVersion ? mediaRepository.getVersion() : 0;
-  const fingerprint = makeFingerprint(catalogV, mediaV, "kids-recon");
-  if (workflowCache.kidsReconciliation && workflowCache.kidsReconciliationFingerprint === fingerprint) {
-    return workflowCache.kidsReconciliation;
-  }
-  const result = getKidsReconciliationRowsUncached();
-  workflowCache.kidsReconciliation = result;
-  workflowCache.kidsReconciliationFingerprint = fingerprint;
-  return result;
-};
-
-/**
- * The five reconciliation actions for a KID draft whose media is owned by
- * an existing published product. Every ownership-changing action is logged
- * through the shared activity diary.
- */
-export const reconcileKidsConflict = (productId, action, actor = null) => {
-  const product = catalogRepository.find(productId);
-  if (!product) return { ok: false, error: "Product not found." };
-  if (!Object.values(KIDS_CONFLICT_ACTIONS).includes(action)) {
-    return { ok: false, error: "Unknown reconciliation action." };
-  }
-
-  const { conflicts } = resolveProductMediaClaims(product, product.id);
-  const owners = [...new Set(conflicts.map((conflict) => conflict.ownerProductId).filter(Boolean))];
-
-  const clearClaims = () =>
-    catalogRepository.updateDraft(
-      productId,
-      { mediaIds: [], primaryMediaId: null, galleryMediaIds: [] },
-      actor
-    );
-
-  const removeConflictFlags = () => {
-    const flags = (product.reviewFlags ?? []).filter(
-      (flag) =>
-        flag !== REVIEW_FLAGS.CONFLICT_UNRESOLVED &&
-        flag !== REVIEW_FLAGS.MEDIA_OWNERSHIP_REVIEW
-    );
-    return catalogRepository.updateDraft(productId, { reviewFlags: flags }, actor);
-  };
-
-  const resolvedNote = (summary, targetId = productId) =>
-    note(ACTIVITY_ACTIONS.PRODUCT_CONFLICT_RESOLVED, summary, actor, targetId);
-
-  switch (action) {
-    case KIDS_CONFLICT_ACTIONS.REVIEW_LATER: {
-      if (!conflicts.length) return { ok: false, error: "No ownership conflict to defer." };
-      const flags = [
-        ...new Set([...(product.reviewFlags ?? []), REVIEW_FLAGS.CONFLICT_REVIEW_LATER]),
-      ];
-      catalogRepository.updateDraft(productId, { reviewFlags: flags }, actor);
-      resolvedNote(
-        `${productId}: REVIEW_LATER — conflict with ${owners.join(", ")} deferred for a future session`
-      );
-      workflowCache.kidsReconciliation = null;
-      return { ok: true, action, owners };
-    }
-
-    case KIDS_CONFLICT_ACTIONS.KEEP_EXISTING: {
-      if (!owners.length) return { ok: false, error: "No ownership conflict to resolve." };
-      clearClaims();
-      catalogRepository.archiveProduct(productId, actor);
-      resolvedNote(
-        `${productId}: KEEP_EXISTING — media stays with ${owners.join(", ")}; draft archived`
-      );
-      workflowCache.kidsReconciliation = null;
-      return { ok: true, action, owners, archivedDraft: productId };
-    }
-
-    case KIDS_CONFLICT_ACTIONS.TRANSFER: {
-      if (!conflicts.length) return { ok: false, error: "No conflicting media to transfer." };
-      const archivedOwners = [];
-      for (const conflict of conflicts) {
-        const moved = transferMediaOwnership(conflict.mediaId, productId, actor, {
-          confirm: true,
-        });
-        if (!moved.ok) {
-          return { ok: false, error: `Could not transfer ${conflict.file}: ${moved.error}` };
-        }
-        const previousId = moved.previousOwnerId;
-        if (previousId) {
-          const owner = catalogRepository.find(previousId);
-          if (
-            owner &&
-            owner.category === "kidswear" &&
-            owner.status === PRODUCT_STATUS.PUBLISHED
-          ) {
-            const ownerSet = getProductMediaSet(owner);
-            if (!ownerSet.primary && !owner.image) {
-              catalogRepository.archiveProduct(previousId, actor);
-              archivedOwners.push(previousId);
-            }
-          }
-        }
-      }
-      removeConflictFlags();
-      resolvedNote(
-        `${productId}: TRANSFER — media moved to the KID product${
-          archivedOwners.length ? `; retired ${archivedOwners.join(", ")}` : ""
-        }`
-      );
-      workflowCache.kidsReconciliation = null;
-      workflowCache.inbox = null;
-      return { ok: true, action, owners, archivedOwners };
-    }
-
-    case KIDS_CONFLICT_ACTIONS.MERGE: {
-      if (owners.length !== 1) {
-        return {
-          ok: false,
-          error: "Merge needs exactly one owning product — resolve one conflict at a time.",
-        };
-      }
-      const owner = catalogRepository.find(owners[0]);
-      if (!owner) return { ok: false, error: "Owning product not found." };
-
-      const patch = {};
-      if (product.name && !isPlaceholderProductName(product.name)) patch.name = product.name;
-      if (Number(product.price) > 0) {
-        patch.price = Number(product.price);
-        patch.pricing = {
-          ...(owner.pricing ?? {}),
-          sellingPrice: Number(product.price),
-          mrp: Math.max(Number(product.price), Number(product.compareAtPrice) || 0),
-        };
-      }
-      if (Number(product.compareAtPrice) > 0) patch.compareAtPrice = Number(product.compareAtPrice);
-      if (product.subcategory) patch.subcategory = product.subcategory;
-      if (product.description) patch.description = product.description;
-      if (product.shortDescription) patch.shortDescription = product.shortDescription;
-      catalogRepository.updateProduct(owners[0], patch, actor);
-
-      clearClaims();
-      catalogRepository.archiveProduct(productId, actor);
-      resolvedNote(
-        `${productId}: MERGE — draft content merged into ${owners[0]}; draft archived`,
-        owners[0]
-      );
-      workflowCache.kidsReconciliation = null;
-      return { ok: true, action, owners, mergedInto: owners[0] };
-    }
-
-    case KIDS_CONFLICT_ACTIONS.SEPARATE: {
-      if (!owners.length) return { ok: false, error: "No ownership conflict to resolve." };
-      clearClaims();
-      const flags = [
-        ...new Set([
-          ...(product.reviewFlags ?? []).filter(
-            (flag) => flag !== REVIEW_FLAGS.CONFLICT_UNRESOLVED
-          ),
-          REVIEW_FLAGS.NEEDS_MEDIA,
-        ]),
-      ];
-      catalogRepository.updateDraft(productId, { reviewFlags: flags }, actor);
-      resolvedNote(`${productId}: SEPARATE — draft keeps its identity and needs new media`);
-      workflowCache.kidsReconciliation = null;
-      return { ok: true, action, owners };
-    }
-
-    default:
-      return { ok: false, error: "Unknown reconciliation action." };
-  }
-};
-
 /**
  * Which review flags a product's CURRENT state has already satisfied —
  * used by the admin desk to retire flags the moment their field is real.
@@ -1067,7 +712,7 @@ export const flagsSatisfiedByProduct = (product) => {
   if (!product) return [];
   const cleared = [];
   if (!isPlaceholderProductName(product.name)) {
-    cleared.push(REVIEW_FLAGS.NAME_REVIEW_REQUIRED, REVIEW_FLAGS.KIDS_MIGRATION_REVIEW);
+    cleared.push(REVIEW_FLAGS.NAME_REVIEW_REQUIRED);
   }
   if (Number(product.price) > 0) cleared.push(REVIEW_FLAGS.PRICE_REVIEW_REQUIRED);
   if (product.category && product.subcategory) cleared.push(REVIEW_FLAGS.TAXONOMY_REVIEW_REQUIRED);
@@ -1092,7 +737,6 @@ export const clearReviewFlags = (productId, flags = [], actor = null) => {
     actor,
     productId
   );
-  workflowCache.kidsReconciliation = null;
   return { ok: true, product: result.product };
 };
 
@@ -1130,7 +774,6 @@ export const setPrimaryMedia = (productId, mediaId, actor = null) => {
     actor,
     productId
   );
-  workflowCache.kidsReconciliation = null;
   return { ok: true, product: result.product };
 };
 
@@ -1190,11 +833,7 @@ export const getWorkflowMetricsUncached = () => {
     if (m.status === MEDIA_STATUS.ACTIVE) mediaActive += 1;
   }
 
-  const ownershipPool = [];
-  for (let i = 0; i < media.length; i += 1) {
-    const m = media[i];
-    if (m.ingested || m.source === "Ingested library") ownershipPool.push(m);
-  }
+  const ownershipPool = media.filter((item) => item.scope === MEDIA_SCOPES.PRODUCT);
   const byFile = new Map();
   for (let i = 0; i < ownershipPool.length; i += 1) {
     const item = ownershipPool[i];
@@ -1249,57 +888,6 @@ export const getWorkflowMetricsUncached = () => {
 
   const potentialSameProductGroups = getPotentialProductGroups().filter((group) => !group.confirmed).length;
 
-  const kidsMedia = [];
-  for (let i = 0; i < media.length; i += 1) if (/^kids-\d{3}\.\w+$/i.test(mediaFileName(media[i]))) kidsMedia.push(media[i]);
-
-  const kidsDrafts = [];
-  const kidsPublished = [];
-  for (let i = 0; i < products.length; i += 1) {
-    const p = products[i];
-    if (/^KID-\d{3}$/.test(String(p.id)) && (p.status === PRODUCT_STATUS.DRAFT || p.status === PRODUCT_STATUS.PENDING_REVIEW)) kidsDrafts.push(p);
-    if (p.category === "kidswear" && p.status === PRODUCT_STATUS.PUBLISHED) kidsPublished.push(p);
-  }
-
-  const kidsGroupPool = kidsMedia.map((item) => ({ ...item, fileName: mediaFileName(item) }));
-  const kidsMediaGroups = buildMediaGroups(kidsGroupPool);
-  const kidsRows = getKidsReconciliationRows();
-  let kidsConflictRows = 0;
-  let kidsNeedsReviewRows = 0;
-  let kidsReadyRows = 0;
-  for (let i = 0; i < kidsRows.length; i += 1) {
-    const r = kidsRows[i];
-    if (r.conflicts.length) kidsConflictRows += 1;
-    if (r.product.status === PRODUCT_STATUS.DRAFT && (r.conflicts.length || r.blockers.length || r.issues.length)) kidsNeedsReviewRows += 1;
-    if (r.ready) kidsReadyRows += 1;
-  }
-  const kidsPotentialSameProductGroups = getPotentialProductGroups().filter(
-    (group) =>
-      !group.confirmed && group.media.every((row) => /^kids-\d{3}\.\w+$/i.test(String(row.file ?? "")))
-  ).length;
-
-  let publishedKidDrafts = 0;
-  for (let i = 0; i < kidsRows.length; i += 1) if (kidsRows[i].product.status === PRODUCT_STATUS.PUBLISHED) publishedKidDrafts += 1;
-
-  let unassignedKidsMedia = 0;
-  let mediaWithValidOwnership = 0;
-  let mediaClaimedByDrafts = 0;
-  for (let i = 0; i < kidsMedia.length; i += 1) {
-    const item = kidsMedia[i];
-    if (item.scope === MEDIA_SCOPES.UNASSIGNED) unassignedKidsMedia += 1;
-    if (item.productId && productIds.has(String(item.productId))) {
-      let dup = false;
-      for (let d = 0; d < duplicateOwnership.length; d += 1) {
-        const records = duplicateOwnership[d];
-        for (let r = 0; r < records.length; r += 1) if (records[r].id === item.id) { dup = true; break; }
-        if (dup) break;
-      }
-      if (!dup) mediaWithValidOwnership += 1;
-    }
-    for (let kd = 0; kd < kidsDrafts.length; kd += 1) {
-      const kdMediaIds = kidsDrafts[kd].mediaIds ?? [];
-      for (let mId = 0; mId < kdMediaIds.length; mId += 1) if (String(kdMediaIds[mId]) === String(item.id)) { mediaClaimedByDrafts += 1; break; }
-    }
-  }
 
   return {
     products: {
@@ -1332,22 +920,6 @@ export const getWorkflowMetricsUncached = () => {
       confirmed: confirmedGroups,
       stored: storedGroups.length,
     },
-    kids: {
-      totalMedia: kidsMedia.length,
-      totalGroups: kidsMediaGroups.length,
-      singleImageProducts: kidsMediaGroups.filter((group) => !group.isGrouped).length,
-      multiViewProducts: kidsMediaGroups.filter((group) => group.isGrouped).length,
-      existingProductConflicts: kidsConflictRows,
-      potentialSameProductGroups: kidsPotentialSameProductGroups,
-      needsReview: kidsNeedsReviewRows,
-      readyToPublish: kidsReadyRows,
-      publishedKidDrafts,
-      draftProducts: kidsDrafts.length,
-      publishedProducts: kidsPublished.length,
-      unassignedMedia: unassignedKidsMedia,
-      mediaWithValidOwnership,
-      mediaClaimedByDrafts,
-    },
   };
 };
 
@@ -1365,20 +937,17 @@ export const getWorkflowMetrics = () => {
 };
 
 export default {
-  productIdPrefixFor,
-  genderForCategory,
-  nextStableProductId,
-  preferredProductIdForMedia,
   validateMediaAssignment,
   transferMediaOwnership,
   unassignProductMedia,
-  createProductDraftFromMedia,
   assignProductToEmployee,
   submitProductForReview,
+  bulkSubmitProducts,
   approveProduct,
   bulkApproveProducts,
   returnProduct,
   publishProduct,
+  bulkPublishProducts,
   archiveProduct,
   changeProductId,
   employeeCanEditProduct,
@@ -1390,11 +959,7 @@ export default {
   getMediaInbox,
   getPotentialProductGroups,
   decideProductGroup,
-  KIDS_CONFLICT_ACTIONS,
-  KIDS_CONFLICT_ACTION_LABELS,
   isReadyToPublish,
-  getKidsReconciliationRows,
-  reconcileKidsConflict,
   flagsSatisfiedByProduct,
   clearReviewFlags,
   setPrimaryMedia,

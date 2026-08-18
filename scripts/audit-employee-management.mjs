@@ -26,6 +26,7 @@ const app = source("src/App.jsx");
 const adminNav = source("src/config/adminNavigation.js");
 const employeeNav = source("src/config/employeeNavigation.js");
 const productWorkflow = source("src/services/productWorkflow.js");
+const workflowCommands = source("src/services/workflow/productWorkflowCommands.js");
 
 let failed = false;
 const result = (label, pass, detail = "") => {
@@ -123,7 +124,7 @@ result(
     requiredPermission: PERMISSIONS.PRODUCTS_MANAGE,
   }).length > 0 &&
     productWorkflow.includes("assignProductToEmployee") &&
-    productWorkflow.includes("Only active employees can receive new product assignments")
+    workflowCommands.includes("Only active employees can receive new product assignments")
 );
 result(
   "Employee Portal still works",

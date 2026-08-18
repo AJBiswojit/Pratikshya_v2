@@ -29,6 +29,11 @@ globalThis.localStorage = {
     return store.size;
   },
 };
+const browserEvents = new EventTarget();
+globalThis.window = globalThis;
+globalThis.addEventListener = (...args) => browserEvents.addEventListener(...args);
+globalThis.removeEventListener = (...args) => browserEvents.removeEventListener(...args);
+globalThis.dispatchEvent = (...args) => browserEvents.dispatchEvent(...args);
 globalThis.sessionStorage = globalThis.localStorage;
 globalThis.matchMedia = () => ({
   matches: false,
@@ -88,35 +93,51 @@ const {
   PLACEMENT_MODES,
   getPlacement,
 } = await import("../src/config/mediaTypes.js");
-await import("../src/services/workflow/productWorkflowCommands.js");
+const {
+  approveProduct,
+  publishProduct,
+  submitProduct,
+} = await import("../src/services/workflow/productWorkflowCommands.js");
 
 const ACTOR = { adminId: "PF-ADM-00001", name: "House Admin" };
+
+console.log("\n# 0. FRESH BROWSER — canonical defaults with empty storage");
+const freshProducts = catalogRepository.all();
+const freshKids = freshProducts.filter((product) => product.department === "kids");
+check("fresh storage loads the one canonical catalogue", freshProducts.length > 0);
+check("fresh storage discovers Kids through the department field", freshKids.length > 0);
+check(
+  "fresh storage has no duplicate Kids placement state",
+  marketingPlacementRepository.getPlacementProductIds(MARKETING_PLACEMENTS.KIDS_SECTION).length === 0
+);
+check(
+  "fresh storage keeps unpublished Kids Products off the storefront",
+  !getLiveStorefrontProducts().some((product) => product.department === "kids")
+);
 
 const SAREE_A = "PF-W-SAR-BAN-0001"; // Mumtaz Sand Banarasi Saree
 const SAREE_B = "PF-W-SAR-COT-0001"; // Vasanti Copper Cotton Saree
 const LEHENGA = "PF-W-LEH-BRI-0002"; // Maharani Vermilion Bridal Lehenga
-const KIDS_A = "PF-K-GRL-DRS-0001";
-const KIDS_B = "PF-K-BYS-CS-0001";
+const canonicalKids = catalogRepository
+  .all()
+  .filter((product) => product.department === "kids");
+if (canonicalKids.length < 2) {
+  throw new Error("Marketing assignment QA requires two canonical Kids Products.");
+}
+const [KIDS_A, KIDS_B] = canonicalKids.map((product) => product.id);
 const DRAFT_ID = "PF-W-SAR-SIL-0001"; // stays unpublished
 
 const publishViaWorkflow = (id) => {
-  catalogRepository.updateProduct(
-    id,
-    {
-      pricing: { mrp: 3500, sellingPrice: 2999, discountType: "none", discountValue: 0, taxMode: "INCLUSIVE", taxRate: 0 },
-      description: "Handcrafted at PRATIKSHYA FASHON.",
-    },
-    ACTOR
-  );
-  const submitted = catalogRepository._workflowCommand("submitProduct", id, ACTOR);
-  const approved = catalogRepository._workflowCommand("approveProduct", id, ACTOR);
-  const published = approved.ok
-    ? catalogRepository._workflowCommand("publishProduct", id, ACTOR)
-    : approved;
-  return published.ok;
+  const submitted = submitProduct(id, ACTOR);
+  if (!submitted.ok) return submitted;
+  const approved = approveProduct(id, ACTOR);
+  return approved.ok ? publishProduct(id, ACTOR) : approved;
 };
 
-[SAREE_A, SAREE_B, LEHENGA, KIDS_A, KIDS_B].forEach((id) => publishViaWorkflow(id));
+[SAREE_A, SAREE_B, LEHENGA, KIDS_A, KIDS_B].forEach((id) => {
+  const result = publishViaWorkflow(id);
+  if (!result.ok) throw new Error(`Could not publish canonical Product ${id}: ${result.error}`);
+});
 
 console.log("\n# 1. ADMIN — curate placements from the canonical catalogue");
 
@@ -167,6 +188,25 @@ if (pageHtml) {
     "no placeholder/undefined leaked",
     !/\[object Object\]|>undefined<|>NaN</.test(pageHtml)
   );
+}
+
+/* ------------------------------------------------------------------ */
+console.log("\n# 1c. ADMIN PRODUCT WORKSPACES — one catalogue and review queue");
+/* ------------------------------------------------------------------ */
+
+try {
+  const { default: AdminProducts } = await import("../src/pages/admin/AdminProducts.jsx");
+  const { default: AdminProductReview } = await import("../src/pages/admin/AdminProductReview.jsx");
+  const adminProductsHtml = renderAt(React.createElement(AdminProducts), "/admin/products");
+  const reviewHtml = renderAt(React.createElement(AdminProductReview), "/admin/products/review");
+  check("Admin Products renders the canonical Kids Products", adminProductsHtml.includes(KIDS_A));
+  check("Product Review exposes Kids in its data-driven Department filter", reviewHtml.includes("Kids"));
+  check(
+    "Admin workspaces render without placeholder/undefined leakage",
+    !/\[object Object\]|>undefined<|>NaN</.test(`${adminProductsHtml}${reviewHtml}`)
+  );
+} catch (error) {
+  check("Admin Products and Product Review render", false, error.message);
 }
 
 /* ------------------------------------------------------------------ */
@@ -367,6 +407,42 @@ check(
     .map((placement) => placement.id)
     .join(", ")
 );
+
+/* ------------------------------------------------------------------ */
+console.log("\n# 6. CLEARED STORAGE — canonical recovery without duplicate state");
+/* ------------------------------------------------------------------ */
+
+try {
+  localStorage.clear();
+  const recovered = catalogRepository.all();
+  const recoveredKids = recovered.filter((product) => product.department === "kids");
+  check("cleared storage recovers the canonical catalogue", recovered.length === freshProducts.length);
+  check(
+    "cleared storage recovers the same canonical Kids Product IDs",
+    JSON.stringify(recoveredKids.map((product) => product.id)) ===
+      JSON.stringify(freshKids.map((product) => product.id))
+  );
+  check(
+    "cleared storage removes marketing placement references",
+    marketingPlacementRepository.getPlacementProductIds(MARKETING_PLACEMENTS.KIDS_SECTION).length === 0
+  );
+  check(
+    "cleared storage does not expose non-published Products",
+    !getLiveStorefrontProducts().some((product) => product.department === "kids")
+  );
+
+  const { default: AdminProducts } = await import("../src/pages/admin/AdminProducts.jsx");
+  const { default: AdminProductReview } = await import("../src/pages/admin/AdminProductReview.jsx");
+  const { default: AdminMarketingMedia } = await import("../src/pages/admin/media/AdminMarketingMedia.jsx");
+  const recoveredAdminProducts = renderAt(React.createElement(AdminProducts), "/admin/products");
+  const recoveredReview = renderAt(React.createElement(AdminProductReview), "/admin/products/review");
+  const recoveredMarketing = renderAt(React.createElement(AdminMarketingMedia), "/admin/media/marketing");
+  check("Admin Products still resolves canonical Kids after cleared storage", recoveredAdminProducts.includes(KIDS_A));
+  check("Product Review still exposes the canonical Kids filter after cleared storage", recoveredReview.includes("Kids"));
+  check("Marketing Media still exposes the canonical Kids placement after cleared storage", recoveredMarketing.includes("Kids section"));
+} catch (error) {
+  check("cleared-storage canonical recovery", false, error.message);
+}
 
 /* ------------------------------------------------------------------ */
 console.log("\n# SUMMARY");
