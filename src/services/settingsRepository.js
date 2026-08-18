@@ -19,7 +19,7 @@ export const SETTINGS_DEFAULTS = {
   notifications: { order: ["IN_APP"], returns: ["IN_APP"], employee: ["IN_APP"], lowStock: ["IN_APP"], offers: ["IN_APP"], marketing: [] },
   customer: { supportPhone: "", supportEmail: "", returnPolicyReference: "", shippingInformation: "", businessHoursReference: "" },
   offers: { defaultDurationDays: 7, maximumCouponDiscount: 10000, defaultCustomerUsageLimit: 1, allowStacking: false },
-  media: { maximumImageSizeMb: 10, maximumVideoSizeMb: 100, allowedImageFormats: "jpg,jpeg,png,webp", allowedVideoFormats: "mp4,webm" },
+  media: { maximumImageSizeMb: 10, maximumVideoSizeMb: 100, allowedImageFormats: "jpg,jpeg,png,webp,avif", allowedVideoFormats: "mp4,webm" },
 };
 const merge = (base, incoming) => Object.fromEntries(Object.entries(base).map(([key, value]) => [key, value && typeof value === "object" && !Array.isArray(value) ? merge(value, incoming?.[key]) : incoming?.[key] ?? value]));
 const migrated = () => { const legacy = readStorage("pratikshya_attendance_settings", null); const base = clone(SETTINGS_DEFAULTS); if (legacy && typeof legacy === "object") base.attendance = { ...base.attendance, ...legacy }; return base; };

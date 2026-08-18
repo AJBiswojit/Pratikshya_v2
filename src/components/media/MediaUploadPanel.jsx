@@ -11,7 +11,7 @@ import {
   rolesForType,
 } from "../../config/mediaTypes";
 import { cn } from "../../utils/cn";
-import { extensionOf, typeOfFile } from "./MediaUploadDropzone";
+import { validateFile } from "../../services/media/uploadValidation";
 
 /**
  * PRATIKSHYA FASHON — Demo media upload.
@@ -34,17 +34,9 @@ import { extensionOf, typeOfFile } from "./MediaUploadDropzone";
 
 /** The house rules, applied before a file is allowed into the queue. */
 const validate = (file) => {
-  const type = typeOfFile(file);
-  const rules = UPLOAD_RULES[type];
-  const extension = extensionOf(file.name);
-
-  if (!rules.extensions.includes(extension)) {
-    return { ok: false, error: `${extension || "That file"} is not accepted. Use ${rules.extensions.join(", ")}.` };
-  }
-  if (file.size > rules.maxBytes) {
-    return { ok: false, error: `${file.name} is ${formatFileSize(file.size)} — the limit is ${rules.maxLabel}.` };
-  }
-  return { ok: true, type };
+  const result = validateFile(file);
+  if (!result.ok) return result;
+  return { ok: true, type: result.type };
 };
 
 /** A title from a file name: "saree-pallu-01.jpg" → "Saree pallu 01". */
@@ -133,6 +125,7 @@ export default function MediaUploadPanel({
         role: showRole ? item.role : null,
         fileName: item.file.name,
         fileSize: item.file.size,
+        mimeType: item.file.type || "",
         source: "Demo upload",
         demoPlaceholder: true,
       }))

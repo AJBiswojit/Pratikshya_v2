@@ -445,8 +445,8 @@ export const isLivePlacement = (id) => Boolean(getPlacement(id)?.live);
  */
 export const UPLOAD_RULES = {
   [MEDIA_TYPES.IMAGE]: {
-    extensions: [".jpg", ".jpeg", ".png", ".webp"],
-    mimeTypes: ["image/jpeg", "image/png", "image/webp"],
+    extensions: [".jpg", ".jpeg", ".png", ".webp", ".avif"],
+    mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
     maxBytes: 10 * 1024 * 1024,
     maxLabel: "10 MB",
   },
@@ -461,8 +461,22 @@ export const UPLOAD_RULES = {
 /** The `accept` attribute for the demo file input. */
 export const UPLOAD_ACCEPT = [
   ...UPLOAD_RULES[MEDIA_TYPES.IMAGE].extensions,
+  ...UPLOAD_RULES[MEDIA_TYPES.IMAGE].mimeTypes,
   ...UPLOAD_RULES[MEDIA_TYPES.VIDEO].extensions,
+  ...UPLOAD_RULES[MEDIA_TYPES.VIDEO].mimeTypes,
 ].join(",");
+
+/** True when the file's extension or MIME type is a house-supported image/video. */
+export const isAllowedUploadFormat = (file, type) => {
+  const rules = UPLOAD_RULES[type] ?? UPLOAD_RULES[MEDIA_TYPES.IMAGE];
+  const name = String(file?.name ?? "");
+  const dot = name.lastIndexOf(".");
+  const extension = dot < 0 ? "" : name.slice(dot).toLowerCase();
+  const mime = String(file?.type ?? "").toLowerCase();
+  const extensionOk = Boolean(extension) && rules.extensions.includes(extension);
+  const mimeOk = Boolean(mime) && rules.mimeTypes.includes(mime);
+  return extensionOk || mimeOk;
+};
 
 export const UPLOAD_NOTICE = "DEMO MEDIA UPLOAD";
 
@@ -488,4 +502,5 @@ export default {
   MARKETING_PLACEMENT_OPTIONS,
   UPLOAD_RULES,
   UPLOAD_ACCEPT,
+  isAllowedUploadFormat,
 };

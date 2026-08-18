@@ -1,48 +1,11 @@
 import { useRef, useState } from "react";
 import { Film, Image as ImageIcon, UploadCloud } from "lucide-react";
 import { AtelierButton } from "../../design-system";
-import {
-  MEDIA_TYPES,
-  UPLOAD_ACCEPT,
-  UPLOAD_RULES,
-  formatFileSize,
-} from "../../config/mediaTypes";
+import { MEDIA_TYPES, UPLOAD_ACCEPT, UPLOAD_RULES } from "../../config/mediaTypes";
 import { cn } from "../../utils/cn";
+import { extensionOf, typeOfFile, validateFile } from "../../services/media/uploadValidation";
 
-export const extensionOf = (name = "") => {
-  const dot = name.lastIndexOf(".");
-  return dot < 0 ? "" : name.slice(dot).toLowerCase();
-};
-
-/** IMAGE or VIDEO from MIME type or file extension. */
-export const typeOfFile = (file) => {
-  if (file.type?.startsWith("video/")) return MEDIA_TYPES.VIDEO;
-  if (file.type?.startsWith("image/")) return MEDIA_TYPES.IMAGE;
-  return UPLOAD_RULES[MEDIA_TYPES.VIDEO].extensions.includes(extensionOf(file.name))
-    ? MEDIA_TYPES.VIDEO
-    : MEDIA_TYPES.IMAGE;
-};
-
-/** Validate file against house size and format rules. */
-export const validateFile = (file) => {
-  const type = typeOfFile(file);
-  const rules = UPLOAD_RULES[type];
-  const extension = extensionOf(file.name);
-
-  if (!rules.extensions.includes(extension)) {
-    return {
-      ok: false,
-      error: `"${file.name}" has unsupported format ${extension || "unknown"}. Allowed: ${rules.extensions.join(", ")}.`,
-    };
-  }
-  if (file.size > rules.maxBytes) {
-    return {
-      ok: false,
-      error: `"${file.name}" is ${formatFileSize(file.size)} — maximum allowed size is ${rules.maxLabel}.`,
-    };
-  }
-  return { ok: true, type };
-};
+export { extensionOf, typeOfFile, validateFile };
 
 export const titleFromFileName = (name = "") => {
   const stem = name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
@@ -136,7 +99,11 @@ export default function MediaUploadDropzone({
         <span className="inline-flex items-center gap-1.5">
           <ImageIcon size={13} className="text-cocoa" aria-hidden="true" />
           <span>
-            <strong>Images:</strong> JPG, JPEG, PNG, WEBP (up to 10 MB)
+            <strong>Images:</strong>{" "}
+            {UPLOAD_RULES[MEDIA_TYPES.IMAGE].extensions
+              .map((ext) => ext.replace(".", "").toUpperCase())
+              .join(", ")}{" "}
+            (up to {UPLOAD_RULES[MEDIA_TYPES.IMAGE].maxLabel})
           </span>
         </span>
         <span className="inline-flex items-center gap-1.5">
