@@ -1,38 +1,50 @@
+/**
+ * PRATIKSHYA FASHON — Product-first catalogue listing page.
+ *
+ * Every browsable product listing renders through this one page:
+ *   · /category/:slug         (managed categories)
+ *   · /collection/:slug       (managed collections)
+ *   · navigation paths        (/women, /men, /bridal, /kids, /women/sarees,
+ *                              /kids/boys, /collections/new-arrivals, etc.)
+ *
+ * Layout is SHOPPING-FIRST:
+ *
+ *   NAVBAR
+ *   → Compact breadcrumb
+ *   → Compact category header (eyebrow, title, short description)
+ *   → Category tabs (sibling subcategories from canonical taxonomy)
+ *   → Filter / sort toolbar (dynamic product count)
+ *   → Product grid
+ *   → Optional curated marketing rails (rendered AFTER the catalogue so
+ *     they never push products below the fold)
+ *
+ * The giant panorama editorial hero that previously occupied most of the
+ * first viewport is removed. Editorial artwork remains accessible on
+ * dedicated marketing pages and the homepage, not on catalogue pages.
+ */
+
 import { Link, useLocation, useParams } from "react-router-dom";
-import {
-  AtelierButton,
-  AtelierSection,
-  MediaFrame,
-  PageHeader,
-  eyebrow,
-} from "../design-system";
+import { AtelierButton, AtelierSection } from "../design-system";
 import CatalogueBrowser from "../components/storefront/CatalogueBrowser";
+import CatalogueHeader from "../components/storefront/CatalogueHeader";
+import CategoryTabs from "../components/storefront/CategoryTabs";
 import PlacementProductRail from "../components/storefront/PlacementProductRail";
-import { categoryRoutes, collectionRoutes, resolveNavigationScope } from "../data/products/taxonomy";
+import {
+  categoryRoutes,
+  collectionRoutes,
+  resolveNavigationScope,
+} from "../data/products/taxonomy";
 import { collectionPlates } from "../data/catalog/collections";
 import taxonomyRepository from "../services/taxonomyRepository";
 import { listingPlacementsForScope } from "../services/marketing/categoryPlacementSurfaces";
 import { getRouteMeta } from "../config/navigationConfig";
-import { imageRef } from "../data/mediaPlaceholder";
-import { resolveCategoryCover, resolveCollectionCover } from "../services/media/mediaResolver";
-import { cn } from "../utils/cn";
 import NotFound from "./NotFound";
 
-/**
- * Every product listing that is not the shop.
- *
- * The eight `/category/*` routes, the four `/collection/*` routes and the
- * navigation paths inherited from Phase 3 all render here. The route decides
- * the masthead and the locked filters; the browser beneath is identical in
- * all cases.
- *
- * `variant` tells the page which table to resolve its scope from.
- */
 export default function CatalogueListing({ variant }) {
   const params = useParams();
   const { pathname } = useLocation();
 
-  /* --- resolve the scope ----------------------------------------- */
+  /* --- resolve the canonical scope -------------------------------- */
 
   let scope = null;
 
@@ -46,8 +58,6 @@ export default function CatalogueListing({ variant }) {
           title: category.name,
           eyebrow: category.eyebrow || "Category",
           description: category.description,
-          image: category.image,
-          heroMediaId: category.bannerMediaId,
           filters: { category: category.id },
         };
       }
@@ -62,52 +72,41 @@ export default function CatalogueListing({ variant }) {
           title: collection.name,
           eyebrow: collection.eyebrow || "Collection",
           description: collection.description,
-          image: collection.image,
-          heroMediaId: collection.heroMediaId,
           filters: { collectionId: collection.id },
         };
       }
     }
   } else {
-    /* A Phase 3 navigation path. Its masthead copy already exists in the
-       navigation manifest, so only the filters come from the scope table.
-       `resolveNavigationScope` is the one route → context resolver: it
-       returns the locked filters for department, category, subcategory,
-       collection and legacy paths alike. */
+    // A Phase 3 navigation path (/women, /kids/boys, /collections/...).
     const nav = resolveNavigationScope(pathname);
     const meta = getRouteMeta(pathname);
     if (nav && meta) {
-      /* A `/collections/<slug>` page is a single collection, so its masthead
-         must carry that collection's own title, eyebrow and description —
-         not the generic Collections group copy. The record and plate come
-         from the canonical sources (`taxonomyRepository` collection record
-         first, then the authored editorial/fabric plate), and the product
-         scope below is unchanged. */
       const collectionSlug = pathname.replace(/^\/collections\/?/, "");
       const collectionRecord = collectionSlug
         ? taxonomyRepository.findCollection(collectionSlug)
         : null;
       const plate = collectionSlug
-        ? collectionPlates[collectionSlug] ?? collectionPlates[collectionRecord?.id]
+        ? collectionPlates[collectionSlug] ??
+          collectionPlates[collectionRecord?.id]
         : null;
 
       scope = {
         id: collectionRecord?.id ?? plate?.id ?? null,
         title: collectionRecord?.name ?? plate?.name ?? nav.title ?? meta.label,
-        eyebrow: collectionRecord?.eyebrow || plate?.eyebrow || meta.eyebrow,
+        eyebrow:
+          collectionRecord?.eyebrow || plate?.eyebrow || meta.eyebrow,
         description:
-          collectionRecord?.description ??
-          plate?.description ??
-          meta.description,
-        image: plate?.media?.primary ?? collectionRecord?.image ?? meta.image,
-        heroMediaId: collectionRecord?.heroMediaId ?? null,
+          collectionRecord?.description ?? plate?.description ?? meta.description,
         filters: nav.filters,
         breadcrumb: collectionSlug
           ? [
               { label: "Collections", to: "/collections" },
               {
                 label:
-                  collectionRecord?.name ?? plate?.name ?? nav.title ?? meta.label,
+                  collectionRecord?.name ??
+                  plate?.name ??
+                  nav.title ??
+                  meta.label,
               },
             ]
           : meta.breadcrumb,
@@ -116,15 +115,18 @@ export default function CatalogueListing({ variant }) {
   }
 
   if (variant === "category" && scope) {
-    const currentCategory = taxonomyRepository.findCategory(params.slug) || taxonomyRepository.findCategory(scope.id);
+    const currentCategory =
+      taxonomyRepository.findCategory(params.slug) ||
+      taxonomyRepository.findCategory(scope.id);
     if (currentCategory?.status !== "ACTIVE") scope = null;
   }
   if (variant === "collection" && scope) {
-    const currentCollection = taxonomyRepository.findCollection(params.slug) || taxonomyRepository.findCollection(scope.id);
+    const currentCollection =
+      taxonomyRepository.findCollection(params.slug) ||
+      taxonomyRepository.findCollection(scope.id);
     if (currentCollection?.displayStatus !== "ACTIVE") scope = null;
   }
 
-  /* An unknown or hidden slug is a missing page, not an empty grid. */
   if (!scope) return <NotFound />;
 
   const breadcrumb =
@@ -137,80 +139,44 @@ export default function CatalogueListing({ variant }) {
           { label: scope.title },
         ];
 
-  /* The editorial plate resolves through the central media resolver, so
-     category and collection pages show the same centralized media the rest
-     of the storefront uses — active Marketing Media first, then canonical
-     Product Media or authored editorial artwork. Routes that represent a catalogue
-     category resolve that category's cover; everything else keeps its
-     authored plate. */
-  const heroImage = (() => {
-    if (variant === "category") {
-      const category = taxonomyRepository.findCategory(scope.id);
-      if (category) return resolveCategoryCover(category);
-    } else if (variant === "collection") {
-      const collection = taxonomyRepository.findCollection(scope.id);
-      if (collection) return resolveCollectionCover(collection);
-    }
-    const categoryId = scope.filters?.category;
-    if (categoryId) {
-      const category = taxonomyRepository.findCategory(categoryId);
-      const cover = category ? resolveCategoryCover(category) : null;
-      if (cover?.src) return cover;
-    }
-    return imageRef(scope.image);
-  })();
-
-  /* Curated marketing rails. A PRODUCT placement whose documented surface is
-     this listing page (matched purely through the placement vocabulary's
-     recommended taxonomy) renders its curated edit above the full grid —
-     resolved through the same register + canonical catalogue path as every
-     other product placement, and absent entirely when nothing curated and
-     published resolves. The page itself owns no product list. */
+  // Curated marketing rails — resolved through the canonical placement
+  // system. Rendered AFTER the main catalogue grid so the editorial
+  // content never pushes products below the fold.
   const curatedRailPlacements = listingPlacementsForScope(scope.filters);
 
   return (
     <>
-      <PageHeader
+      <CatalogueHeader
         eyebrow={scope.eyebrow}
         title={scope.title}
         description={scope.description}
         breadcrumb={breadcrumb}
-        size="section"
-      />
+      >
+        {/* Category tabs — sibling subcategories derived purely from the
+            canonical department/category tree; never hardcoded. */}
+        <div className="mt-5 md:mt-6">
+          <CategoryTabs scopeFilters={scope.filters} pathname={pathname} />
+        </div>
+      </CatalogueHeader>
 
-      {/* Editorial plate — establishes the edit before the grid begins. */}
-      {heroImage?.src ? (
-        <AtelierSection rhythm="none" width="wide" className="pb-16 md:pb-24">
-          <MediaFrame
-            image={heroImage}
-            alt={scope.title}
-            aspect="panorama"
-            surface
-            overlay="inkLeft"
-          >
-            <div className="absolute inset-0 flex items-end p-8 md:p-12">
-              <p className={cn(eyebrow.section, "text-ivory/90")}>
-                {scope.eyebrow ?? "Pratikshya Fashon"}
-              </p>
-            </div>
-          </MediaFrame>
-        </AtelierSection>
-      ) : null}
-
-      {curatedRailPlacements.map((placement) => (
-        <PlacementProductRail key={placement.id} placementId={placement.id} />
-      ))}
-
-      <AtelierSection rhythm="none" width="wide" className="pb-24 md:pb-36">
+      <AtelierSection rhythm="none" width="wide" className="pb-20 md:pb-28">
         <CatalogueBrowser
           scopeFilters={scope.filters}
           emptyAction={
             <AtelierButton as={Link} to="/shop" variant="outline" size="md">
-              Browse Everything
+              Browse everything
             </AtelierButton>
           }
         />
       </AtelierSection>
+
+      {/* Curated marketing rails appear AFTER the product grid so the
+          catalogue stays the dominant element. Marketing Media remains
+          independent — these rails resolve through the same canonical
+          placement register they always did. */}
+      {curatedRailPlacements.map((placement) => (
+        <PlacementProductRail key={placement.id} placementId={placement.id} />
+      ))}
     </>
   );
 }

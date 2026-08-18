@@ -71,7 +71,9 @@ const productImagesIn = (html) =>
   [...html.matchAll(/<img[^>]+src="(\/images\/products\/[^"]+)"/g)].map((match) => match[1]);
 
 const countPlateIn = (html) => {
-  const match = html.match(/(\d+) curated (?:pieces|piece)/);
+  // The redesigned product-first toolbar renders "N pieces" (singular
+  // "1 piece") rather than the older "N curated pieces" wording.
+  const match = html.match(/(\d+)\s+(?:curated\s+)?pieces?/);
   return match ? Number(match[1]) : null;
 };
 
