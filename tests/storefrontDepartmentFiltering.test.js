@@ -314,9 +314,16 @@ test("/collections resolves through the canonical collection curation, not the c
   const baseline = listing("/collections");
   assert.ok(baseline.total < live.length, "collections is never the complete catalogue");
 
+  /* Curate a product that is NOT already in an active collection, so adding
+     it to one collection observably grows the curated set. */
+  const notCurated = live.filter(
+    (product) => taxonomyRepository.collectionsForProduct(product).length === 0
+  );
+  assert.ok(notCurated.length >= 3, "some published pieces are outside every collection");
+  const chosen = notCurated.slice(0, 3).map((product) => product.id);
+
   const collection = taxonomyRepository.activeCollections()[0];
   const original = collection.productIds;
-  const chosen = live.slice(0, 3).map((product) => product.id);
 
   try {
     assert.ok(taxonomyRepository.updateCollection(collection.id, { productIds: chosen }, ADMIN).ok);
@@ -340,9 +347,15 @@ test("/collections resolves through the canonical collection curation, not the c
 
 test("membership of a paused collection does not curate a product into /collections", () => {
   const live = publishWholeCatalogue();
+  /* Pick a piece that is NOT otherwise curated, so pausing the one collection
+     it belongs to is the only thing keeping it off /collections. */
+  const notCurated = live.find(
+    (product) => taxonomyRepository.collectionsForProduct(product).length === 0
+  );
+  assert.ok(notCurated, "some published piece sits outside every collection");
   const collection = taxonomyRepository.activeCollections()[0];
   const original = { productIds: collection.productIds, status: collection.status };
-  const chosen = [live[0].id];
+  const chosen = [notCurated.id];
 
   try {
     taxonomyRepository.updateCollection(

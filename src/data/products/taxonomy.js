@@ -173,7 +173,7 @@ export const navigationScopes = {
   "/collections/heritage-weaves": { filters: { collection: "Heritage Weaves" } },
   "/collections/handloom-stories": { filters: { collection: "Handloom Stories" } },
   "/collections/cotton": { filters: { fabric: "Cotton" } },
-  "/collections/silk": { filters: { fabric: "Mulberry Silk" } },
+  "/collections/silk": { filters: { fabric: "Silk" } },
   "/collections/linen": { filters: { fabric: "Linen" } },
   "/collections/chiffon": { filters: { fabric: "Chiffon" } },
 

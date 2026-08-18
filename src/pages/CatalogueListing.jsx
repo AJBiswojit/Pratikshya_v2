@@ -8,6 +8,7 @@ import {
 } from "../design-system";
 import CatalogueBrowser from "../components/storefront/CatalogueBrowser";
 import { categoryRoutes, collectionRoutes, resolveNavigationScope } from "../data/products/taxonomy";
+import { collectionPlates } from "../data/catalog/collections";
 import taxonomyRepository from "../services/taxonomyRepository";
 import { getRouteMeta } from "../config/navigationConfig";
 import { imageRef } from "../data/mediaPlaceholder";
@@ -74,13 +75,40 @@ export default function CatalogueListing({ variant }) {
     const nav = resolveNavigationScope(pathname);
     const meta = getRouteMeta(pathname);
     if (nav && meta) {
+      /* A `/collections/<slug>` page is a single collection, so its masthead
+         must carry that collection's own title, eyebrow and description —
+         not the generic Collections group copy. The record and plate come
+         from the canonical sources (`taxonomyRepository` collection record
+         first, then the authored editorial/fabric plate), and the product
+         scope below is unchanged. */
+      const collectionSlug = pathname.replace(/^\/collections\/?/, "");
+      const collectionRecord = collectionSlug
+        ? taxonomyRepository.findCollection(collectionSlug)
+        : null;
+      const plate = collectionSlug
+        ? collectionPlates[collectionSlug] ?? collectionPlates[collectionRecord?.id]
+        : null;
+
       scope = {
-        title: nav.title ?? meta.label,
-        eyebrow: meta.eyebrow,
-        description: meta.description,
-        image: meta.image,
+        id: collectionRecord?.id ?? plate?.id ?? null,
+        title: collectionRecord?.name ?? plate?.name ?? nav.title ?? meta.label,
+        eyebrow: collectionRecord?.eyebrow || plate?.eyebrow || meta.eyebrow,
+        description:
+          collectionRecord?.description ??
+          plate?.description ??
+          meta.description,
+        image: plate?.media?.primary ?? collectionRecord?.image ?? meta.image,
+        heroMediaId: collectionRecord?.heroMediaId ?? null,
         filters: nav.filters,
-        breadcrumb: meta.breadcrumb,
+        breadcrumb: collectionSlug
+          ? [
+              { label: "Collections", to: "/collections" },
+              {
+                label:
+                  collectionRecord?.name ?? plate?.name ?? nav.title ?? meta.label,
+              },
+            ]
+          : meta.breadcrumb,
       };
     }
   }
