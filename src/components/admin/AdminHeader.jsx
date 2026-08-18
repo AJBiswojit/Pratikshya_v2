@@ -6,7 +6,7 @@ import { getAdminRoleLabel } from "../../config/adminAccess";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { adminInitials } from "../../utils/admin";
 import { cn } from "../../utils/cn";
-import { transition } from "../../design-system";
+import { Brand, transition } from "../../design-system";
 
 /**
  * The Admin Portal header.
@@ -58,14 +58,15 @@ export default function AdminHeader({ navOpen, onToggleNav }) {
           >
             {navOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
-          <Link to={ADMIN_BRAND.home} className="min-w-0">
-            <p className="truncate font-display text-lg font-light tracking-tight md:text-xl">
-              {ADMIN_BRAND.name}
-            </p>
-            <p className="font-ui text-[9px] uppercase tracking-[.22em] text-gold">
-              {ADMIN_BRAND.portal}
-            </p>
-          </Link>
+          <Brand
+            to={ADMIN_BRAND.home}
+            size="default"
+            variant="lockup"
+            theme="dark"
+            wordmark={ADMIN_BRAND.name}
+            subtitle={`${ADMIN_BRAND.portal} · ${ADMIN_BRAND.subtitle}`}
+            className="min-w-0"
+          />
         </div>
 
         <div className="hidden min-w-0 flex-1 px-6 xl:block">

@@ -12,10 +12,13 @@
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-ui: "Instrument Sans", system-ui, sans-serif;
 
-  /* Surfaces */
-  --color-canvas: #f7f4f0;
-  --color-canvas-deep: #efeae3;
-  --color-surface: #f0ebe6;
+  /* Surfaces — universal base page background is white (#FFFFFF) per the
+     Atelier visual language. `canvas` carries the page canvas, `surface`
+     keeps a subtle off-white for image plates and inserts so they remain
+     differentiated from the pure-white canvas without introducing beige. */
+  --color-canvas: #ffffff;
+  --color-canvas-deep: #f7f7f7;
+  --color-surface: #fafaf8;
   --color-ivory: #fdf8f3;
 
   /* Ink */
@@ -50,7 +53,9 @@ html {
 
 body {
   font-family: "Instrument Sans", system-ui, sans-serif;
-  background-color: #fdf8f3;
+  /* The Atelier page canvas is pure white; secondary surfaces carry a
+     barely-warm tint via --color-surface to preserve visual hierarchy. */
+  background-color: #ffffff;
   color: #1a1a1a;
   overflow-x: hidden;
 }

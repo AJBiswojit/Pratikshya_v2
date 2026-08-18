@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import {
+  Brand,
   Container,
   body,
   eyebrow,
@@ -28,7 +29,14 @@ export default function SiteFooter({ className = "" }) {
     <footer className={cn("bg-ink text-ivory px-6 md:px-12 py-16", className)}>
       <Container className={cn(grid.footer, gap.column, "mb-12")}>
         <div>
-          <h4 className={cn(heading.footer, "mb-4")}>{brand.name}</h4>
+          <Brand
+            as="h4"
+            size="default"
+            variant="lockup"
+            theme="dark"
+            wordmark={brand.name}
+            className="mb-4"
+          />
           <p className={cn(body.caption, "text-ash")}>{brand.tagline}</p>
         </div>
 

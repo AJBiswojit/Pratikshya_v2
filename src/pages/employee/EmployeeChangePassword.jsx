@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { AtelierButton, Rule } from "../../design-system";
+import { AtelierButton, Brand, Rule } from "../../design-system";
 import { EMPLOYEE_BRAND } from "../../config/employeeNavigation";
 import { useEmployeeAuth } from "../../context/EmployeeAuthContext";
 import { validateEmployeePasswordChange } from "../../services/employees/employeePassword";
@@ -49,10 +49,18 @@ export default function EmployeeChangePassword() {
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <header className="border-b border-mist/80 px-6 py-5">
-        <p className="font-display text-xl font-light tracking-tight">{EMPLOYEE_BRAND.name}</p>
-        <p className="font-ui text-[10px] uppercase tracking-[.22em] text-brass">
-          {employee?.employeeId} · First-time access
-        </p>
+        <Brand
+          as="h1"
+          size="default"
+          variant="lockup"
+          theme="light"
+          wordmark={EMPLOYEE_BRAND.name}
+          subtitle={
+            employee?.employeeId
+              ? `${employee.employeeId} · First-time access`
+              : "First-time access"
+          }
+        />
       </header>
       <main className="mx-auto max-w-xl px-6 py-16 md:py-24">
         <div className="border border-mist/80 bg-surface/50 p-7 sm:p-12">

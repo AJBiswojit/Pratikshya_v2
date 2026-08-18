@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AlertCircle, ArrowRight, Eye, EyeOff, Sparkles } from "lucide-react";
-import { AtelierButton, Rule } from "../../design-system";
+import { AtelierButton, Brand, Rule } from "../../design-system";
 import { EMPLOYEE_BRAND, sanitizeEmployeeReturnUrl } from "../../config/employeeNavigation";
 import { useEmployeeAuth } from "../../context/EmployeeAuthContext";
 import { DEMO_EMPLOYEE_LOGINS } from "../../data/employees/demoCredentials";
@@ -65,10 +65,14 @@ export default function EmployeeLogin() {
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <header className="border-b border-mist/80 px-6 py-5">
-        <p className="font-display text-xl font-light tracking-tight">{EMPLOYEE_BRAND.name}</p>
-        <p className="font-ui text-[10px] uppercase tracking-[.22em] text-brass">
-          {EMPLOYEE_BRAND.portal} · {EMPLOYEE_BRAND.subtitle}
-        </p>
+        <Brand
+          as="h1"
+          size="default"
+          variant="lockup"
+          theme="light"
+          wordmark={EMPLOYEE_BRAND.name}
+          subtitle={`${EMPLOYEE_BRAND.portal} · ${EMPLOYEE_BRAND.subtitle}`}
+        />
       </header>
 
       <main className="mx-auto max-w-xl px-6 py-16 md:py-24">

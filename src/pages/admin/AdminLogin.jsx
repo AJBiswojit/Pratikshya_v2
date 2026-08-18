@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AlertCircle, ArrowRight, Eye, EyeOff, ShieldCheck } from "lucide-react";
-import { AtelierButton, Rule } from "../../design-system";
+import { AtelierButton, Brand, Rule } from "../../design-system";
 import { ADMIN_BRAND, sanitizeAdminReturnUrl } from "../../config/adminNavigation";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { DEMO_ADMIN_LOGINS } from "../../data/admin/demoAdminCredentials";
@@ -71,10 +71,14 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-canvas text-ink">
       <header className="border-b border-ink-line bg-ink px-6 py-5 text-ivory">
-        <p className="font-display text-xl font-light tracking-tight">{ADMIN_BRAND.name}</p>
-        <p className="font-ui text-[10px] uppercase tracking-[.22em] text-gold">
-          {ADMIN_BRAND.portal} · {ADMIN_BRAND.subtitle}
-        </p>
+        <Brand
+          as="h1"
+          size="default"
+          variant="lockup"
+          theme="dark"
+          wordmark={ADMIN_BRAND.name}
+          subtitle={`${ADMIN_BRAND.portal} · ${ADMIN_BRAND.subtitle}`}
+        />
       </header>
 
       <main className="mx-auto max-w-xl px-5 py-12 sm:px-6 md:py-20">
