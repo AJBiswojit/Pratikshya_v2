@@ -18,8 +18,10 @@ import {
   MEDIA_SCOPES,
   MEDIA_STATUS,
   MEDIA_TYPES,
+  PLACEMENT_MODES,
   PRODUCT_MEDIA_ROLES,
   USAGE_ROLES,
+  getPlacement,
 } from "../../config/mediaTypes";
 import { imageRef } from "../../data/mediaPlaceholder";
 import { products as catalogueSeedProducts } from "../../data/catalog/products";
@@ -979,6 +981,31 @@ export const resolveHomepageHeroMedia = (heroMedia = null) => {
 };
 
 /**
+ * True when a marketing record is ACTUALLY consumed by its placement's
+ * storefront seam today — the honest answer behind any "live / on the
+ * storefront" label the Admin Portal shows.
+ *
+ * The baseline is the register's own public rule (ACTIVE record with a
+ * usable file on a live GENERIC placement). HOME_HERO is stricter: the hero
+ * register additionally requires the dedicated HERO usage role and the
+ * hero mapping method, so a plainly ACTIVE upload that the slideshow cannot
+ * admit is reported as not live rather than celebrated.
+ *
+ * Records pointed at PRODUCT placements are never live here — those
+ * placements showcase catalogue products, never artwork.
+ */
+export const isPlacementRecordLive = (placementId, media = null) => {
+  const placement = getPlacement(placementId);
+  if (!placement?.live || placement.mode !== PLACEMENT_MODES.GENERIC) return false;
+  if (!media || media.placement !== placementId) return false;
+  if (media.status !== MEDIA_STATUS.ACTIVE || !media.url) return false;
+  if (placementId === MARKETING_PLACEMENTS.HOME_HERO) {
+    return resolveHomepageHeroMedia([media]).includes(media);
+  }
+  return true;
+};
+
+/**
  * Safe outage fallback: an ACTIVE, non-product HERO record only. Product,
  * category and AI imagery can never be substituted into the homepage hero.
  */
@@ -1146,6 +1173,7 @@ export default {
   resolveCollectionCover,
   resolveThemeImage,
   resolveHomepageHeroMedia,
+  isPlacementRecordLive,
   resolveHeroSlideImage,
   resolveHeroSlideImages,
   resolveHeroImageIds,

@@ -7,9 +7,11 @@ import {
   eyebrow,
 } from "../design-system";
 import CatalogueBrowser from "../components/storefront/CatalogueBrowser";
+import PlacementProductRail from "../components/storefront/PlacementProductRail";
 import { categoryRoutes, collectionRoutes, resolveNavigationScope } from "../data/products/taxonomy";
 import { collectionPlates } from "../data/catalog/collections";
 import taxonomyRepository from "../services/taxonomyRepository";
+import { listingPlacementsForScope } from "../services/marketing/categoryPlacementSurfaces";
 import { getRouteMeta } from "../config/navigationConfig";
 import { imageRef } from "../data/mediaPlaceholder";
 import { resolveCategoryCover, resolveCollectionCover } from "../services/media/mediaResolver";
@@ -158,6 +160,14 @@ export default function CatalogueListing({ variant }) {
     return imageRef(scope.image);
   })();
 
+  /* Curated marketing rails. A PRODUCT placement whose documented surface is
+     this listing page (matched purely through the placement vocabulary's
+     recommended taxonomy) renders its curated edit above the full grid —
+     resolved through the same register + canonical catalogue path as every
+     other product placement, and absent entirely when nothing curated and
+     published resolves. The page itself owns no product list. */
+  const curatedRailPlacements = listingPlacementsForScope(scope.filters);
+
   return (
     <>
       <PageHeader
@@ -186,6 +196,10 @@ export default function CatalogueListing({ variant }) {
           </MediaFrame>
         </AtelierSection>
       ) : null}
+
+      {curatedRailPlacements.map((placement) => (
+        <PlacementProductRail key={placement.id} placementId={placement.id} />
+      ))}
 
       <AtelierSection rhythm="none" width="wide" className="pb-24 md:pb-36">
         <CatalogueBrowser

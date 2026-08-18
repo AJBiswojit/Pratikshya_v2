@@ -25,6 +25,7 @@ import {
 } from "../../../hooks/useMarketingPlacements";
 import { useProducts } from "../../../hooks/useProducts";
 import { resolveProductCover } from "../../../services/media/productMediaSource";
+import { isPlacementRecordLive } from "../../../services/media/mediaResolver";
 import { getProductStatusLabel } from "../../../config/productCatalogConfig";
 import { categoryLabels } from "../../../data/products/taxonomy";
 
@@ -97,7 +98,9 @@ function ProductPlacementPanel({ placement, canCurate }) {
         {placement.live
           ? count
             ? " · showing the assigned products below in display order."
-            : " · no products assigned, so the section's house selection stands."
+            : placement.houseSelectionFallback
+              ? " · no products assigned, so the section's house selection stands."
+              : " · no products assigned — the section stays hidden until products are curated."
           : " · products can be curated here; the section is not wired to the register yet."}
       </p>
 
@@ -236,6 +239,11 @@ function ProductPlacementPanel({ placement, canCurate }) {
 function GenericPlacementPanel({ placement, media, actions, uploadFor, setUploadFor }) {
   const items = media.filter((item) => item.placement === placement.id);
   const active = items.find((item) => item.status === MEDIA_STATUS.ACTIVE) ?? null;
+  /* The badge and the copy answer the canonical consumption rule, not the
+     local assignment: an ACTIVE record is only "on the storefront" when its
+     placement's seam actually admits it (the hero register, for one, asks
+     for the dedicated HERO role and mapping). */
+  const liveRecord = active && isPlacementRecordLive(placement.id, active) ? active : null;
 
   return (
     <AdminPanel
@@ -256,9 +264,11 @@ function GenericPlacementPanel({ placement, media, actions, uploadFor, setUpload
       <p className="mb-4 font-ui text-[11px] text-taupe">
         {placement.surface}
         {placement.live
-          ? active
+          ? liveRecord
             ? " · showing the active record below."
-            : " · no active record, so the house artwork stands."
+            : active
+              ? " · the active record below is not admitted by the seam yet, so the house artwork stands."
+              : " · no active record, so the house artwork stands."
           : " · records can be prepared here; the section is not wired to the register yet."}
       </p>
 
@@ -298,7 +308,7 @@ function GenericPlacementPanel({ placement, media, actions, uploadFor, setUpload
                     label={getMediaStatusLabel(item.status)}
                     tone={getMediaStatusTone(item.status)}
                   />
-                  {active?.id === item.id && placement.live ? (
+                  {liveRecord?.id === item.id ? (
                     <StatusBadge label="On the storefront" tone="accent" />
                   ) : null}
                 </div>
@@ -370,7 +380,7 @@ export default function AdminMarketingMedia() {
     >
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         <AdminMetricCard label="Marketing media" value={metrics.marketingMedia} hint="All placements" />
-        <AdminMetricCard label="Active" value={metrics.activeMarketing} hint="Live on the storefront" />
+        <AdminMetricCard label="Active" value={metrics.activeMarketing} hint="Active marketing records" />
         <AdminMetricCard label="Live placements" value={livePlacements.length} hint="Wired to a section" />
         <AdminMetricCard label="Planned" value={plannedPlacements.length} hint="Reserved for later phases" />
       </div>

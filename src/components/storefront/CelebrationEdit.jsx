@@ -60,6 +60,12 @@ const edits = [
 export default function CelebrationEdit({ excludeIds = null }) {
   const [activeId, setActiveId] = useState("bridal");
   const festiveMedia = useActivePlacementMedia(MARKETING_PLACEMENTS.FESTIVE_SECTION);
+  /* The EDITORIAL placement owns the heritage storytelling plate — the one
+     frame without a frame-specific marketing seam. An ACTIVE record stands
+     in for the artwork exactly the way the festive record does; anything
+     else (no record, draft, archived, no usable file) leaves the house's
+     deterministic editorial frame where it is. */
+  const editorialMedia = useActivePlacementMedia(MARKETING_PLACEMENTS.EDITORIAL);
   const activeEdit = edits.find((edit) => edit.id === activeId) ?? edits[0];
   const usedIds = new Set(excludeIds ?? []);
 
@@ -71,7 +77,9 @@ export default function CelebrationEdit({ excludeIds = null }) {
       const resolved =
         edit.id === "festive"
           ? resolvePlacementImage(festiveMedia, resolveEditorialFrame("festive", usedIds) || imageRef(edit.image))
-          : resolveEditorialFrame(themeFor(edit.id), usedIds) || imageRef(edit.image);
+          : edit.id === "heritage"
+            ? resolvePlacementImage(editorialMedia, resolveEditorialFrame("heritage", usedIds) || imageRef(edit.image))
+            : resolveEditorialFrame(themeFor(edit.id), usedIds) || imageRef(edit.image);
       return [edit.id, resolved];
     })
   );

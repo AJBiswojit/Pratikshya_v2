@@ -43,7 +43,11 @@ export default function PlacementProductRail({ placementId, count = 8 }) {
 
   const liveProducts = getLiveStorefrontProducts();
   const assigned = usePlacementProducts(placementId, liveProducts);
-  const rows = useProductCovers(assigned.slice(0, count));
+  /* A marketing seam never renders an empty frame: rows without a resolved
+     canonical primary plate are dropped rather than shown media-less. */
+  const rows = useProductCovers(assigned.slice(0, count)).filter(
+    (product) => Boolean(product?.image?.src)
+  );
 
   if (!placement || rows.length === 0) return null;
 

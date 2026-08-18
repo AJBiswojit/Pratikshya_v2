@@ -44,6 +44,8 @@ export default function AtelierDesign() {
           Bride & Groom, New Arrivals) read the same register internally. */}
       <PlacementProductRail placementId={MARKETING_PLACEMENTS.LEHENGA_SECTION} />
 
+      <PlacementProductRail placementId={MARKETING_PLACEMENTS.WOMEN_SECTION} />
+
       <BrideGroomEdit excludeIds={heroImageIds} />
 
       <CelebrationEdit excludeIds={heroImageIds} />
