@@ -168,13 +168,14 @@ export default function Brand({
   const themeEyebrow = THEME_EYEBROW[theme] ?? THEME_EYEBROW.light;
 
   const assetAvailable = Boolean(LOGO_URL);
-  // The supplied logo is the canonical brand mark. We do NOT replace it
-  // with typographic text on this surface — a missing asset simply means
-  // the mark slot is empty, and accessibility text alone carries the brand
-  // name. The `wordmark` variant is a deliberate content choice a caller
-  // can opt into, separate from the mark.
+  // The supplied logo is the canonical brand mark; the typographic wordmark
+  // sits beside it as part of the same lockup. The `mark` variant shows the
+  // mark alone, `wordmark` shows the typographic text alone, and `lockup`
+  // (the default, used by the storefront header/footer and every portal)
+  // shows both together. A missing asset simply means the mark slot is
+  // empty — the wordmark never pretends to *be* the logo, it accompanies it.
   const showMark = variant !== "wordmark" && assetAvailable;
-  const showWord = variant === "wordmark";
+  const showWord = variant === "wordmark" || variant === "lockup";
   const showCaption = (subtitle || eyebrow) && (variant === "lockup" || variant === "wordmark");
 
   const content = (

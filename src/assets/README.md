@@ -15,12 +15,14 @@ present yet.
 
 ## Fallback behaviour
 
-* When the file is present, every surface that renders `<Brand />` displays
-  the supplied mark at its native aspect ratio (no stretch, no crop), with
-  the image's transparency preserved.
-* Until the file is dropped in, every `<Brand />` surface stays blank for
-  the mark — the wordmark is rendered only as an `sr-only` accessibility
-  label so no typographic text ever pretends to be the logo.
+* When the file is present, every surface that renders `<Brand />` with the
+  `lockup` variant (the storefront header/footer and every portal default)
+  displays the supplied mark at its native aspect ratio (no stretch, no
+  crop) with the typographic wordmark `PRATIKSHYA FASHON` beside it as one
+  brand lockup. The image's transparency is preserved.
+* Until the file is dropped in, the mark slot stays empty and the wordmark
+  still renders so the brand name stays legible. The typographic wordmark
+  accompanies the supplied mark — it never pretends to *be* the logo.
 
 ## Supported extensions
 

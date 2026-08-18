@@ -885,7 +885,7 @@ const HERO_THEMES = {
   },
   groom: {
     roles: [USAGE_ROLES.HERO, USAGE_ROLES.EDITORIAL, USAGE_ROLES.LOOKBOOK],
-    categoryId: "menswear",
+    categoryId: "groom",
     fallback: "groom-sherwani",
   },
   heritage: {

@@ -279,8 +279,10 @@ export const isValidUsageRole = (role) => Object.values(USAGE_ROLES).includes(ro
  *     fallback, no random products).
  *
  *   · GENERIC placements display house artwork (hero plates, editorial
- *     storytelling, campaign bands). They keep the existing media-upload
- *     workflow.
+ *     storytelling, promotion artwork). They keep the existing media-upload
+ *     workflow. The Festive campaign band is a PRODUCT placement: its image
+ *     is the published product an admin assigns, exactly like the Saree and
+ *     Groom edits.
  *
  * Every placement marked `live: true` is read by a real storefront seam —
  * product placements through the marketing placement register, generic
@@ -342,7 +344,9 @@ export const MARKETING_PLACEMENT_OPTIONS = [
     label: "Festive section",
     surface: "Landing page — festive campaign band",
     live: true,
-    mode: PLACEMENT_MODES.GENERIC,
+    mode: PLACEMENT_MODES.PRODUCT,
+    recommendedDepartment: "women",
+    recommendedCategory: "lehengas",
   },
   {
     id: MARKETING_PLACEMENTS.WOMEN_SECTION,

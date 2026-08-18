@@ -136,7 +136,15 @@ test("PRODUCT placements stay catalogue-driven; GENERIC placements accept AVIF",
   assert.ok(genericIds.includes(MARKETING_PLACEMENTS.HOME_HERO));
   assert.ok(genericIds.includes(MARKETING_PLACEMENTS.EDITORIAL));
   assert.ok(genericIds.includes(MARKETING_PLACEMENTS.PROMOTION));
-  assert.ok(genericIds.includes(MARKETING_PLACEMENTS.FESTIVE_SECTION));
+
+  /* The Festive section is a PRODUCT placement — its image is the published
+     product an admin curates, never an uploaded artwork record. */
+  assert.ok(!genericIds.includes(MARKETING_PLACEMENTS.FESTIVE_SECTION));
+  assert.equal(
+    MARKETING_PLACEMENT_OPTIONS.find((placement) => placement.id === MARKETING_PLACEMENTS.FESTIVE_SECTION)
+      .mode,
+    PLACEMENT_MODES.PRODUCT
+  );
 });
 
 test("storefront rendering resolves an AVIF marketing record without format branching", () => {
