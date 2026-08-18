@@ -4,8 +4,10 @@ import { ArrowUpRight } from "lucide-react";
 import { imageRef } from "../../data/mediaPlaceholder";
 import { MARKETING_PLACEMENTS } from "../../config/mediaTypes";
 import { useActivePlacementMedia } from "../../hooks/useMedia";
+import { usePlacementEntries } from "../../hooks/useMarketingPlacements";
 import { resolvePlacementImage } from "../../services/media/marketingMediaSource";
 import { resolveEditorialFrame } from "../../services/media/mediaResolver";
+import { getLiveStorefrontProducts } from "../../data/products";
 import { resolveCategoryRoute } from "../../services/taxonomyRouting";
 import { AtelierButton, AtelierSection, MediaFrame, body, eyebrow, heading } from "../../design-system";
 import { cn } from "../../utils/cn";
@@ -59,7 +61,15 @@ const edits = [
 
 export default function CelebrationEdit({ excludeIds = null }) {
   const [activeId, setActiveId] = useState("bridal");
-  const festiveMedia = useActivePlacementMedia(MARKETING_PLACEMENTS.FESTIVE_SECTION);
+  /* The Festive edit resolves through the canonical Marketing Media product
+     workflow — the FESTIVE_SECTION placement holds a canonical Product ID,
+     the live catalogue resolves it (PUBLISHED only), and that product's
+     primary media stands. With no curated, published product it shows its
+     legitimate empty state — never a static catalogue plate. */
+  const festiveEntries = usePlacementEntries(
+    MARKETING_PLACEMENTS.FESTIVE_SECTION,
+    getLiveStorefrontProducts()
+  );
   /* The EDITORIAL placement owns the heritage storytelling plate — the one
      frame without a frame-specific marketing seam. An ACTIVE record stands
      in for the artwork exactly the way the festive record does; anything
@@ -76,7 +86,7 @@ export default function CelebrationEdit({ excludeIds = null }) {
     edits.map((edit) => {
       const resolved =
         edit.id === "festive"
-          ? resolvePlacementImage(festiveMedia, resolveEditorialFrame("festive", usedIds) || imageRef(edit.image))
+          ? festiveEntries[0]?.image || imageRef(edit.image)
           : edit.id === "heritage"
             ? resolvePlacementImage(editorialMedia, resolveEditorialFrame("heritage", usedIds) || imageRef(edit.image))
             : resolveEditorialFrame(themeFor(edit.id), usedIds) || imageRef(edit.image);

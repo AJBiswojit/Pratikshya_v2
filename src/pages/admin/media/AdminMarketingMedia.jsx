@@ -44,9 +44,10 @@ import { categoryLabels } from "../../../data/products/taxonomy";
  *     order; the catalogue stays the single source of truth for the
  *     product's name, taxonomy and media.
  *
- *   · GENERIC placements (Home hero, Festive section, Editorial, Promotion)
- *     keep the existing house-artwork upload workflow. Hero and editorial
- *     media systems are untouched.
+ *   · GENERIC placements (Home hero, Editorial, Promotion) keep the
+ *     existing house-artwork upload workflow. Hero and editorial media
+ *     systems are untouched. The Festive section is a PRODUCT placement,
+ *     curated from the catalogue like the Saree and Groom edits.
  *
  * The storefront reads the same register, so an assignment made here
  * appears on the matching section immediately, and survives refresh.

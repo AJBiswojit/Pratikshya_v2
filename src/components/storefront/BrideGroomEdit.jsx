@@ -31,11 +31,13 @@ export const BRIDE_GROOM_REDUCED_MS = 280;
 const BRIDE_GROOM_EASE = [0.22, 1, 0.36, 1];
 
 const resolveBrideHref = () =>
-  resolveCategoryRoute("bridal-couture") ||
+  resolveCategoryRoute("the-bride") ||
   resolveCategoryRoute("lehengas") ||
   resolveCategoryRoute("sarees");
 
-const resolveGroomHref = () => resolveCategoryRoute("menswear");
+const resolveGroomHref = () =>
+  resolveCategoryRoute("groom") ||
+  resolveCategoryRoute("ethnic-wear");
 
 const lookKey = (look, fallback) =>
   look?.mediaId || look?.productId || look?.filename || fallback;
