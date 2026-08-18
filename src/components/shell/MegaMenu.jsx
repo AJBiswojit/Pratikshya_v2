@@ -11,6 +11,7 @@ import {
   heading,
   transition,
 } from "../../design-system";
+import { resolveNavigationEditorialImage } from "../../services/media/navigationEditorialMedia";
 import { cn } from "../../utils/cn";
 
 /**
@@ -22,9 +23,19 @@ import { cn } from "../../utils/cn";
  * frame, so the menu reads as part of the same publication as the page
  * behind it.
  *
+ * The feature's plate is DATA-DRIVEN. This component authors no image, no
+ * filename and no product id: it asks `navigationEditorialMedia` for the
+ * plate belonging to the group currently open, and that module resolves it
+ * from the canonical taxonomy, the curated marketing placements and the
+ * canonical catalogue. A group with nothing eligible resolves to `null` and
+ * the frame keeps its neutral placeholder rather than borrowing another
+ * department's photograph.
+ *
  * Desktop only — the mobile drawer covers the same information architecture.
  */
 export default function MegaMenu({ id, group, onNavigate, ...rest }) {
+  const editorial = resolveNavigationEditorialImage(group);
+
   return (
     <motion.div
       id={id}
@@ -69,11 +80,17 @@ export default function MegaMenu({ id, group, onNavigate, ...rest }) {
           className={cn("col-span-4 group block", gap.chip)}
         >
           <MediaFrame
-            image={group.feature.image}
-            alt={group.feature.caption}
-            aspect="landscape"
+            image={editorial ?? group.feature.image}
+            alt={editorial?.alt ?? group.feature.caption}
+            aspect="portrait"
             zoom="soft"
             className="mb-4"
+            imageProps={{
+              /* The panel opens on hover — its plate is never the LCP. */
+              loading: "lazy",
+              decoding: "async",
+              objectPosition: editorial?.objectPosition,
+            }}
           />
           <p className={cn(eyebrow.editorial, "text-accent mb-2")}>{group.feature.eyebrow}</p>
           <h3 className={cn(heading.product, "mb-1")}>{group.feature.title}</h3>
