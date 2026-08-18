@@ -67,7 +67,7 @@ const checks = [
   ["Every Product passes universal validation", validationFailures.length === 0, validationFailures.length],
   ["Product Card and gallery resolve canonical Product Media files", mediaFailures.length === 0, mediaFailures.length],
   ["Every taxonomy path has one listing route", expectedRoutes.every((path) => routeSet.has(path)), expectedRoutes.length],
-  ["Every listing route has a navigation scope", catalogueRoutes.every((route) => catalogueNavigationScopes[route.path]), catalogueRoutes.length],
+  ["Every listing route has a navigation scope", catalogueRoutes.every((route) => Boolean(catalogueNavigationScopes[route.path]?.filters?.department)), catalogueRoutes.length],
   ["Components/pages contain no Product inventory or embedded Product Media", sourceViolations.length === 0, sourceViolations.map((path) => relative(process.cwd(), path)).join(", ") || "none"],
 ];
 

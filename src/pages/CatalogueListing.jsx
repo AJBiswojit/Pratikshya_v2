@@ -7,7 +7,7 @@ import {
   eyebrow,
 } from "../design-system";
 import CatalogueBrowser from "../components/storefront/CatalogueBrowser";
-import { categoryRoutes, collectionRoutes, navigationScopes } from "../data/products/taxonomy";
+import { categoryRoutes, collectionRoutes, resolveNavigationScope } from "../data/products/taxonomy";
 import taxonomyRepository from "../services/taxonomyRepository";
 import { getRouteMeta } from "../config/navigationConfig";
 import { imageRef } from "../data/mediaPlaceholder";
@@ -67,8 +67,11 @@ export default function CatalogueListing({ variant }) {
     }
   } else {
     /* A Phase 3 navigation path. Its masthead copy already exists in the
-       navigation manifest, so only the filters come from the scope table. */
-    const nav = navigationScopes[pathname];
+       navigation manifest, so only the filters come from the scope table.
+       `resolveNavigationScope` is the one route → context resolver: it
+       returns the locked filters for department, category, subcategory,
+       collection and legacy paths alike. */
+    const nav = resolveNavigationScope(pathname);
     const meta = getRouteMeta(pathname);
     if (nav && meta) {
       scope = {
@@ -76,7 +79,7 @@ export default function CatalogueListing({ variant }) {
         eyebrow: meta.eyebrow,
         description: meta.description,
         image: meta.image,
-        filters: nav.filters ?? {},
+        filters: nav.filters,
         breadcrumb: meta.breadcrumb,
       };
     }

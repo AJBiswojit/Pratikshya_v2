@@ -161,7 +161,13 @@ export const collectionRoutes = Object.fromEntries(
 export const navigationScopes = {
   ...catalogueNavigationScopes,
 
-  "/collections": {},
+  /**
+   * Collections is a merchandising context, not a department: the landing
+   * page shows the pieces the house has actually curated into an active
+   * collection (manual membership or a collection rule, both resolved by
+   * `taxonomyRepository`), never the whole catalogue.
+   */
+  "/collections": { filters: { curated: true } },
   "/collections/new-arrivals": { filters: { flag: "isNew" } },
   "/collections/festive-edit": { filters: { collection: "Festive Edit" } },
   "/collections/heritage-weaves": { filters: { collection: "Heritage Weaves" } },
@@ -206,6 +212,26 @@ export const navigationScopes = {
 
 export const hasNavigationScope = (pathname) =>
   Object.prototype.hasOwnProperty.call(navigationScopes, pathname);
+
+/**
+ * Route → storefront context.
+ *
+ * The single place a listing pathname becomes the locked filters the generic
+ * catalogue query runs with. Every entry above is a `{ filters }` record; a
+ * bare filter map is still accepted so a hand-authored scope can never fall
+ * back to "no filters at all" — an unscoped listing is the one failure mode
+ * that silently shows the whole catalogue on a department page.
+ *
+ * @param {string} pathname
+ * @returns {{ filters: object } | null}
+ */
+export const resolveNavigationScope = (pathname) => {
+  if (!hasNavigationScope(pathname)) return null;
+  const entry = navigationScopes[pathname] ?? {};
+  const filters =
+    entry.filters && typeof entry.filters === "object" ? entry.filters : entry;
+  return { ...entry, filters: filters ?? {} };
+};
 
 export default {
   categories, genders, fabrics, materials, occasions, collections, colors,
