@@ -3,6 +3,7 @@ import { Menu } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
+  Brand,
   Container,
   duration,
   header as headerSpacing,
@@ -143,12 +144,14 @@ export default function SiteHeader({ counts = {}, onOpenCart }) {
           padded
           className={cn(headerSpacing.height, "flex items-center justify-between gap-4")}
         >
-          <Link
+          <Brand
             to={brand.home}
-            className={cn(navType.brand, "hover:text-accent shrink-0", transition.colors)}
-          >
-            {brand.name}
-          </Link>
+            size="default"
+            variant="lockup"
+            theme="light"
+            wordmark={brand.name}
+            className="hover:text-accent transition-colors"
+          />
 
           {/* Desktop navigation */}
           <nav

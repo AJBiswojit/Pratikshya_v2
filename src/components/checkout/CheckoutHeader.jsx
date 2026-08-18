@@ -1,6 +1,7 @@
 import { Lock, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
+  Brand,
   Container,
   header as headerSpacing,
   nav as navType,
@@ -29,12 +30,14 @@ export default function CheckoutHeader() {
           padded
           className={cn(headerSpacing.height, "flex items-center justify-between gap-4")}
         >
-          <Link
+          <Brand
             to={brand.home}
-            className={cn(navType.brand, "shrink-0 hover:text-accent", transition.colors)}
-          >
-            {brand.name}
-          </Link>
+            size="default"
+            variant="lockup"
+            theme="light"
+            wordmark={brand.name}
+            className="shrink-0 hover:text-accent transition-colors"
+          />
 
           <div className="flex items-center gap-5">
             <p className="hidden items-center gap-2 font-ui text-[10px] uppercase tracking-[.22em] text-taupe sm:inline-flex">

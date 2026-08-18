@@ -12,10 +12,14 @@
 /* ------------------------------------------------------------------ */
 
 export const colors = {
-  /* Surfaces */
-  canvas: "#f7f4f0", // page background
-  canvasDeep: "#efeae3", // end of the soft canvas gradient
-  surface: "#f0ebe6", // product image plate
+  /* Surfaces — the universal base page background is white (#FFFFFF) per the
+     Atelier visual language. `canvas` carries the page canvas, `surface`
+     remains a barely-warm off-white for image plates / inserts so they
+     stay visually differentiated from the pure-white canvas without
+     introducing a beige tone. */
+  canvas: "#ffffff", // page background
+  canvasDeep: "#f7f7f7", // end of the soft canvas gradient
+  surface: "#fafaf8", // product image plate / insert (subtly off-white)
   ivory: "#fdf8f3", // foreground on dark / inverse surfaces
 
   /* Ink */
@@ -34,7 +38,8 @@ export const colors = {
 
   /* Lines */
   pearl: "#dddddd", // light borders, captions over imagery
-  mist: "#ddd8cf", // navigation hairline
+  mist: "#dddddd", // navigation hairline — same neutral as `pearl` so it
+                     // reads correctly on the new white canvas
   inkLine: "#3a2a1e", // hairline inside dark sections
 
   /* Neutrals used on dark surfaces */

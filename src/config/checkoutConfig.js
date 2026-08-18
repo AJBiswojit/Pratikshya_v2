@@ -75,6 +75,11 @@ export const PAYMENT_METHODS = [
     description: "All major Indian banks",
   },
   {
+    id: "qr",
+    label: "Sandbox QR",
+    description: "Scan to pay · Test environment",
+  },
+  {
     id: "cod",
     label: "Cash on Delivery",
     description: `Pay on arrival · ${`₹${COD_FEE.toLocaleString("en-IN")}`} fee`,

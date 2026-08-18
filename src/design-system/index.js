@@ -85,3 +85,10 @@ export { default as AtelierBadge } from "./components/AtelierBadge";
 /* Media and commerce */
 export { default as MediaFrame } from "./components/MediaFrame";
 export { default as ProductCard, formatPrice, discountPercent } from "./components/ProductCard";
+
+/* Branding — single canonical rendering seam for the PRATIKSHYA FASHON mark */
+export {
+  default as Brand,
+  BrandLink,
+  DarkBrand,
+} from "./components/Brand";

@@ -3,6 +3,7 @@ import { ChevronDown, X, LogOut, User, ShoppingBag, MapPin, Sliders } from "luci
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  Brand,
   body,
   duration,
   eyebrow,
@@ -73,9 +74,15 @@ export default function MobileNav({ onClose, counts = {} }) {
             pagePadding
           )}
         >
-          <Link to={brand.home} onClick={onClose} className={cn(navType.brand, "text-ink")}>
-            {brand.name}
-          </Link>
+          <Brand
+            to={brand.home}
+            onClick={onClose}
+            size="default"
+            variant="lockup"
+            theme="light"
+            wordmark={brand.name}
+            className="text-ink hover:text-accent transition-colors"
+          />
           <button
             type="button"
             onClick={onClose}

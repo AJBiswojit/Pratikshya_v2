@@ -11,7 +11,7 @@ import {
   greetingForNow,
 } from "../../utils/employee";
 import { cn } from "../../utils/cn";
-import { transition } from "../../design-system";
+import { Brand, transition } from "../../design-system";
 
 export default function EmployeeHeader({ navOpen, onToggleNav }) {
   const { employee, signOut } = useEmployeeAuth();
@@ -32,14 +32,15 @@ export default function EmployeeHeader({ navOpen, onToggleNav }) {
           >
             {navOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
-          <Link to={EMPLOYEE_BRAND.home} className="min-w-0">
-            <p className="truncate font-display text-lg font-light tracking-tight text-ink md:text-xl">
-              {EMPLOYEE_BRAND.name}
-            </p>
-            <p className="font-ui text-[9px] uppercase tracking-[.22em] text-brass">
-              {EMPLOYEE_BRAND.portal} · {EMPLOYEE_BRAND.subtitle}
-            </p>
-          </Link>
+          <Brand
+            to={EMPLOYEE_BRAND.home}
+            size="default"
+            variant="lockup"
+            theme="light"
+            wordmark={EMPLOYEE_BRAND.name}
+            subtitle={`${EMPLOYEE_BRAND.portal} · ${EMPLOYEE_BRAND.subtitle}`}
+            className="min-w-0"
+          />
         </div>
 
         <div className="hidden min-w-0 flex-1 px-6 xl:block">
