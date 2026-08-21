@@ -1,45 +1,10 @@
-# PRATIKSHYA FASHON — Backend Architecture, Database & API Contract Design
+# PRATIKSHYA FASHON — Backend Architecture
 
-**Status:** PLANNED ARCHITECTURE — the backend is **not implemented**. This document is design/audit only and describes the **target** Python + FastAPI backend, clearly separated from the **current** frontend and the **future** AI layer.\
-**Date:** 2026-08-21 (updated to reflect completed Phase 1 frontend stabilization)\
-**Scope:** Planned production backend for the stabilized Phase 1 frontend at `AJBiswojit/Pratikshya_v2`.\
-**Constraint honoured:** No backend files, migrations, APIs, servers, storage integrations, or payment integrations were created. This document is the only deliverable.
-
-**Backend technology decision (FINAL):** Python + FastAPI + PostgreSQL + SQLAlchemy + Alembic, with a future AI service layer. Node.js/Express, NestJS, Java Spring Boot, PHP, and Django-as-primary-framework are **not** the planned stack.
-
-**Companions (do not replace):**
-
--   `docs/backend-integration-audit.md` --- frontend → backend feature matrix
--   `docs/feature-rationalization-audit.md` --- cleanup / single-source decisions
--   `docs/employee-management-api-contract.md` --- Admin + Employee API contract
-
-------------------------------------------------------------------------
-
-## 0. How to read this document
-
-This document distinguishes three states throughout. Treat anything that does not exist yet in the repository as **planned/target**, not as implemented:
-
-| State | Meaning | Where it appears |
-|---|---|---|
-| **CURRENT** | What the React + Vite frontend does today (localStorage + repositories + static seeds) | "Current frontend architecture", §8, §34 |
-| **PLANNED / TARGET** | The FastAPI backend this document specifies (not yet built) | §4–§42 |
-| **FUTURE** | AI services and deferred infrastructure (not in V1) | §44, §44.1 |
-
-Do **not** read planned FastAPI endpoints, PostgreSQL tables, or Alembic migrations as existing. Use "planned", "target", "proposed", and "migration target" terminology for backend components.
-
-This architecture **formalizes the cleaned frontend**. It does not invent a competing catalogue, a second lifecycle, a second order store, or a second permission vocabulary.
-
-**ONE BUSINESS CAPABILITY → ONE AUTHORITATIVE SOURCE → ONE BACKEND SERVICE → ONE API CONTRACT → ONE DATABASE MODEL**
-
-After this document: **STOP.** Backend implementation (Phase A–L, §42) begins only after explicit approval.
-
-------------------------------------------------------------------------
-
-# 1. Executive summary
+## 1 Executive Summary
 
 PRATIKSHYA FASHON is a complete operational UX --- customer storefront, Admin Portal, Employee Operations Portal --- with **no HTTP backend**. Persistence is `localStorage` plus authored seed modules. The frontend is already shaped as repositories and command layers. The backend must **replace those repositories**, not rewrite pages.
 
-### What the backend becomes
+### 1.1 What the backend becomes
 
 The **authoritative source of truth** for:
 
@@ -56,7 +21,26 @@ The **authoritative source of truth** for:
 
 The frontend remains the **UX source of truth**. It must never again be authoritative for price, stock, publication, payment success, role, or media URLs.
 
-### Current frontend architecture (post-Phase 1 stabilization)
+## 2 Architecture Principles
+
+### 2.1 Non-negotiable rules (carried from Phase 1)
+
+1.  **ONE `products` table.** No `women_products` / `men_products` / `kids_products` / `bridal_products`.
+2.  **Canonical product IDs** `PF-{DEPT}-{FAMILY}-{NNNN}` --- never inferred from filenames, folders, clocks, or indexes.
+3.  **Lifecycle commands, not status PATCH.** `DRAFT → SUBMITTED → APPROVED → PUBLISHED`. **Approval does not publish.**
+4.  **Storefront visibility:** `status = PUBLISHED` **and** parent category `ACTIVE`.
+5.  **Marketing placements store product IDs only** --- never product snapshots.
+6.  **Brand lock:** `src/assets/pratikshya_logo.webp` stays a frontend asset.
+7.  **Sandbox QR is sandbox-only** and can never mark a live order paid.
+8.  **Assisted orders are the same order entity** with `channel = ASSISTED`. *(Implemented in Phase 1.)*
+9.  **One customer identity** --- Admin CRM, Employee directory, and storefront account share `customers`. *(Implemented in Phase 1.)*
+10. **Shipping / COD / tax numbers live in settings**, not in checkout UI config. *(Implemented in Phase 1 via `commerceDefaults` + settings authority.)*
+
+## 3 Current Frontend Architecture
+
+> **CURRENT — IMPLEMENTED**
+
+### 3.1 Current frontend architecture (post-Phase 1 stabilization)
 
 Phase 1 frontend stabilization is **complete** and verified by the regression suite. The current frontend is:
 
@@ -71,26 +55,17 @@ Phase 1 frontend stabilization is **complete** and verified by the regression su
 
 The backend described in the rest of this document **replaces these repositories** feature-by-feature; it does not rewrite pages.
 
-### Non-negotiable rules (carried from Phase 1)
+## 4 Target Backend Architecture
 
-1.  **ONE `products` table.** No `women_products` / `men_products` / `kids_products` / `bridal_products`.
-2.  **Canonical product IDs** `PF-{DEPT}-{FAMILY}-{NNNN}` --- never inferred from filenames, folders, clocks, or indexes.
-3.  **Lifecycle commands, not status PATCH.** `DRAFT → SUBMITTED → APPROVED → PUBLISHED`. **Approval does not publish.**
-4.  **Storefront visibility:** `status = PUBLISHED` **and** parent category `ACTIVE`.
-5.  **Marketing placements store product IDs only** --- never product snapshots.
-6.  **Brand lock:** `src/assets/pratikshya_logo.webp` stays a frontend asset.
-7.  **Sandbox QR is sandbox-only** and can never mark a live order paid.
-8.  **Assisted orders are the same order entity** with `channel = ASSISTED`. *(Implemented in Phase 1.)*
-9.  **One customer identity** --- Admin CRM, Employee directory, and storefront account share `customers`. *(Implemented in Phase 1.)*
-10. **Shipping / COD / tax numbers live in settings**, not in checkout UI config. *(Implemented in Phase 1 via `commerceDefaults` + settings authority.)*
+> **PLANNED / TARGET — NOT IMPLEMENTED**
 
-### Python and future AI integration
+### 4.1 Python and future AI integration
 
 Python is intentionally locked for the backend because PRATIKSHYA FASHON plans to add AI capabilities in future phases. This is an architectural readiness decision, **not** permission to implement AI now.
 
 The commerce backend remains the single modular monolith and the future AI layer must consume the same authoritative catalogue, pricing, inventory, customer, and order services. AI must never create a parallel source of truth.
 
-### Target topology
+### 4.2 Target topology
 
     Frontend (React + Vite)
        ↓
@@ -104,11 +79,11 @@ The commerce backend remains the single modular monolith and the future AI layer
        ↓
     PostgreSQL  ·  S3-compatible object storage  ·  Payment gateway
 
-### What this phase does **not** do
+### 4.3 What this phase does **not** do
 
 This phase does **not** create the `backend/` directory, write any FastAPI code, migrations, schemas, or storage/payment integrations, and does **not** modify frontend functionality. The layout below is the **planned** repository structure (the mandated conceptual baseline), with the more granular layer names from earlier revisions mapped onto it.
 
-### Planned backend repository layout (conceptual — do not create yet)
+### 4.4 Planned backend repository layout (conceptual — do not create yet)
 
 ```text
 backend/
@@ -140,7 +115,7 @@ backend/
 
 Earlier revision names map onto this structure as follows: `config` → `core`, `controllers` → `services` (route handlers parse + delegate only), `validators`/`policies` → `dependencies`/`schemas`, `events`/`tasks` → `workers`, `utils` → `core`. The rest of this document uses those logical layer names interchangeably; the directory above is the target.
 
-### Layer responsibilities
+### 4.5 Layer responsibilities
 
   -----------------------------------------------------------------------------------------------------------------------------
   Layer                   May                                                 Must not
@@ -164,7 +139,7 @@ Earlier revision names map onto this structure as follows: `config` → `core`, 
 
 **Avoid putting business logic in route handlers.** The frontend already learned this: `productWorkflowCommands` is the one command layer; `catalogRepository.updateStatus` is only an adapter. The backend copies that split.
 
-### Domain grouping inside `services/` / `repositories/` (logical, not microservices)
+### 4.6 Domain grouping inside `services/` / `repositories/` (logical, not microservices)
 
     identity/     catalog/     workflow/     media/
     marketing/    inventory/   commerce/     payments/
@@ -174,9 +149,9 @@ One Python application process. One PostgreSQL database. Cross-domain work (chec
 
 ------------------------------------------------------------------------
 
-# 4. Domain architecture
+## 5 Domain Architecture
 
-    IDENTITY          customers · admins · employees · sessions · credentials · RBAC
+IDENTITY          customers · admins · employees · sessions · credentials · RBAC
     CATALOGUE         departments · categories · subcategories · products · variants
     WORKFLOW          product commands + validators (columns on products, not a second table)
     MEDIA             media_assets (metadata) + object storage (bytes) + product_media
@@ -193,7 +168,7 @@ One Python application process. One PostgreSQL database. Cross-domain work (chec
     NOTIFICATIONS     notification_templates · notification_deliveries   (V1 — order status, staff events; see §27.1)
     SYSTEM            settings · audit_logs · idempotency_keys
 
-### Explicitly not domains in V1
+### 5.1 Explicitly not domains in V1
 
 -   AI shopping / business / mirror (keep mock providers)
 -   Support-case / styling-appointment entities
@@ -203,11 +178,523 @@ One Python application process. One PostgreSQL database. Cross-domain work (chec
 
 ------------------------------------------------------------------------
 
-# 5. Complete database entity list
+### 5.2 Persistence vocabulary (compatibility --- keep)
+
+Stored on `products`:
+
+  ----------------------------------------------------------------------------------------------------
+  Column                             Values
+  ---------------------------------- -----------------------------------------------------------------
+  `status`                           `DRAFT` \| `PENDING_REVIEW` \| `PUBLISHED` \| `ARCHIVED`
+
+  `review_state`                     `NONE` \| `PENDING` \| `APPROVED` \| `REJECTED`
+
+  `assigned_employee_id`             uuid null
+
+  `workflow` JSONB                   `employeeReviewStartedAt`, `adminReviewStartedAt`, `approvedAt`
+  ----------------------------------------------------------------------------------------------------
+
+### 5.3 Canonical projection (read model --- keep)
+
+    DRAFT → ASSIGNED → IN_EMPLOYEE_REVIEW → SUBMITTED → IN_ADMIN_REVIEW
+          → APPROVED → PUBLISHED → ARCHIVED
+
+`RETURNED` is **not** a stored stage. Rejection maps to editable DRAFT / IN_EMPLOYEE_REVIEW with `review_state = REJECTED` and a reason.
+
+Precedence (from `productWorkflowState.js`): ARCHIVED \> PUBLISHED (grandfathered) \> review APPROVED \> pending status → SUBMITTED / IN_ADMIN_REVIEW \> REJECTED presentation \> assigned work \> DRAFT.
+
+### 5.4 Publication path (the only legal one)
+
+    DRAFT  --submit-->  SUBMITTED (status=PENDING_REVIEW, review=PENDING)
+           --approve--> APPROVED  (review=APPROVED, status still PENDING_REVIEW)
+           --publish--> PUBLISHED (status=PUBLISHED)
+
+**Approval MUST NOT publish.** Storefront remains invisible until `publishProduct`.
+
+### 5.5 Transition table (invalid transitions fail)
+
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  Command                      Who                              From                                    To                 Extra
+  ---------------------------- -------------------------------- --------------------------------------- ------------------ -------------------------------------------------------
+  createProduct                Admin or `products.manage`       ---                                     DRAFT              allocate canonical ID
+
+  saveProductDraft             Admin or **assigned** employee   DRAFT / ASSIGNED / IN_EMPLOYEE_REVIEW   same               employee whitelist
+
+  assignProduct                Super Admin                      not ARCHIVED                            same + assignee    employee login-allowed
+
+  submitProduct                Admin or assignee                submittable stages                      SUBMITTED          `validateProductForSubmit`
+
+  beginAdminReview             Super Admin                      SUBMITTED                               IN_ADMIN_REVIEW    timestamp only
+
+  returnProduct                Super Admin                      not PUBLISHED/ARCHIVED                  DRAFT + REJECTED   **reason required**
+
+  approveProduct               Super Admin                      SUBMITTED / IN_ADMIN_REVIEW             APPROVED           `validateProductForApprove`; **no storefront**
+
+  publishProduct               Super Admin                      **APPROVED only**                       PUBLISHED          **full revalidation**; ignore prior pass
+
+  unpublishProduct             Super Admin                      PUBLISHED                               DRAFT              clear `approvedAt`
+
+  archiveProduct               Super Admin                      not archived                            ARCHIVED           keep media ownership
+
+  restoreProduct               Super Admin                      ARCHIVED                                DRAFT              review NONE
+
+  bulkSubmit/Approve/Publish   same auth                        ---                                     ---                **loop individual commands**; independent success
+
+  deleteProductPermanently     Super Admin                      unused never-published DRAFT            removed            confirm public id; unassign media
+
+  changeProductId              Super Admin                      any non-published preferred             new public_id      family prefix immutable; transactional media transfer
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**Forbidden:**
+
+-   `PATCH /products/:id { status: "PUBLISHED" }`
+-   DRAFT → APPROVED
+-   DRAFT → PUBLISHED
+-   SUBMITTED → PUBLISHED
+-   APPROVED → DRAFT (except explicit unpublish/return/restore commands)
+-   Bulk "set status"
+
+Existing PUBLISHED rows stay PUBLISHED (grandfathering).
+
+------------------------------------------------------------------------
+
+Port `productPublishValidator.js` as the **one** orchestrator. Compose shared checks:
+
+    validateProductIdentity()      // public_id format, present
+    validateProductName()          // required, not placeholder
+    validateProductSku()           // required, unique across products+variants
+    validateProductPricing()       // computePricing: MRP>0, selling>0, selling≤MRP
+    validateProductTaxonomy()      // department/category/subcategory exist and nest
+    validateProductDescription()   // description or shortDescription
+    validateProductMedia()         // primary image, not video, ACTIVE, not MARKETING, no conflicts
+    validateProductGrouping()      // unresolved media groups
+    validateProductReviewFlags()   // flags that data does not already prove
+    validateProductLifecycle()     // APPROVED required only for publish
+
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+  Function                        Includes                                                                            Extra
+  ------------------------------- ----------------------------------------------------------------------------------- --------------------------------
+  `validateProductForSubmit()`    all data checks except lifecycle APPROVED                                           category inactive = warning
+
+  `validateProductForApprove()`   same as submit                                                                      still no storefront
+
+  `validateProductForPublish()`   **all of the above + lifecycle APPROVED + fresh re-read of media/taxonomy/price**   never reuse the approve result
+  ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+Publish is a **command**, not a cached flag. Category inactive is a **warning** (product publishes but stays storefront-hidden) --- same as today.
+
+Shared `computePricing` rules stay in one module (port `utils/pricing.js`) and run **only on the server** for persisted prices. Frontend may keep a preview copy.
+
+------------------------------------------------------------------------
+
+collections
+    collection_products (collection_id, product_id, sort_order) unique pair
+
+Types: `MANUAL` \| `RULE_BASED` (rule JSON: `{ flag: "isNew" }`, `{ fabricIncludes: "silk" }`, `{ occasion: "Wedding" }`).
+
+Status stored: DRAFT \| ACTIVE \| PAUSED \| ARCHIVED. Display SCHEDULED / EXPIRED **derived** from `start_date` / `end_date` (same as offers).
+
+**Direct URL** `GET /catalog/collections/:slug` resolves membership **on the server**. Invalid slugs → 404. Never invent products.
+
+Membership = `collection_products` UNION rule-matching published products. Pages must not hardcode IDs.
+
+Seed from `taxonomyRepository` collection seeds (`new-arrivals`, `featured`, `heritage-weaves`, `festive-edit`, `silk`, `wedding`, ...).
+
+------------------------------------------------------------------------
+
+Port `inventoryRepository` semantics. Frontend is already transaction-shaped.
+
+### 5.6 Quantities (one formula)
+
+    available = on_hand − reserved − damaged
+    returned  = quarantine (does NOT increase available until inspection)
+    sold      = cumulative sold (informational)
+
+Negative available is refused. `settings.inventory.negativeStockAllowed` default **false**.
+
+### 5.7 Locations
+
+Seed:
+
+-   `loc-main-store` STORE ACTIVE\
+-   `loc-main-warehouse` WAREHOUSE ACTIVE
+
+Reservation prefers STORE then WAREHOUSE (existing sort). Returns enter warehouse quarantine.
+
+**Decision:** this is **simple multi-location**, not a WMS. Do not add bins as first-class entities; `placement` JSON (department/section/rack/shelf/bin) stays metadata on the balance row.
+
+### 5.8 Movements (append-only)
+
+OPENING_BALANCE, RECEIVE, ADJUST, TRANSFER_OUT, TRANSFER_IN, RESERVE, RELEASE, SALE, RETURN, DAMAGE, RESTOCK.
+
+### 5.9 Reservations
+
+-   Created at checkout start (`expires_in` from `settings.orders.paymentTimeoutMinutes`, default 15).
+-   Allocations pinned to balance rows --- cancellation restocks **those** rows, not "today's" locations.
+-   Status: ACTIVE → SOLD \| RELEASED \| RESTOCKED \| EXPIRED.
+-   Expiry: lazy on read **and** periodic job. Browser clock is not authority.
+
+### 5.10 Transfers
+
+`DRAFT → REQUESTED → APPROVED → IN_TRANSIT → RECEIVED` (or CANCELLED). Stock leaves source only at IN_TRANSIT; arrives at RECEIVED. Pending outbound counts against requestable quantity.
+
+### 5.11 Tracked vs untracked
+
+If a product has no balance rows and `inventory_tracked = false`, cart validation uses legacy `product.stock` / `availability`. New published products should be tracked; `ensureOpeningStock` remains a command.
+
+All mutations run in a **DB transaction** with `SELECT … FOR UPDATE` on the balance row.
+
+------------------------------------------------------------------------
+
+carts (id, customer_id null, guest_token null, currency INR, updated_at)
+    cart_items (cart_id, product_id, variant_id, quantity, unit_price_snapshot)
+
+  ----------------------------------------------------------------------------------------------------------------------------
+  Topic                              Decision
+  ---------------------------------- -----------------------------------------------------------------------------------------
+  Anonymous                          Guest cookie `pf_guest` → server cart. localStorage is a cache only
+
+  Authenticated                      `customer_id` unique active cart
+
+  Merge on login                     Union by (product_id, variant_id); sum qty; **revalidate** availability and **reprice**
+
+  Price                              Always recomputed from `computePricing` + variant override. Client price ignored
+
+  Availability                       `validateCartItems` server-side
+
+  Coupon                             Stored as `applied_offer_id`; revalidated on every GET
+
+  Expiry                             Guest carts idle \> 30 days purged. Authenticated carts persist
+
+  Unpublished product                Line kept but `unavailable: true`; blocked at checkout
+  ----------------------------------------------------------------------------------------------------------------------------
+
+Frontend `CartContext` becomes an adapter over `GET/PATCH /cart`.
+
+------------------------------------------------------------------------
+
+-   One wishlist per customer (authenticated). Guest wishlist stays localStorage until login, then merge unique product IDs.
+-   `wishlist_items (wishlist_id, product_id)` unique.
+-   Duplicate toggle is idempotent.
+-   Unpublished / archived products: remain listed with `available: false`; do not 404 the wishlist. Direct add of unpublished IDs is rejected.
+
+------------------------------------------------------------------------
+
+Port `offerRepository`. **Do not** build a promotions engine beyond what exists.
+
+  ---------------------------------------------------------------------------------------------------------------------
+  Field                              Rule
+  ---------------------------------- ----------------------------------------------------------------------------------
+  type                               PERCENTAGE \| FIXED_AMOUNT
+
+  code                               unique, `[A-Z0-9]+(-[A-Z0-9]+)*`, 2--24
+
+  status stored                      DRAFT, ACTIVE, PAUSED, ARCHIVED
+
+  display                            SCHEDULED / EXPIRED derived from dates
+
+  eligibility                        ALL / SPECIFIC products, CATEGORY, COLLECTION + exclusions
+
+  customers                          ALL / NEW / RETURNING / SPECIFIC
+
+  limits                             `usage_limit`, `per_customer_limit`
+
+  min / max                          `minimum_order_value`, `maximum_discount`
+
+  stackable                          column exists; settings default `allowStacking: false` --- V1 **does not stack**
+  ---------------------------------------------------------------------------------------------------------------------
+
+**Marketing artwork ≠ offers.** HOME_HERO / PROMOTION media is not a discount.
+
+Redemption: `offer_redemptions (offer_id, order_id)` **unique**. `recordRedemption` is idempotent per order. Increment under row lock.
+
+Checkout **never** trusts client `couponDiscount`. Server runs `validateOffer` against current catalogue + settings.
+
+Code locked after first redemption (existing rule).
+
+------------------------------------------------------------------------
+
+Server-controlled. Steps (UI): customer → delivery → review → payment. Confirmation is a separate page.
+
+`checkout_sessions`:
+
+-   Snapshot of cart item IDs + qty (not prices)
+-   Address id or payload
+-   Delivery method id
+-   Payment method id
+-   `reservation_id`
+-   **Server totals:** subtotal, productDiscount, couponDiscount, shipping, codFee, tax, total
+-   Status: OPEN \| RESERVED \| PLACED \| EXPIRED \| ABANDONED
+
+### 5.12 Revalidation on every mutation and on pay
+
+1.  Product exists\
+2.  `status = PUBLISHED` and category ACTIVE\
+3.  Price via `computePricing`\
+4.  Inventory available / reservation still ACTIVE\
+5.  Offer still redeemable\
+6.  Shipping from **settings** (`readShippingRules`)\
+7.  Tax from settings (currently often 0 / inclusive)\
+8.  Address complete\
+9.  Payment method allowed
+
+**Never trust frontend totals.** Authoritative total is computed here.
+
+COD: order created with `payment_status = PENDING`, reservation confirmed as SALE immediately (stock leaves), no gateway.
+
+Non-COD: reservation → payment intent → webhook confirms → SALE.
+
+Timeout: `settings.orders.paymentTimeoutMinutes` releases reservation and expires the session.
+
+------------------------------------------------------------------------
+
+**ONE order entity.**
+
+    channel: ONLINE | ASSISTED
+    source:  storefront | employee_assisted
+    created_by_employee_id: null | uuid
+    customer_id: required for ONLINE, optional for ASSISTED (walk-in)
+
+Assisted orders **must not** live in a second table (Phase 1 already merged `pratikshya_employee_assisted_orders`).
+
+### 5.13 Order payload
+
+Customer snapshot, items (name, sku, public product_id, qty, unit price, line total), discounts, shipping, taxes, total, payment_status, fulfillment_status, display_status, timeline, channel, timestamps, invoice number, tracking.
+
+`order_items` store **purchase-time** name/sku/price. `product_id` FK remains for inventory/analytics.
+
+Invoice sequence: `orders_invoice_seq` (replaces `pratikshya_order_sequence`).
+
+`forceTransition` **does not exist** on the production API.
+
+`buildOrderRecord` today stamps PAYMENT_CONFIRMED in the browser. **That path is forbidden in production.** See §23.
+
+------------------------------------------------------------------------
+
+The current `ORDER_STATUS` mixes money and warehouse. Backend stores **three** fields; the UI journey is a **projection**.
+
+  --------------------------------------------------------------------------------------------------------------------------------------------
+  Field                              Values
+  ---------------------------------- ---------------------------------------------------------------------------------------------------------
+  `payment_status`                   PENDING, AUTHORIZED, PAID, FAILED, CANCELLED, REFUND_INITIATED, REFUND_PENDING, REFUNDED
+
+  `fulfillment_status`               PENDING, ALLOCATED, PICKING, PACKED, READY_TO_DISPATCH, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED
+
+  `display_status`                   Compatible with existing `ORDER_STATUS` labels for the SPA
+  --------------------------------------------------------------------------------------------------------------------------------------------
+
+### 5.14 Projection (so the frontend journey does not rewrite)
+
+  -------------------------------------------------------------------------------------------------------
+  Condition                            display_status
+  ------------------------------------ ------------------------------------------------------------------
+  payment PENDING (non-COD)            PENDING_PAYMENT
+
+  payment PAID, fulfillment PENDING    PAYMENT_CONFIRMED then ORDER_CONFIRMED
+
+  fulfillment PROCESSING...DELIVERED   matching journey step
+
+  cancelled                            CANCELLED
+
+  active return                        RETURN_REQUESTED / RETURNED / REFUND_PENDING / REFUNDED as today
+  -------------------------------------------------------------------------------------------------------
+
+### 5.15 Payment transitions (who)
+
+  From             To                   Who
+  ---------------- -------------------- ---------------------------------------
+  PENDING          PAID                 **webhook only** (or COD create)
+  PENDING          FAILED / CANCELLED   webhook or expire job
+  PAID             REFUND_PENDING       cancel/return commands
+  REFUND_PENDING   REFUNDED             **refund webhook / provider confirm**
+
+Clients cannot POST these.
+
+### 5.16 Fulfillment transitions (who)
+
+Port existing commands; each requires the matching permission:
+
+  --------------------------------------------------------------------------------------------------------------------------------------------
+  Command                                       From → To                        Permission
+  --------------------------------------------- -------------------------------- -------------------------------------------------------------
+  confirmOrder (auto after PAID)                → ORDER_CONFIRMED / PROCESSING   system
+
+  allocateOrder                                 PROCESSING → ALLOCATED           `orders.fulfill`
+
+  startPicking / markItemPicked                 ALLOCATED → PICKING              `orders.pick`
+
+  markPacked (all items picked)                 PICKING → PACKED                 `orders.pack`
+
+  markReadyToDispatch                           PACKED → READY_TO_DISPATCH       `orders.fulfill`
+
+  dispatchOrder (carrier + tracking required)   → SHIPPED                        `orders.dispatch`
+
+  markOutForDelivery                            SHIPPED → OUT_FOR_DELIVERY       `orders.dispatch`
+
+  markDelivered                                 → DELIVERED                      `orders.fulfill`
+
+  cancelOrder                                   cancellable set                  customer owner **or** `orders.cancel`; admin extra statuses
+  --------------------------------------------------------------------------------------------------------------------------------------------
+
+Customer cancel: `CANCELLABLE_STATUSES` through PICKING. Admin: through READY_TO_DISPATCH. Packed+ ships require reason.
+
+Cancel of PAID order → restock via reservation allocations + refund pending.
+
+------------------------------------------------------------------------
+
+**Critical.** Frontend must never be authoritative for production success.
+
+    Checkout
+      → POST /checkout/reserve          stock hold
+      → POST /payments/intents          amount from server session, env=sandbox|live
+      → customer completes gateway / Sandbox QR
+      → POST /payments/webhooks         ONLY path that can mark PAID
+           verify signature
+           verify amount, currency, order/reference, txn id
+           insert payment_events (idempotent)
+           if LIVE success: payment PAID, confirmReservationSale, record offer redemption, order confirm
+           if SANDBOX: payment SANDBOX_PAID / env=sandbox — excluded from live settlement
+      → frontend polls GET /payments/:id or GET /orders/:id
+
+### 5.17 Verification checklist
+
+-   Gateway signature
+-   Amount == checkout_session.total (paise)
+-   Currency INR
+-   Order / checkout reference match
+-   Transaction ID unique
+-   Idempotency (event id / txn id)
+-   `env` on the payment row matches gateway account (live key cannot confirm sandbox row)
+
+### 5.18 `payments`
+
+`id`, `order_id`, `checkout_session_id`, `provider`, `env` SANDBOX\|LIVE, `method` upi\|card\|netbanking\|qr\|cod, `amount_paise`, `currency`, `status`, `provider_ref`, `idempotency_key`, timestamps.
+
+### 5.19 `payment_events`
+
+Raw payload (redacted), signature valid bool, processed_at, unique `(provider, provider_event_id)`.
+
+**Forbidden:** SPA `paymentStatus: "PAID"`, treating Sandbox QR scan as live money, Vite env payment secrets.
+
+Provider recommendation: **Razorpay** (UPI, cards, netbanking, QR). Interface:
+
+    PaymentProvider.createIntent(session)
+    PaymentProvider.verifyWebhook(rawBody, headers)
+    PaymentProvider.refund(payment, amount)
+
+`MockPaymentService` remains the `env=development` adapter. Production adapter never ships in the frontend bundle.
+
+COD: no intent; order `payment_status=PENDING` until delivery collection (future). V1 leaves COD as PENDING and does not auto-PAID.
+
+------------------------------------------------------------------------
+
+Preserve `utils/sandboxQr.js` semantics.
+
+  ---------------------------------------------------------------------------------------------------------------------------
+  Rule                               Value
+  ---------------------------------- ----------------------------------------------------------------------------------------
+  `env`                              always `"sandbox"`
+
+  Payload                            merchant, reference, session, amount, currency INR, payment `qr`, issuedAt
+
+  Secrets                            **never** encoded
+
+  Who may confirm                    **Sandbox payment adapter on the backend**, keyed by `PAYMENTS_ENV=sandbox`
+
+  Production                         Sandbox QR method **hidden** when `PAYMENTS_ENV=live`. API rejects `method=qr` on live
+  ---------------------------------------------------------------------------------------------------------------------------
+
+Sandbox confirmation writes `payments.env = SANDBOX` and `orders.payment_env = SANDBOX`. Live reports **exclude** these rows.
+
+Demo scenarios (`success` / `failure` / `cancelled` / `pending`) are development-only query flags on the mock adapter, never on live intents.
+
+------------------------------------------------------------------------
+
+Port `returnService`.
+
+Eligibility: order `display_status = DELIVERED` (or fulfillment DELIVERED), within `settings.returns.returnWindowDays` (default 7), line not already returned.
+
+    RETURN_REQUESTED → UNDER_REVIEW → APPROVED → PICKUP_SCHEDULED
+      → RECEIVED → INSPECTED → REFUND_INITIATED → REFUNDED
+    REJECTED from request/review
+
+Inspection required (`settings.returns.inspectionRequired = true`). Receive **does not** restock. Inspection:
+
+-   SELLABLE → `inspectReturnedStock` RESTOCK
+-   DAMAGED → DAMAGE
+-   QUARANTINE → stays in `returned`
+
+Refund:
+
+1.  Staff `initiateRefund` after INSPECTED\
+2.  Backend calls provider `refund()` for **live** payments\
+3.  **Provider webhook** marks REFUNDED\
+4.  Sandbox/COD: staff complete is allowed **only** when `payment.env != LIVE`
+
+Partial refunds: `settings.payments.partialRefundEnabled`. Amount = `refundAmountFor(items)`, never client figure.
+
+Customer-facing rejection messages stay generic (`customerFacingRejection`).
+
+------------------------------------------------------------------------
+
+One row or keyed JSONB document:
+
+    settings (id, section text unique, payload jsonb, updated_by, updated_at)
+
+Sections = `SETTINGS_DEFAULTS` keys: `business`, `store`, `locations`, `hours`, `attendance`, `holidays`, `tax`, `shipping`, `payments`, `orders`, `returns`, `inventory`, `employees`, `notifications`, `customer`, `offers`, `media`.
+
+**Business settings (server authority):** shipping fees/threshold, COD fee, tax rates/mode, return window, payment timeout, media size limits, password policy, inventory thresholds.
+
+**Static UI configuration (frontend):** payment method labels, icons, UPI app names, demo bank list, captions --- `checkoutConfig.js` remains UI metadata and **reads numbers from GET /settings/public**.
+
+Write: Super Admin only. Each write → audit_log `SETTINGS_UPDATED`.
+
+Public GET returns only storefront-safe slices (shipping fees, COD fee, return window, store name). Never GSTIN secrets beyond what's already public.
+
+### 5.20 Notifications architecture
+
+Notifications are **planned** for V1 (Phase K) because the current frontend already surfaces order/status/return events in the account area and staff feeds; the backend will make them authoritative and eventually pushable. This is a new domain in this revision (previously only implied by the `notifications` settings section).
+
+    notification_templates (id, event_kind, channel EMAIL|SMS|PUSH|IN_APP, locale, subject, body, active)
+    notification_deliveries (id, template_id, principal_kind, principal_id, entity_type, entity_id,
+                             channel, status QUEUED|SENT|FAILED|SUPPRESSED, error, delivered_at, timestamps)
+
+-   **Event kinds (V1):** order confirmed, payment confirmed, order shipped/out-for-delivery/delivered, return requested/approved/rejected/refunded, leave requested/reviewed, employee credential reset, low-stock alert (inventory threshold).
+-   **Triggers:** domain events (§32) enqueue a delivery after a successful commit. **Never** enqueue on a rolled-back transaction.
+-   **Delivery:** a `workers/` background job drains the queue; IN_APP deliveries are read from `notification_deliveries` (no separate inbox table in V1). Email/SMS/PUSH go through provider adapters behind a `NotificationProvider` interface (mock adapter in development).
+-   **Preferences:** customer notification prefs live on `customer_preferences`; staff prefs are a later option. `settings.notifications` holds the enabled channels and provider config (secrets in server env only).
+-   **AI (future):** AI assistants may *generate* notification copy, but they never own the delivery queue or the customer-facing channel decisions.
+
+------------------------------------------------------------------------
+
+Port `activityService` / `ACTIVITY_ACTIONS`. Append-only. No UPDATE/DELETE in application SQL (DB role revoke).
+
+    audit_logs (
+      id uuid,
+      at timestamptz,
+      actor_kind CUSTOMER|ADMIN|EMPLOYEE|SYSTEM,
+      actor_id uuid null,
+      actor_label text,
+      action text,                 -- PRODUCT_PUBLISHED, …
+      entity_type text,
+      entity_id text,
+      summary text,
+      metadata jsonb,              -- non-secret diffs
+      request_id uuid,
+      ip inet
+    )
+
+Required events: product submit/approve/publish/unpublish/archive, media assign/remove, marketing placement change, inventory adjustment, order status, payment confirmation, refund, role/permission change, settings change, employee create/suspend/reset.
+
+Never log passwords, tokens, card data, webhook secrets.
+
+------------------------------------------------------------------------
+
+## 6 Database Architecture
 
 Convention: every table has `created_at timestamptz not null default now()`. Mutable tables also have `updated_at`. Primary keys are `uuid` unless noted. Public identifiers (`PF-W-SAR-SIL-0001`, `PF-ADM-00001`) are unique text columns, not the PK --- so ID rename / sequence allocation cannot break FKs.
 
-### 5.1 Identity
+### 6.1 Identity
 
   --------------------------------------------------------------------------------------------------------------------------
   Table                          Why it exists                                                           Authoritative?
@@ -245,7 +732,7 @@ Convention: every table has `created_at timestamptz not null default now()`. Mut
 
 **Not created:** `admin_as_employee`. Kavya Menon / `PF-ADM-00001` remains Admin-only.
 
-### 5.2 Catalogue
+### 6.2 Catalogue
 
   ---------------------------------------------------------------------------------------------------------------------------
   Table                     Why                                                                 Authoritative?
@@ -273,7 +760,7 @@ Convention: every table has `created_at timestamptz not null default now()`. Mut
 
 **Not created:** per-department product tables. `product_collections` denormalised label on `products.collection` is a convenience copy of membership, not a second membership store --- membership lives in `collection_products` + `collections.rule`.
 
-### 5.3 Media & marketing
+### 6.3 Media & marketing
 
   -------------------------------------------------------------------------------------------------------------
   Table                            Why                                                     Authoritative?
@@ -293,7 +780,7 @@ Convention: every table has `created_at timestamptz not null default now()`. Mut
 
 Bytes live in object storage. Authored catalogue plates (`product.media.primary/gallery`) migrate into `media_assets` on seed; they are not a second live store.
 
-### 5.4 Inventory
+### 6.4 Inventory
 
   ----------------------------------------------------------------------------------------------------------
   Table                                 Why                                              Authoritative?
@@ -315,7 +802,7 @@ Bytes live in object storage. Authored catalogue plates (`product.media.primary/
 
 **Location decision:** keep **multi-location of two seeded sites** (Main Store + Main Warehouse) because the frontend already operates transfers, store-first reservation, and warehouse quarantine. Do **not** add a third location type or a WMS. Operators may add more STORE/WAREHOUSE rows.
 
-### 5.5 Commerce
+### 6.5 Commerce
 
   Table                 Why                            Authoritative?
   --------------------- ------------------------------ ----------------------
@@ -327,7 +814,7 @@ Bytes live in object storage. Authored catalogue plates (`product.media.primary/
   `offer_redemptions`   Unique (offer, order)          Yes
   `checkout_sessions`   Server-priced checkout draft   Yes
 
-### 5.6 Orders / payments / returns
+### 6.6 Orders / payments / returns
 
   Table                  Why                                              Authoritative?
   ---------------------- ------------------------------------------------ ----------------
@@ -342,7 +829,7 @@ Bytes live in object storage. Authored catalogue plates (`product.media.primary/
   `returns`              After-sales case                                 Yes
   `return_items`         Lines + inspection                               Yes
 
-### 5.7 Workforce & system
+### 6.7 Workforce & system
 
   Table                    Why                                           Authoritative?
   ------------------------ --------------------------------------------- ----------------
@@ -356,7 +843,7 @@ Bytes live in object storage. Authored catalogue plates (`product.media.primary/
   `idempotency_keys`       Payment/order/refund/reserve                  Yes
   `product_id_sequences`   Per-family serial for `PF-…-NNNN`             Yes
 
-### 5.8 Tables deliberately **not** created
+### 6.8 Tables deliberately **not** created
 
 -   `women_products`, `men_products`, `kids_products`, `bridal_products`
 -   `marketing_product_snapshots`
@@ -369,8 +856,6 @@ Bytes live in object storage. Authored catalogue plates (`product.media.primary/
 -   Redis keyspace as source of truth
 
 ------------------------------------------------------------------------
-
-# 6. Complete conceptual ERD
 
 ``` mermaid
 erDiagram
@@ -452,8 +937,6 @@ And the product spine the storefront actually reads:
 
 ------------------------------------------------------------------------
 
-# 7. Entity relationships (integrity)
-
 See §31 for keys/indexes/on-delete. Summary of the important ones:
 
   ---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -498,9 +981,7 @@ See §31 for keys/indexes/on-delete. Summary of the important ones:
 
 ------------------------------------------------------------------------
 
-# 8. Data ownership model
-
-  -----------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------
   Data                                          Owner                       Frontend may
   --------------------------------------------- --------------------------- ---------------------------------------------------------------
   Product rows, lifecycle, prices               Backend                     Preview via shared pricing engine; never submit a final price
@@ -540,9 +1021,50 @@ See §31 for keys/indexes/on-delete. Summary of the important ones:
 
 ------------------------------------------------------------------------
 
-# 9. Authentication architecture
+### 6.9 Products
 
-## 9.1 Three portals, three cookies, one sessions table
+-   PK `id uuid`
+-   UNIQUE `public_id`, UNIQUE `slug`
+-   UNIQUE `sku` among products; variant SKUs unique across products+variants (exclude empty)
+-   CHECK `status IN ('DRAFT','PENDING_REVIEW','PUBLISHED','ARCHIVED')`
+-   CHECK `review_state IN ('NONE','PENDING','APPROVED','REJECTED')`
+-   FK department, category, subcategory RESTRICT
+-   Indexes: `(status, department, category, subcategory)`, `(assigned_employee_id)`, GIN on name/sku for search
+
+### 6.10 Media
+
+-   UNIQUE `object_key`
+-   CHECK scope/status/type enums
+-   CHECK NOT (`scope='PRODUCT'` AND `product_id IS NULL`)
+-   Index `(product_id, scope, status)`, `(placement, status)`
+
+### 6.11 Inventory
+
+-   UNIQUE `(product_id, variant_id, location_id)` (`variant_id` null → sentinel `00000000-…` or partial unique index)
+-   CHECK quantities `>= 0`
+-   CHECK `available = on_hand - reserved - damaged` **or** compute available always in SQL generated column
+-   Movements: no update/delete grants
+
+### 6.12 Orders / payments
+
+-   UNIQUE invoice number
+-   CHECK channel, payment_status, fulfillment_status
+-   UNIQUE payment `provider_ref` where not null
+-   UNIQUE payment_events `(provider, provider_event_id)`
+-   UNIQUE offer_redemptions `(offer_id, order_id)`
+
+### 6.13 Identity
+
+-   UNIQUE customers.email citext, employees.email, employees.employee_id, admins.admin_id
+-   Sessions unique token_hash
+
+Delete behaviour: default RESTRICT. Membership tables CASCADE. Sessions CASCADE on principal delete (rare). Soft-delete products via ARCHIVE.
+
+------------------------------------------------------------------------
+
+## 7 Authentication & Authorization
+
+### 7.1 Three portals, three cookies, one sessions table
 
   --------------------------------------------------------------------------------
   Portal           Principal        Cookie           Audience
@@ -558,7 +1080,7 @@ A customer session **never** authorizes `/admin/*`. An employee session **never*
 
 Cookies: `HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age` aligned with session TTL. Distinct names so a browser can hold an admin and a customer session without crossing.
 
-## 9.2 Session record
+### 7.2 Session record
 
     sessions (
       id uuid pk,
@@ -576,13 +1098,13 @@ Cookies: `HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age` aligned with session 
 -   Password change, status SUSPENDED/INACTIVE, credential reset → `revoked_at = now()` for that principal.
 -   `/auth/logout` revokes the current session.
 
-## 9.3 Passwords
+### 7.3 Passwords
 
 -   Argon2id (memory-hard). Never bcrypt-only if Argon2 is available; bcrypt is the fallback.
 -   Never return hashes, fingerprints, or temporary passwords in list/detail payloads except the **one-time** `credentialSetup` on employee create/reset (see existing employee contract).
 -   Customer sign-in today does **not** verify a stored secret. Production **must** --- demo logins will break. Seed hashed passwords for demo accounts behind `APP_ENV != production`.
 
-## 9.4 Flows
+### 7.4 Flows
 
   -----------------------------------------------------------------------------------------------------------------------------------
   Flow                               Behaviour
@@ -608,7 +1130,7 @@ Cookies: `HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age` aligned with session 
   Admin login                        `SUPER_ADMIN` + `ACTIVE` only
   -----------------------------------------------------------------------------------------------------------------------------------
 
-## 9.5 CSRF
+### 7.5 CSRF
 
 Cookie sessions require CSRF on mutating requests:
 
@@ -617,7 +1139,7 @@ Cookie sessions require CSRF on mutating requests:
 
 Webhook routes (`POST /payments/webhooks`) are **not** cookie-authenticated; they verify gateway signatures instead and must skip CSRF.
 
-## 9.6 Access + refresh tokens
+### 7.6 Access + refresh tokens
 
 > **Updated decision (supersedes the earlier "no refresh token in V1" note).** The planned FastAPI auth issues **short-lived access tokens (JWT)** plus **rotating refresh tokens**, per the security principles and the employee API contract (`POST /api/v1/auth/employee/refresh`). This is a *planned* target behaviour — the current frontend mock sessions have no real refresh flow.
 
@@ -628,16 +1150,14 @@ Webhook routes (`POST /payments/webhooks`) are **not** cookie-authenticated; the
 
 ------------------------------------------------------------------------
 
-# 10. Authorization / RBAC architecture
-
-## 10.1 Port existing vocabularies --- do not invent a second one
+### 7.7 Port existing vocabularies --- do not invent a second one
 
 -   Employee keys: `src/config/employeePermissions.js` (`dashboard.view`, `products.manage`, ...)
 -   Employee roles: `src/config/employeeRoles.js`
 -   Admin: `SUPER_ADMIN` + `employees.manage` (`src/config/adminAccess.js`)
 -   Employee-account keys (`employees.manage`, `employees.create`, ...) are **invalid employee grants**. Admin-only.
 
-## 10.2 Enforcement order (every mutation)
+### 7.8 Enforcement order (every mutation)
 
 1.  Authenticated session?
 2.  Principal kind allowed on this route prefix?
@@ -648,7 +1168,7 @@ Webhook routes (`POST /payments/webhooks`) are **not** cookie-authenticated; the
 
 UI `hasPermission` continues to hide nav. **Hiding is not security.**
 
-## 10.3 Resource rules (lifted from commands)
+### 7.9 Resource rules (lifted from commands)
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Action                                                                                                       Who
@@ -672,664 +1192,13 @@ UI `hasPermission` continues to hide nav. **Hiding is not security.**
   public catalogue GET                                                                                         none
   -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-## 10.4 Employee field whitelist
+### 7.10 Employee field whitelist
 
 Port `EMPLOYEE_EDITABLE_FIELDS`. Identity, status, assignment, ownership are excluded. Admin PATCH may edit more fields but still cannot `PATCH status`.
 
 ------------------------------------------------------------------------
 
-# 11. Product lifecycle architecture
-
-## 11.1 Persistence vocabulary (compatibility --- keep)
-
-Stored on `products`:
-
-  ----------------------------------------------------------------------------------------------------
-  Column                             Values
-  ---------------------------------- -----------------------------------------------------------------
-  `status`                           `DRAFT` \| `PENDING_REVIEW` \| `PUBLISHED` \| `ARCHIVED`
-
-  `review_state`                     `NONE` \| `PENDING` \| `APPROVED` \| `REJECTED`
-
-  `assigned_employee_id`             uuid null
-
-  `workflow` JSONB                   `employeeReviewStartedAt`, `adminReviewStartedAt`, `approvedAt`
-  ----------------------------------------------------------------------------------------------------
-
-## 11.2 Canonical projection (read model --- keep)
-
-    DRAFT → ASSIGNED → IN_EMPLOYEE_REVIEW → SUBMITTED → IN_ADMIN_REVIEW
-          → APPROVED → PUBLISHED → ARCHIVED
-
-`RETURNED` is **not** a stored stage. Rejection maps to editable DRAFT / IN_EMPLOYEE_REVIEW with `review_state = REJECTED` and a reason.
-
-Precedence (from `productWorkflowState.js`): ARCHIVED \> PUBLISHED (grandfathered) \> review APPROVED \> pending status → SUBMITTED / IN_ADMIN_REVIEW \> REJECTED presentation \> assigned work \> DRAFT.
-
-## 11.3 Publication path (the only legal one)
-
-    DRAFT  --submit-->  SUBMITTED (status=PENDING_REVIEW, review=PENDING)
-           --approve--> APPROVED  (review=APPROVED, status still PENDING_REVIEW)
-           --publish--> PUBLISHED (status=PUBLISHED)
-
-**Approval MUST NOT publish.** Storefront remains invisible until `publishProduct`.
-
-## 11.4 Transition table (invalid transitions fail)
-
-  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  Command                      Who                              From                                    To                 Extra
-  ---------------------------- -------------------------------- --------------------------------------- ------------------ -------------------------------------------------------
-  createProduct                Admin or `products.manage`       ---                                     DRAFT              allocate canonical ID
-
-  saveProductDraft             Admin or **assigned** employee   DRAFT / ASSIGNED / IN_EMPLOYEE_REVIEW   same               employee whitelist
-
-  assignProduct                Super Admin                      not ARCHIVED                            same + assignee    employee login-allowed
-
-  submitProduct                Admin or assignee                submittable stages                      SUBMITTED          `validateProductForSubmit`
-
-  beginAdminReview             Super Admin                      SUBMITTED                               IN_ADMIN_REVIEW    timestamp only
-
-  returnProduct                Super Admin                      not PUBLISHED/ARCHIVED                  DRAFT + REJECTED   **reason required**
-
-  approveProduct               Super Admin                      SUBMITTED / IN_ADMIN_REVIEW             APPROVED           `validateProductForApprove`; **no storefront**
-
-  publishProduct               Super Admin                      **APPROVED only**                       PUBLISHED          **full revalidation**; ignore prior pass
-
-  unpublishProduct             Super Admin                      PUBLISHED                               DRAFT              clear `approvedAt`
-
-  archiveProduct               Super Admin                      not archived                            ARCHIVED           keep media ownership
-
-  restoreProduct               Super Admin                      ARCHIVED                                DRAFT              review NONE
-
-  bulkSubmit/Approve/Publish   same auth                        ---                                     ---                **loop individual commands**; independent success
-
-  deleteProductPermanently     Super Admin                      unused never-published DRAFT            removed            confirm public id; unassign media
-
-  changeProductId              Super Admin                      any non-published preferred             new public_id      family prefix immutable; transactional media transfer
-  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-**Forbidden:**
-
--   `PATCH /products/:id { status: "PUBLISHED" }`
--   DRAFT → APPROVED
--   DRAFT → PUBLISHED
--   SUBMITTED → PUBLISHED
--   APPROVED → DRAFT (except explicit unpublish/return/restore commands)
--   Bulk "set status"
-
-Existing PUBLISHED rows stay PUBLISHED (grandfathering).
-
-------------------------------------------------------------------------
-
-# 12. Product validation architecture
-
-Port `productPublishValidator.js` as the **one** orchestrator. Compose shared checks:
-
-    validateProductIdentity()      // public_id format, present
-    validateProductName()          // required, not placeholder
-    validateProductSku()           // required, unique across products+variants
-    validateProductPricing()       // computePricing: MRP>0, selling>0, selling≤MRP
-    validateProductTaxonomy()      // department/category/subcategory exist and nest
-    validateProductDescription()   // description or shortDescription
-    validateProductMedia()         // primary image, not video, ACTIVE, not MARKETING, no conflicts
-    validateProductGrouping()      // unresolved media groups
-    validateProductReviewFlags()   // flags that data does not already prove
-    validateProductLifecycle()     // APPROVED required only for publish
-
-  ----------------------------------------------------------------------------------------------------------------------------------------------------
-  Function                        Includes                                                                            Extra
-  ------------------------------- ----------------------------------------------------------------------------------- --------------------------------
-  `validateProductForSubmit()`    all data checks except lifecycle APPROVED                                           category inactive = warning
-
-  `validateProductForApprove()`   same as submit                                                                      still no storefront
-
-  `validateProductForPublish()`   **all of the above + lifecycle APPROVED + fresh re-read of media/taxonomy/price**   never reuse the approve result
-  ----------------------------------------------------------------------------------------------------------------------------------------------------
-
-Publish is a **command**, not a cached flag. Category inactive is a **warning** (product publishes but stays storefront-hidden) --- same as today.
-
-Shared `computePricing` rules stay in one module (port `utils/pricing.js`) and run **only on the server** for persisted prices. Frontend may keep a preview copy.
-
-------------------------------------------------------------------------
-
-# 13. Media architecture
-
-## 13.1 Split
-
-  What                    Where
-  ----------------------- ---------------------------------------------------------
-  Bytes                   S3-compatible object (`object_key`)
-  Metadata                `media_assets`
-  Product ordering/role   `product_media`
-  Public URL              CDN over the object key --- **never** `blob:` / `data:`
-
-`isEphemeralUrl` already strips blob/data. Backend **rejects** those strings with `MEDIA_URL_EPHEMERAL`.
-
-## 13.2 `media_assets` columns (conceptual)
-
-`id`, `type` IMAGE\|VIDEO, `scope` PRODUCT\|MARKETING\|UNASSIGNED, `status` DRAFT\|PENDING_REVIEW\|ACTIVE\|REJECTED\|ARCHIVED, `product_id` null, `placement` null, `role`, `sort_order`, `object_key`, `url` (CDN, derived), `poster_key`, `thumbnail_key`, `mime_type`, `extension`, `byte_size`, `width`, `height`, `checksum` (sha256), `original_filename`, `alt`, `caption`, `usage_roles[]`, `mapping_status`, `duplicate_status`, `uploaded_by_kind`, `uploaded_by_id`, `reviewed_by`, `rejection_reason`, timestamps.
-
-## 13.3 Formats (do **not** require WebP conversion)
-
-Images: JPEG, PNG, WebP, **AVIF** (existing assets must remain valid).\
-Video: MP4, WebM.\
-Limits from settings (defaults 10 MB image / 100 MB video). Magic-byte MIME check, not extension alone.
-
-## 13.4 Upload flow
-
-    POST /media/uploads        → { uploadUrl, objectKey, mediaId }   (authz media.upload)
-    client PUT bytes to signed URL (short TTL)
-    POST /media/:id/complete   → validate size/mime/dimensions; persist metadata; never trust client URL
-
-Private bucket. Public read via CDN after ACTIVE. Draft/rejected assets stay private signed GET for staff.
-
-## 13.5 Ownership (port `mediaOwnershipService`)
-
--   At most one `product_id`.
--   Marketing-scoped assets cannot become product-owned (and vice versa) without explicit unassign.
--   Transfer requires confirm when contested.
--   Product ID rename: preflight all owned assets → update public_id → transfer → rollback on any refusal (**one DB transaction**).
-
-------------------------------------------------------------------------
-
-# 14. Product media architecture
-
-    PRODUCT 1—n PRODUCT_MEDIA n—1 MEDIA_ASSET
-
-`product_media`: `(product_id, media_id, role, sort_order)` unique `(product_id, media_id)`.
-
-  Role                                                        Rule
-  ----------------------------------------------------------- -------------------------------------------
-  COVER                                                       Exactly one IMAGE. Videos cannot be cover
-  GALLERY / DETAIL / LIFESTYLE / MODEL / CLOSEUP              Images
-  PRODUCT_VIDEO / SHOWCASE / DETAIL_VIDEO / LIFESTYLE_VIDEO   Videos
-
-**Primary selection:** the COVER row, else the lowest `sort_order` IMAGE, else authored-plate fallback during migration.
-
-**When COVER is removed:** promote the next IMAGE by sort_order. If none remain, product becomes unpublished-ineligible (`PRIMARY_MEDIA_REQUIRED`).
-
-**Published products and media:** Super Admin may replace media; **publish eligibility is re-checked** if the product is PUBLISHED --- a missing cover does not auto-unpublish (avoid storefront flaps) but blocks *re-publish* and raises a review flag. Recommendation: allow media edits on PUBLISHED only via a dedicated command that revalidates cover. **Do not** let employees mutate media on submitted/approved/published stages.
-
-Storefront sees **ACTIVE** media only.
-
-Authored plates (`public/images/products/…`) migrate to `media_assets` with `source = CATALOGUE_SEED`. Managed uploads win when present (`productMediaSet` precedence).
-
-------------------------------------------------------------------------
-
-# 15. Marketing media architecture
-
-Placement catalogue stays **config/seed**, not user-invented tables. Port `MARKETING_PLACEMENT_OPTIONS`.
-
-  Placement           Mode      Live
-  ------------------- --------- -----------------------------
-  HOME_HERO           GENERIC   yes --- marketing media
-  EDITORIAL           GENERIC   yes
-  PROMOTION           GENERIC   yes
-  SAREE_SECTION       PRODUCT   yes --- ordered product IDs
-  LEHENGA_SECTION     PRODUCT   yes
-  FESTIVE_SECTION     PRODUCT   yes
-  WOMEN_SECTION       PRODUCT   yes
-  BRIDAL_SECTION      PRODUCT   yes
-  GROOM_SECTION       PRODUCT   yes
-  KIDS_SECTION        PRODUCT   yes
-  BANGLES_SECTION     PRODUCT   yes (listing surface)
-  JEWELLERY_SECTION   PRODUCT   yes (listing surface)
-  NEW_ARRIVALS        PRODUCT   yes
-
-**Do not** create `saree_section` / `hero` tables.
-
-### PRODUCT mode
-
-`marketing_placement_products (placement_id, product_id, sort_order)` --- **IDs only**.
-
-Resolver (server, identical to `marketingPlacementResolver`):
-
-    assigned IDs
-      ⋉ products WHERE status = PUBLISHED
-      ⋉ categories WHERE status = ACTIVE
-      ⋉ resolvable primary image
-
-Unpublished / archived / invalid IDs **drop out**. They are not deleted from the assignment (so republish restores them).
-
-`houseSelectionFallback: true` remains **frontend merchandising** driven by live catalogue flags --- backend does not hardcode fallback IDs.
-
-### GENERIC / HERO
-
-`media_assets.scope = MARKETING` + `placement = HOME_HERO | EDITORIAL | PROMOTION`. Public: ACTIVE only.
-
-Hero **copy** (eyebrow, title, CTA) currently lives in `src/data/catalog/hero.js`. Backend: `marketing_placements.config JSONB` for slide copy. Static fallback images migrate as marketing media. Brand logo stays frontend.
-
-------------------------------------------------------------------------
-
-# 16. Collection architecture
-
-    collections
-    collection_products (collection_id, product_id, sort_order) unique pair
-
-Types: `MANUAL` \| `RULE_BASED` (rule JSON: `{ flag: "isNew" }`, `{ fabricIncludes: "silk" }`, `{ occasion: "Wedding" }`).
-
-Status stored: DRAFT \| ACTIVE \| PAUSED \| ARCHIVED. Display SCHEDULED / EXPIRED **derived** from `start_date` / `end_date` (same as offers).
-
-**Direct URL** `GET /catalog/collections/:slug` resolves membership **on the server**. Invalid slugs → 404. Never invent products.
-
-Membership = `collection_products` UNION rule-matching published products. Pages must not hardcode IDs.
-
-Seed from `taxonomyRepository` collection seeds (`new-arrivals`, `featured`, `heritage-weaves`, `festive-edit`, `silk`, `wedding`, ...).
-
-------------------------------------------------------------------------
-
-# 17. Inventory architecture
-
-Port `inventoryRepository` semantics. Frontend is already transaction-shaped.
-
-### Quantities (one formula)
-
-    available = on_hand − reserved − damaged
-    returned  = quarantine (does NOT increase available until inspection)
-    sold      = cumulative sold (informational)
-
-Negative available is refused. `settings.inventory.negativeStockAllowed` default **false**.
-
-### Locations
-
-Seed:
-
--   `loc-main-store` STORE ACTIVE\
--   `loc-main-warehouse` WAREHOUSE ACTIVE
-
-Reservation prefers STORE then WAREHOUSE (existing sort). Returns enter warehouse quarantine.
-
-**Decision:** this is **simple multi-location**, not a WMS. Do not add bins as first-class entities; `placement` JSON (department/section/rack/shelf/bin) stays metadata on the balance row.
-
-### Movements (append-only)
-
-OPENING_BALANCE, RECEIVE, ADJUST, TRANSFER_OUT, TRANSFER_IN, RESERVE, RELEASE, SALE, RETURN, DAMAGE, RESTOCK.
-
-### Reservations
-
--   Created at checkout start (`expires_in` from `settings.orders.paymentTimeoutMinutes`, default 15).
--   Allocations pinned to balance rows --- cancellation restocks **those** rows, not "today's" locations.
--   Status: ACTIVE → SOLD \| RELEASED \| RESTOCKED \| EXPIRED.
--   Expiry: lazy on read **and** periodic job. Browser clock is not authority.
-
-### Transfers
-
-`DRAFT → REQUESTED → APPROVED → IN_TRANSIT → RECEIVED` (or CANCELLED). Stock leaves source only at IN_TRANSIT; arrives at RECEIVED. Pending outbound counts against requestable quantity.
-
-### Tracked vs untracked
-
-If a product has no balance rows and `inventory_tracked = false`, cart validation uses legacy `product.stock` / `availability`. New published products should be tracked; `ensureOpeningStock` remains a command.
-
-All mutations run in a **DB transaction** with `SELECT … FOR UPDATE` on the balance row.
-
-------------------------------------------------------------------------
-
-# 18. Cart architecture
-
-    carts (id, customer_id null, guest_token null, currency INR, updated_at)
-    cart_items (cart_id, product_id, variant_id, quantity, unit_price_snapshot)
-
-  ----------------------------------------------------------------------------------------------------------------------------
-  Topic                              Decision
-  ---------------------------------- -----------------------------------------------------------------------------------------
-  Anonymous                          Guest cookie `pf_guest` → server cart. localStorage is a cache only
-
-  Authenticated                      `customer_id` unique active cart
-
-  Merge on login                     Union by (product_id, variant_id); sum qty; **revalidate** availability and **reprice**
-
-  Price                              Always recomputed from `computePricing` + variant override. Client price ignored
-
-  Availability                       `validateCartItems` server-side
-
-  Coupon                             Stored as `applied_offer_id`; revalidated on every GET
-
-  Expiry                             Guest carts idle \> 30 days purged. Authenticated carts persist
-
-  Unpublished product                Line kept but `unavailable: true`; blocked at checkout
-  ----------------------------------------------------------------------------------------------------------------------------
-
-Frontend `CartContext` becomes an adapter over `GET/PATCH /cart`.
-
-------------------------------------------------------------------------
-
-# 19. Wishlist architecture
-
--   One wishlist per customer (authenticated). Guest wishlist stays localStorage until login, then merge unique product IDs.
--   `wishlist_items (wishlist_id, product_id)` unique.
--   Duplicate toggle is idempotent.
--   Unpublished / archived products: remain listed with `available: false`; do not 404 the wishlist. Direct add of unpublished IDs is rejected.
-
-------------------------------------------------------------------------
-
-# 20. Offers architecture
-
-Port `offerRepository`. **Do not** build a promotions engine beyond what exists.
-
-  ---------------------------------------------------------------------------------------------------------------------
-  Field                              Rule
-  ---------------------------------- ----------------------------------------------------------------------------------
-  type                               PERCENTAGE \| FIXED_AMOUNT
-
-  code                               unique, `[A-Z0-9]+(-[A-Z0-9]+)*`, 2--24
-
-  status stored                      DRAFT, ACTIVE, PAUSED, ARCHIVED
-
-  display                            SCHEDULED / EXPIRED derived from dates
-
-  eligibility                        ALL / SPECIFIC products, CATEGORY, COLLECTION + exclusions
-
-  customers                          ALL / NEW / RETURNING / SPECIFIC
-
-  limits                             `usage_limit`, `per_customer_limit`
-
-  min / max                          `minimum_order_value`, `maximum_discount`
-
-  stackable                          column exists; settings default `allowStacking: false` --- V1 **does not stack**
-  ---------------------------------------------------------------------------------------------------------------------
-
-**Marketing artwork ≠ offers.** HOME_HERO / PROMOTION media is not a discount.
-
-Redemption: `offer_redemptions (offer_id, order_id)` **unique**. `recordRedemption` is idempotent per order. Increment under row lock.
-
-Checkout **never** trusts client `couponDiscount`. Server runs `validateOffer` against current catalogue + settings.
-
-Code locked after first redemption (existing rule).
-
-------------------------------------------------------------------------
-
-# 21. Checkout architecture
-
-Server-controlled. Steps (UI): customer → delivery → review → payment. Confirmation is a separate page.
-
-`checkout_sessions`:
-
--   Snapshot of cart item IDs + qty (not prices)
--   Address id or payload
--   Delivery method id
--   Payment method id
--   `reservation_id`
--   **Server totals:** subtotal, productDiscount, couponDiscount, shipping, codFee, tax, total
--   Status: OPEN \| RESERVED \| PLACED \| EXPIRED \| ABANDONED
-
-### Revalidation on every mutation and on pay
-
-1.  Product exists\
-2.  `status = PUBLISHED` and category ACTIVE\
-3.  Price via `computePricing`\
-4.  Inventory available / reservation still ACTIVE\
-5.  Offer still redeemable\
-6.  Shipping from **settings** (`readShippingRules`)\
-7.  Tax from settings (currently often 0 / inclusive)\
-8.  Address complete\
-9.  Payment method allowed
-
-**Never trust frontend totals.** Authoritative total is computed here.
-
-COD: order created with `payment_status = PENDING`, reservation confirmed as SALE immediately (stock leaves), no gateway.
-
-Non-COD: reservation → payment intent → webhook confirms → SALE.
-
-Timeout: `settings.orders.paymentTimeoutMinutes` releases reservation and expires the session.
-
-------------------------------------------------------------------------
-
-# 22. Order architecture
-
-**ONE order entity.**
-
-    channel: ONLINE | ASSISTED
-    source:  storefront | employee_assisted
-    created_by_employee_id: null | uuid
-    customer_id: required for ONLINE, optional for ASSISTED (walk-in)
-
-Assisted orders **must not** live in a second table (Phase 1 already merged `pratikshya_employee_assisted_orders`).
-
-### Order payload
-
-Customer snapshot, items (name, sku, public product_id, qty, unit price, line total), discounts, shipping, taxes, total, payment_status, fulfillment_status, display_status, timeline, channel, timestamps, invoice number, tracking.
-
-`order_items` store **purchase-time** name/sku/price. `product_id` FK remains for inventory/analytics.
-
-Invoice sequence: `orders_invoice_seq` (replaces `pratikshya_order_sequence`).
-
-`forceTransition` **does not exist** on the production API.
-
-`buildOrderRecord` today stamps PAYMENT_CONFIRMED in the browser. **That path is forbidden in production.** See §23.
-
-------------------------------------------------------------------------
-
-# 23. Order lifecycle (separate payment from fulfillment)
-
-The current `ORDER_STATUS` mixes money and warehouse. Backend stores **three** fields; the UI journey is a **projection**.
-
-  --------------------------------------------------------------------------------------------------------------------------------------------
-  Field                              Values
-  ---------------------------------- ---------------------------------------------------------------------------------------------------------
-  `payment_status`                   PENDING, AUTHORIZED, PAID, FAILED, CANCELLED, REFUND_INITIATED, REFUND_PENDING, REFUNDED
-
-  `fulfillment_status`               PENDING, ALLOCATED, PICKING, PACKED, READY_TO_DISPATCH, SHIPPED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED
-
-  `display_status`                   Compatible with existing `ORDER_STATUS` labels for the SPA
-  --------------------------------------------------------------------------------------------------------------------------------------------
-
-### Projection (so the frontend journey does not rewrite)
-
-  -------------------------------------------------------------------------------------------------------
-  Condition                            display_status
-  ------------------------------------ ------------------------------------------------------------------
-  payment PENDING (non-COD)            PENDING_PAYMENT
-
-  payment PAID, fulfillment PENDING    PAYMENT_CONFIRMED then ORDER_CONFIRMED
-
-  fulfillment PROCESSING...DELIVERED   matching journey step
-
-  cancelled                            CANCELLED
-
-  active return                        RETURN_REQUESTED / RETURNED / REFUND_PENDING / REFUNDED as today
-  -------------------------------------------------------------------------------------------------------
-
-### Payment transitions (who)
-
-  From             To                   Who
-  ---------------- -------------------- ---------------------------------------
-  PENDING          PAID                 **webhook only** (or COD create)
-  PENDING          FAILED / CANCELLED   webhook or expire job
-  PAID             REFUND_PENDING       cancel/return commands
-  REFUND_PENDING   REFUNDED             **refund webhook / provider confirm**
-
-Clients cannot POST these.
-
-### Fulfillment transitions (who)
-
-Port existing commands; each requires the matching permission:
-
-  --------------------------------------------------------------------------------------------------------------------------------------------
-  Command                                       From → To                        Permission
-  --------------------------------------------- -------------------------------- -------------------------------------------------------------
-  confirmOrder (auto after PAID)                → ORDER_CONFIRMED / PROCESSING   system
-
-  allocateOrder                                 PROCESSING → ALLOCATED           `orders.fulfill`
-
-  startPicking / markItemPicked                 ALLOCATED → PICKING              `orders.pick`
-
-  markPacked (all items picked)                 PICKING → PACKED                 `orders.pack`
-
-  markReadyToDispatch                           PACKED → READY_TO_DISPATCH       `orders.fulfill`
-
-  dispatchOrder (carrier + tracking required)   → SHIPPED                        `orders.dispatch`
-
-  markOutForDelivery                            SHIPPED → OUT_FOR_DELIVERY       `orders.dispatch`
-
-  markDelivered                                 → DELIVERED                      `orders.fulfill`
-
-  cancelOrder                                   cancellable set                  customer owner **or** `orders.cancel`; admin extra statuses
-  --------------------------------------------------------------------------------------------------------------------------------------------
-
-Customer cancel: `CANCELLABLE_STATUSES` through PICKING. Admin: through READY_TO_DISPATCH. Packed+ ships require reason.
-
-Cancel of PAID order → restock via reservation allocations + refund pending.
-
-------------------------------------------------------------------------
-
-# 24. Payment architecture
-
-**Critical.** Frontend must never be authoritative for production success.
-
-    Checkout
-      → POST /checkout/reserve          stock hold
-      → POST /payments/intents          amount from server session, env=sandbox|live
-      → customer completes gateway / Sandbox QR
-      → POST /payments/webhooks         ONLY path that can mark PAID
-           verify signature
-           verify amount, currency, order/reference, txn id
-           insert payment_events (idempotent)
-           if LIVE success: payment PAID, confirmReservationSale, record offer redemption, order confirm
-           if SANDBOX: payment SANDBOX_PAID / env=sandbox — excluded from live settlement
-      → frontend polls GET /payments/:id or GET /orders/:id
-
-### Verification checklist
-
--   Gateway signature
--   Amount == checkout_session.total (paise)
--   Currency INR
--   Order / checkout reference match
--   Transaction ID unique
--   Idempotency (event id / txn id)
--   `env` on the payment row matches gateway account (live key cannot confirm sandbox row)
-
-### `payments`
-
-`id`, `order_id`, `checkout_session_id`, `provider`, `env` SANDBOX\|LIVE, `method` upi\|card\|netbanking\|qr\|cod, `amount_paise`, `currency`, `status`, `provider_ref`, `idempotency_key`, timestamps.
-
-### `payment_events`
-
-Raw payload (redacted), signature valid bool, processed_at, unique `(provider, provider_event_id)`.
-
-**Forbidden:** SPA `paymentStatus: "PAID"`, treating Sandbox QR scan as live money, Vite env payment secrets.
-
-Provider recommendation: **Razorpay** (UPI, cards, netbanking, QR). Interface:
-
-    PaymentProvider.createIntent(session)
-    PaymentProvider.verifyWebhook(rawBody, headers)
-    PaymentProvider.refund(payment, amount)
-
-`MockPaymentService` remains the `env=development` adapter. Production adapter never ships in the frontend bundle.
-
-COD: no intent; order `payment_status=PENDING` until delivery collection (future). V1 leaves COD as PENDING and does not auto-PAID.
-
-------------------------------------------------------------------------
-
-# 25. Sandbox QR architecture
-
-Preserve `utils/sandboxQr.js` semantics.
-
-  ---------------------------------------------------------------------------------------------------------------------------
-  Rule                               Value
-  ---------------------------------- ----------------------------------------------------------------------------------------
-  `env`                              always `"sandbox"`
-
-  Payload                            merchant, reference, session, amount, currency INR, payment `qr`, issuedAt
-
-  Secrets                            **never** encoded
-
-  Who may confirm                    **Sandbox payment adapter on the backend**, keyed by `PAYMENTS_ENV=sandbox`
-
-  Production                         Sandbox QR method **hidden** when `PAYMENTS_ENV=live`. API rejects `method=qr` on live
-  ---------------------------------------------------------------------------------------------------------------------------
-
-Sandbox confirmation writes `payments.env = SANDBOX` and `orders.payment_env = SANDBOX`. Live reports **exclude** these rows.
-
-Demo scenarios (`success` / `failure` / `cancelled` / `pending`) are development-only query flags on the mock adapter, never on live intents.
-
-------------------------------------------------------------------------
-
-# 26. Return / refund architecture
-
-Port `returnService`.
-
-Eligibility: order `display_status = DELIVERED` (or fulfillment DELIVERED), within `settings.returns.returnWindowDays` (default 7), line not already returned.
-
-    RETURN_REQUESTED → UNDER_REVIEW → APPROVED → PICKUP_SCHEDULED
-      → RECEIVED → INSPECTED → REFUND_INITIATED → REFUNDED
-    REJECTED from request/review
-
-Inspection required (`settings.returns.inspectionRequired = true`). Receive **does not** restock. Inspection:
-
--   SELLABLE → `inspectReturnedStock` RESTOCK
--   DAMAGED → DAMAGE
--   QUARANTINE → stays in `returned`
-
-Refund:
-
-1.  Staff `initiateRefund` after INSPECTED\
-2.  Backend calls provider `refund()` for **live** payments\
-3.  **Provider webhook** marks REFUNDED\
-4.  Sandbox/COD: staff complete is allowed **only** when `payment.env != LIVE`
-
-Partial refunds: `settings.payments.partialRefundEnabled`. Amount = `refundAmountFor(items)`, never client figure.
-
-Customer-facing rejection messages stay generic (`customerFacingRejection`).
-
-------------------------------------------------------------------------
-
-# 27. Settings architecture
-
-One row or keyed JSONB document:
-
-    settings (id, section text unique, payload jsonb, updated_by, updated_at)
-
-Sections = `SETTINGS_DEFAULTS` keys: `business`, `store`, `locations`, `hours`, `attendance`, `holidays`, `tax`, `shipping`, `payments`, `orders`, `returns`, `inventory`, `employees`, `notifications`, `customer`, `offers`, `media`.
-
-**Business settings (server authority):** shipping fees/threshold, COD fee, tax rates/mode, return window, payment timeout, media size limits, password policy, inventory thresholds.
-
-**Static UI configuration (frontend):** payment method labels, icons, UPI app names, demo bank list, captions --- `checkoutConfig.js` remains UI metadata and **reads numbers from GET /settings/public**.
-
-Write: Super Admin only. Each write → audit_log `SETTINGS_UPDATED`.
-
-Public GET returns only storefront-safe slices (shipping fees, COD fee, return window, store name). Never GSTIN secrets beyond what's already public.
-
-## 27.1 Notifications architecture
-
-Notifications are **planned** for V1 (Phase K) because the current frontend already surfaces order/status/return events in the account area and staff feeds; the backend will make them authoritative and eventually pushable. This is a new domain in this revision (previously only implied by the `notifications` settings section).
-
-    notification_templates (id, event_kind, channel EMAIL|SMS|PUSH|IN_APP, locale, subject, body, active)
-    notification_deliveries (id, template_id, principal_kind, principal_id, entity_type, entity_id,
-                             channel, status QUEUED|SENT|FAILED|SUPPRESSED, error, delivered_at, timestamps)
-
--   **Event kinds (V1):** order confirmed, payment confirmed, order shipped/out-for-delivery/delivered, return requested/approved/rejected/refunded, leave requested/reviewed, employee credential reset, low-stock alert (inventory threshold).
--   **Triggers:** domain events (§32) enqueue a delivery after a successful commit. **Never** enqueue on a rolled-back transaction.
--   **Delivery:** a `workers/` background job drains the queue; IN_APP deliveries are read from `notification_deliveries` (no separate inbox table in V1). Email/SMS/PUSH go through provider adapters behind a `NotificationProvider` interface (mock adapter in development).
--   **Preferences:** customer notification prefs live on `customer_preferences`; staff prefs are a later option. `settings.notifications` holds the enabled channels and provider config (secrets in server env only).
--   **AI (future):** AI assistants may *generate* notification copy, but they never own the delivery queue or the customer-facing channel decisions.
-
-------------------------------------------------------------------------
-
-# 28. Audit-log architecture
-
-Port `activityService` / `ACTIVITY_ACTIONS`. Append-only. No UPDATE/DELETE in application SQL (DB role revoke).
-
-    audit_logs (
-      id uuid,
-      at timestamptz,
-      actor_kind CUSTOMER|ADMIN|EMPLOYEE|SYSTEM,
-      actor_id uuid null,
-      actor_label text,
-      action text,                 -- PRODUCT_PUBLISHED, …
-      entity_type text,
-      entity_id text,
-      summary text,
-      metadata jsonb,              -- non-secret diffs
-      request_id uuid,
-      ip inet
-    )
-
-Required events: product submit/approve/publish/unpublish/archive, media assign/remove, marketing placement change, inventory adjustment, order status, payment confirmation, refund, role/permission change, settings change, employee create/suspend/reset.
-
-Never log passwords, tokens, card data, webhook secrets.
-
-------------------------------------------------------------------------
-
-# 29. API route map
+## 8 API Architecture
 
 **API versioning:** all routes are namespaced under `/api/v1`. A future breaking change introduces `/api/v2` rather than altering `/api/v1` in place; `/api/v1` is kept alive through a deprecation window. The frontend pins a single `API_BASE` and never hardcodes version-less endpoints.
 
@@ -1342,7 +1211,7 @@ Idempotency-Key header required on payments, order create, refund, reserve, chec
 
 Staff preview is **not** a public `?preview=1` that bypasses filters. Use `GET /admin/products/:id`.
 
-### 29.1 Auth
+### 8.1 Auth
 
   -----------------------------------------------------------------------------------------------
   Method      Route                     Auth        Authz                  Notes
@@ -1386,7 +1255,7 @@ Staff preview is **not** a public `?preview=1` that bypasses filters. Use `GET /
 
 The employee auth and management endpoints are specified in full by `docs/employee-management-api-contract.md` (`POST /api/v1/auth/employee/login`, `GET /api/v1/employees/me`, etc.). The compact paths above are `/api/v1`-relative shorthand for those canonical endpoints.
 
-### 29.2 Public catalogue
+### 8.2 Public catalogue
 
   ------------------------------------------------------------------------------------------------------------------------
   Method                Route                          Notes
@@ -1406,7 +1275,7 @@ The employee auth and management endpoints are specified in full by `docs/employ
   GET                   `/catalog/settings`            public commerce numbers
   ------------------------------------------------------------------------------------------------------------------------
 
-### 29.3 Admin products & workflow
+### 8.3 Admin products & workflow
 
   ------------------------------------------------------------------------------------------------
   Method             Route                                Authz
@@ -1452,7 +1321,7 @@ Employee product routes: `GET/PATCH /employee/products`, `POST …/submit` --- a
 
 **Forbidden:** generic status PATCH.
 
-### 29.4 Media
+### 8.4 Media
 
   Method   Route                                       Notes
   -------- ------------------------------------------- ---------------------
@@ -1468,25 +1337,25 @@ Employee product routes: `GET/PATCH /employee/products`, `POST …/submit` --- a
   POST     `/media/:id/cover`                          image only
   PATCH    `/media/:id/order`                          
 
-### 29.5 Taxonomy, collections, marketing
+### 8.5 Taxonomy, collections, marketing
 
 CRUD mirrors `taxonomyRepository` and `marketingPlacementRepository` under `/admin/categories`, `/admin/subcategories`, `/admin/collections`, `/admin/marketing/placements/:id/products`.
 
-### 29.6 Inventory
+### 8.6 Inventory
 
 `GET /inventory`, metrics, movements, transfers.\
 `POST /inventory/receive|adjust|damage|return|inspect|thresholds`\
 `POST /inventory/locations`\
 `POST /inventory/transfers` + `POST /inventory/transfers/:id/transition`
 
-### 29.7 Cart / wishlist / offers
+### 8.7 Cart / wishlist / offers
 
 `GET/PUT /cart`, `POST /cart/items`, `PATCH /cart/items/:id`, `DELETE /cart/items/:id`, `POST /cart/coupon`, `DELETE /cart/coupon`\
 `GET /wishlist`, `PUT /wishlist/:productId`, `DELETE /wishlist/:productId`\
 `POST /offers/validate`, `GET /offers` (customer-visible)\
 Admin: `/admin/offers` CRUD + activate/pause/archive
 
-### 29.8 Checkout / orders / payments
+### 8.8 Checkout / orders / payments
 
   -----------------------------------------------------------------------------------------------------------------------------------------------------
   Method         Route                                                                Notes
@@ -1520,13 +1389,13 @@ Admin: `/admin/offers` CRUD + activate/pause/archive
   POST           `/employees/{id}/orders/assisted`                                   `orders.create`, channel ASSISTED (see employee contract)
   -----------------------------------------------------------------------------------------------------------------------------------------------------
 
-### 29.9 Returns / refunds
+### 8.9 Returns / refunds
 
 `POST /orders/:id/returns` (customer)\
 Admin/employee: approve, reject, pickup, receive, inspect, refund-initiate\
 `POST /refunds/webhooks` or payment webhook refund events
 
-### 29.10 Identity admin, workforce, settings, audit, analytics
+### 8.10 Identity admin, workforce, settings, audit, analytics
 
 Employee management: honour `docs/employee-management-api-contract.md` under `/api/v1/employees/*`.\
 Workforce: `/employees/{id}/attendance/*`, `/employees/{id}/leave/*`, `/employees/{id}/performance`, `/admin/workforce/*` (see employee contract)\
@@ -1535,13 +1404,11 @@ Audit: `GET /admin/activity`\
 Analytics: `GET /admin/analytics/:section` read-models\
 Health: `GET /health`, `GET /ready`
 
-### 29.11 Endpoints **not** created merely because a file exists
+### 8.11 Endpoints **not** created merely because a file exists
 
 No `/ai/*` in V1. No support-case / styling APIs. No `forceTransition`. No public preview bypass.
 
 ------------------------------------------------------------------------
-
-# 30. Error contract
 
 One envelope:
 
@@ -1586,9 +1453,7 @@ Validation ≠ authz ≠ not found ≠ conflict ≠ business rule ≠ 500. Front
 
 ------------------------------------------------------------------------
 
-# 31. Idempotency strategy
-
-  ------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
   Operation                  Key                                      Behaviour
   -------------------------- ---------------------------------------- ----------------------------------------------------------------
   Payment intent create      `Idempotency-Key` + principal            Return original intent
@@ -1610,9 +1475,284 @@ Store `idempotency_keys (key, principal_id, route, request_hash, response_code, 
 
 ------------------------------------------------------------------------
 
-# 32. Transaction / concurrency strategy
+All examples: `Content-Type: application/json`. Admin cookie implied where stated.
 
-  --------------------------------------------------------------------------------------------------------------
+### 8.12 Create Product
+
+`POST /api/v1/admin/products`\
+Authz: Super Admin or `products.manage`
+
+Request:
+
+``` json
+{
+  "name": "Banarasi Silk Saree",
+  "department": "women",
+  "category": "sarees",
+  "subcategory": "silk",
+  "pricing": { "mrp": 18999, "sellingPrice": 14999, "discountType": "none", "taxMode": "INCLUSIVE" }
+}
+```
+
+Response `201`:
+
+``` json
+{
+  "ok": true,
+  "data": {
+    "id": "PF-W-SAR-SIL-0129",
+    "status": "DRAFT",
+    "review": { "state": "NONE" }
+  }
+}
+```
+
+Errors: `401`, `403`, `422` (taxonomy incomplete → no ID allocated).\
+Side effect: audit `PRODUCT_DRAFT_CREATED`. Always DRAFT.
+
+### 8.13 Submit Product
+
+`POST /api/v1/admin/products/PF-W-SAR-SIL-0129/submit`
+
+Success `200`: `status=PENDING_REVIEW`, `review.state=PENDING`.\
+`422` with `issues[]` if validator fails.\
+`409 INVALID_TRANSITION` if already PUBLISHED.
+
+### 8.14 Approve Product
+
+`POST /api/v1/admin/products/PF-W-SAR-SIL-0129/approve`\
+Super Admin. **Does not publish.**
+
+Success: `review.state=APPROVED`, `status` still `PENDING_REVIEW`, storefront GET still 404.\
+Idempotent if already APPROVED (`alreadyApproved: true`).
+
+### 8.15 Publish Product
+
+`POST /api/v1/admin/products/PF-W-SAR-SIL-0129/publish`\
+Super Admin. Requires APPROVED. Full revalidation.
+
+Success: `status=PUBLISHED`, `publishedAt`.\
+`422 LIFECYCLE_REVIEW_REQUIRED` if not APPROVED.\
+State change: becomes visible on `GET /catalog/products/:id`.
+
+### 8.16 Assign Product Media
+
+`POST /api/v1/media/pm-abc/assign-product`
+
+``` json
+{ "productId": "PF-W-SAR-SIL-0129", "role": "COVER", "confirm": true }
+```
+
+`409 MEDIA_ALREADY_ASSIGNED` without confirm. Marketing-scoped → `422 MEDIA_MARKETING_ISOLATION`.
+
+### 8.17 Create Marketing Placement Assignment
+
+`PUT /api/v1/admin/marketing/placements/SAREE_SECTION/products`
+
+``` json
+{ "productIds": ["PF-W-SAR-SIL-0001", "PF-W-SAR-BAN-0004"] }
+```
+
+Stores IDs only. Public `GET /catalog/placements/SAREE_SECTION` returns resolved live products (unpublished dropped).
+
+### 8.18 Create Cart
+
+`POST /api/v1/cart/items`
+
+``` json
+{ "productId": "PF-W-SAR-SIL-0001", "quantity": 1 }
+```
+
+Response includes **server** `unitPrice` / `lineTotal`. Client price ignored.
+
+### 8.19 Checkout
+
+`POST /api/v1/checkout/sessions` → `{ id, totals }`\
+`POST /api/v1/checkout/sessions/:id/reserve` + `Idempotency-Key`\
+Totals recomputed. `409` if stock insufficient; reservation created.
+
+### 8.20 Create Order
+
+`POST /api/v1/orders`
+
+``` json
+{ "checkoutSessionId": "chk_…", "paymentId": "pay_…" }
+```
+
+Server verifies payment PAID (or COD). **Ignores** `paymentStatus` in body. Duplicate session → same order.
+
+### 8.21 Create Payment
+
+`POST /api/v1/payments/intents`
+
+``` json
+{ "checkoutSessionId": "chk_…", "method": "upi" }
+```
+
+Amount from session, not body. Returns provider payload for Checkout.js / UPI intent. `env` from server config.
+
+### 8.22 Payment Webhook
+
+`POST /api/v1/payments/webhooks/razorpay`\
+Raw body + signature header. No cookie.
+
+Success `200 { ok: true }`. Duplicate event `200` no-op. Bad signature `400`. Amount mismatch: payment FAILED, reservation not sold, alert log.
+
+State: `payments.status=PAID` → reservation SALE → order PAYMENT_CONFIRMED → offer redemption.
+
+### 8.23 Create Return
+
+`POST /api/v1/orders/{orderId}/returns`
+
+``` json
+{ "lineIds": ["line-0"], "reason": "size", "resolution": "refund", "note": "" }
+```
+
+`422` if not DELIVERED / window / already requested.
+
+### 8.24 Approve Refund
+
+`POST /api/v1/admin/returns/{returnId}/refund`\
+After INSPECTED. Creates provider refund for LIVE. Webhook completes. Sandbox may complete in-request **only if** `env=sandbox`.
+
+------------------------------------------------------------------------
+
+## 9 Security Architecture
+
+-   CORS allowlist: production origin + preview hosts. Never `*`
+-   Secure response headers middleware: CSP where applicable, `nosniff`, `frame-ancestors 'none'`, HSTS
+-   Rate limit: login 5/min/IP, forgot 3/min, upload 20/min, pay intent 10/min
+-   Request validation: Pydantic/OpenAPI schemas + domain
+-   Secrets: server env only (`DATABASE_URL`, `SESSION_SECRET`, `S3_*`, `PAYMENTS_*`). Never `VITE_` for secrets
+-   Password Argon2id
+-   File upload: magic bytes, size, allowlist, no SVG (XSS)
+-   SQL: parameterized only (SQLAlchemy/asyncpg)
+-   CSRF: §9.5
+-   Webhook: raw body signature
+-   Audit: §28
+-   Admin/employee cookies `Secure` + separate names
+-   Do not expose stack traces, internal IDs only as UUIDs already public
+
+------------------------------------------------------------------------
+
+## 10 Media & Storage Architecture
+
+### 10.1 Split
+
+  What                    Where
+  ----------------------- ---------------------------------------------------------
+  Bytes                   S3-compatible object (`object_key`)
+  Metadata                `media_assets`
+  Product ordering/role   `product_media`
+  Public URL              CDN over the object key --- **never** `blob:` / `data:`
+
+`isEphemeralUrl` already strips blob/data. Backend **rejects** those strings with `MEDIA_URL_EPHEMERAL`.
+
+### 10.2 `media_assets` columns (conceptual)
+
+`id`, `type` IMAGE\|VIDEO, `scope` PRODUCT\|MARKETING\|UNASSIGNED, `status` DRAFT\|PENDING_REVIEW\|ACTIVE\|REJECTED\|ARCHIVED, `product_id` null, `placement` null, `role`, `sort_order`, `object_key`, `url` (CDN, derived), `poster_key`, `thumbnail_key`, `mime_type`, `extension`, `byte_size`, `width`, `height`, `checksum` (sha256), `original_filename`, `alt`, `caption`, `usage_roles[]`, `mapping_status`, `duplicate_status`, `uploaded_by_kind`, `uploaded_by_id`, `reviewed_by`, `rejection_reason`, timestamps.
+
+### 10.3 Formats (do **not** require WebP conversion)
+
+Images: JPEG, PNG, WebP, **AVIF** (existing assets must remain valid).\
+Video: MP4, WebM.\
+Limits from settings (defaults 10 MB image / 100 MB video). Magic-byte MIME check, not extension alone.
+
+### 10.4 Upload flow
+
+    POST /media/uploads        → { uploadUrl, objectKey, mediaId }   (authz media.upload)
+    client PUT bytes to signed URL (short TTL)
+    POST /media/:id/complete   → validate size/mime/dimensions; persist metadata; never trust client URL
+
+Private bucket. Public read via CDN after ACTIVE. Draft/rejected assets stay private signed GET for staff.
+
+### 10.5 Ownership (port `mediaOwnershipService`)
+
+-   At most one `product_id`.
+-   Marketing-scoped assets cannot become product-owned (and vice versa) without explicit unassign.
+-   Transfer requires confirm when contested.
+-   Product ID rename: preflight all owned assets → update public_id → transfer → rollback on any refusal (**one DB transaction**).
+
+------------------------------------------------------------------------
+
+PRODUCT 1—n PRODUCT_MEDIA n—1 MEDIA_ASSET
+
+`product_media`: `(product_id, media_id, role, sort_order)` unique `(product_id, media_id)`.
+
+  Role                                                        Rule
+  ----------------------------------------------------------- -------------------------------------------
+  COVER                                                       Exactly one IMAGE. Videos cannot be cover
+  GALLERY / DETAIL / LIFESTYLE / MODEL / CLOSEUP              Images
+  PRODUCT_VIDEO / SHOWCASE / DETAIL_VIDEO / LIFESTYLE_VIDEO   Videos
+
+**Primary selection:** the COVER row, else the lowest `sort_order` IMAGE, else authored-plate fallback during migration.
+
+**When COVER is removed:** promote the next IMAGE by sort_order. If none remain, product becomes unpublished-ineligible (`PRIMARY_MEDIA_REQUIRED`).
+
+**Published products and media:** Super Admin may replace media; **publish eligibility is re-checked** if the product is PUBLISHED --- a missing cover does not auto-unpublish (avoid storefront flaps) but blocks *re-publish* and raises a review flag. Recommendation: allow media edits on PUBLISHED only via a dedicated command that revalidates cover. **Do not** let employees mutate media on submitted/approved/published stages.
+
+Storefront sees **ACTIVE** media only.
+
+Authored plates (`public/images/products/…`) migrate to `media_assets` with `source = CATALOGUE_SEED`. Managed uploads win when present (`productMediaSet` precedence).
+
+------------------------------------------------------------------------
+
+Placement catalogue stays **config/seed**, not user-invented tables. Port `MARKETING_PLACEMENT_OPTIONS`.
+
+  Placement           Mode      Live
+  ------------------- --------- -----------------------------
+  HOME_HERO           GENERIC   yes --- marketing media
+  EDITORIAL           GENERIC   yes
+  PROMOTION           GENERIC   yes
+  SAREE_SECTION       PRODUCT   yes --- ordered product IDs
+  LEHENGA_SECTION     PRODUCT   yes
+  FESTIVE_SECTION     PRODUCT   yes
+  WOMEN_SECTION       PRODUCT   yes
+  BRIDAL_SECTION      PRODUCT   yes
+  GROOM_SECTION       PRODUCT   yes
+  KIDS_SECTION        PRODUCT   yes
+  BANGLES_SECTION     PRODUCT   yes (listing surface)
+  JEWELLERY_SECTION   PRODUCT   yes (listing surface)
+  NEW_ARRIVALS        PRODUCT   yes
+
+**Do not** create `saree_section` / `hero` tables.
+
+### 10.6 PRODUCT mode
+
+`marketing_placement_products (placement_id, product_id, sort_order)` --- **IDs only**.
+
+Resolver (server, identical to `marketingPlacementResolver`):
+
+    assigned IDs
+      ⋉ products WHERE status = PUBLISHED
+      ⋉ categories WHERE status = ACTIVE
+      ⋉ resolvable primary image
+
+Unpublished / archived / invalid IDs **drop out**. They are not deleted from the assignment (so republish restores them).
+
+`houseSelectionFallback: true` remains **frontend merchandising** driven by live catalogue flags --- backend does not hardcode fallback IDs.
+
+### 10.7 GENERIC / HERO
+
+`media_assets.scope = MARKETING` + `placement = HOME_HERO | EDITORIAL | PROMOTION`. Public: ACTIVE only.
+
+Hero **copy** (eyebrow, title, CTA) currently lives in `src/data/catalog/hero.js`. Backend: `marketing_placements.config JSONB` for slide copy. Static fallback images migrate as marketing media. Brand logo stays frontend.
+
+------------------------------------------------------------------------
+
+-   Upload: signed PUT, content-type locked, content-length max
+-   Key: `media/{yyyy}/{mm}/{mediaId}/{original.ext}` --- **immutable**
+-   Replacement = new object + new media row or new key; old object retained
+-   CDN: long `Cache-Control: public, max-age=31536000, immutable`
+-   Variants: **do not auto-convert AVIF→WebP**. Optional later width variants (`?w=`) via a dedicated image service --- out of V1
+-   Frontend already lazy-loads; keep `PratikshyaImage`
+-   Staff unpublished assets: signed GET TTL 5 minutes
+
+------------------------------------------------------------------------
+
+## 11 Background Jobs, Transactions & Reliability
+
+--------------------------------------------------------------------------------------------------------------
   Risk                                Technique
   ----------------------------------- --------------------------------------------------------------------------
   Two checkouts, last unit            `SELECT balance FOR UPDATE` in reserve transaction
@@ -1634,7 +1774,7 @@ Store `idempotency_keys (key, principal_id, route, request_hash, response_code, 
 
 Isolation: default `READ COMMITTED` + row locks. No SERIALIZABLE required if locks are on balance/offer/payment rows.
 
-## 32.1 Background jobs (`workers/`)
+### 11.1 Background jobs (`workers/`)
 
 The `app/workers/` directory hosts scheduled/background work. V1 jobs (in-process scheduler, no external queue):
 
@@ -1648,50 +1788,67 @@ Jobs are **idempotent** and never make authorization decisions. They re-check st
 
 ------------------------------------------------------------------------
 
-# 33. Database integrity (keys, checks, indexes)
+----------------------------------------------------------------------------------------------------------------
+  Layer                              What
+  ---------------------------------- -----------------------------------------------------------------------------
+  Unit                               validators, pricing, lifecycle table, offer eligibility, principal policies
 
-### Products
+  Integration                        repositories against Testcontainers PostgreSQL
 
--   PK `id uuid`
--   UNIQUE `public_id`, UNIQUE `slug`
--   UNIQUE `sku` among products; variant SKUs unique across products+variants (exclude empty)
--   CHECK `status IN ('DRAFT','PENDING_REVIEW','PUBLISHED','ARCHIVED')`
--   CHECK `review_state IN ('NONE','PENDING','APPROVED','REJECTED')`
--   FK department, category, subcategory RESTRICT
--   Indexes: `(status, department, category, subcategory)`, `(assigned_employee_id)`, GIN on name/sku for search
+  API                                HTTP status matrix: 200/401/403/404/409/422
 
-### Media
+  Authz                              every staff command: customer token 403, wrong employee 403
 
--   UNIQUE `object_key`
--   CHECK scope/status/type enums
--   CHECK NOT (`scope='PRODUCT'` AND `product_id IS NULL`)
--   Index `(product_id, scope, status)`, `(placement, status)`
+  Workflow                           illegal transitions; approve ≠ publish; bulk independent
 
-### Inventory
+  Payment                            webhook signature fail; amount mismatch; duplicate event
 
--   UNIQUE `(product_id, variant_id, location_id)` (`variant_id` null → sentinel `00000000-…` or partial unique index)
--   CHECK quantities `>= 0`
--   CHECK `available = on_hand - reserved - damaged` **or** compute available always in SQL generated column
--   Movements: no update/delete grants
+  Inventory concurrency              two reserves, one unit --- one 409
 
-### Orders / payments
+  Returns                            inspect before restock; live refund needs provider
+  ----------------------------------------------------------------------------------------------------------------
 
--   UNIQUE invoice number
--   CHECK channel, payment_status, fulfillment_status
--   UNIQUE payment `provider_ref` where not null
--   UNIQUE payment_events `(provider, provider_event_id)`
--   UNIQUE offer_redemptions `(offer_id, order_id)`
+Critical workflows: product publication, order creation, inventory reservation, payment confirmation, refund, return, marketing placement resolve, role authorization.
 
-### Identity
-
--   UNIQUE customers.email citext, employees.email, employees.employee_id, admins.admin_id
--   Sessions unique token_hash
-
-Delete behaviour: default RESTRICT. Membership tables CASCADE. Sessions CASCADE on principal delete (rare). Soft-delete products via ARCHIVE.
+**Do not weaken** existing frontend architecture tests (`canonicalLifecycle`, `publishVisibility`, `marketingPlacement`, `canonicalDepartmentArchitecture`, `collectionResolution`, ...). Add API tests alongside.
 
 ------------------------------------------------------------------------
 
-# 34. LocalStorage migration map
+-   Structured JSON logs: `level, time, requestId, principalKind, route, status, ms`
+-   `X-Request-Id` generated if missing; echoed
+-   `GET /health` process up
+-   `GET /ready` DB `SELECT 1` + optional storage head
+-   Payment webhook: log provider_event_id, result, never raw PAN
+-   Error tracking: optional Sentry later --- not required to start
+-   No ELK/Datadog in V1 unless ops already has it
+
+------------------------------------------------------------------------
+
+Targets (reasonable, not premature):
+
+  Metric                     Target
+  -------------------------- --------------------------
+  p95 public catalogue GET   \< 200 ms excluding CDN
+  p95 checkout reserve       \< 300 ms
+  p95 webhook handler        \< 200 ms
+  DB connections             pool 10--20 per instance
+
+-   Pagination on products, orders, media, activity (cursor)
+-   Indexes in §33
+-   CDN for media
+-   No Redis cache in V1 --- catalogue is small (\~128 products, will grow slowly)
+-   First endpoints to watch: `GET /catalog/products`, search, `POST /checkout/sessions/:id/reserve`
+
+### 11.2 Caching architecture
+
+-   **V1: no distributed cache.** PostgreSQL (with the indexes in §33) is the source of truth; the catalogue is small enough to serve directly.
+-   **Edge/CDN caching** for immutable media only (`Cache-Control: immutable`, §36) and for public, non-personalized catalogue GETs (short TTL + `Vary: Accept-Encoding`).
+-   **No client-side authority:** any frontend hydration cache is a display cache; authoritative price/stock/publication/role always come from the API.
+-   **When Redis is justified later** (hot session cache, cross-instance rate limiting, catalogue at 10k+ SKUs), add it as an infrastructure layer — it must **never** become the source of truth (same rule as in §44's infrastructure table).
+
+------------------------------------------------------------------------
+
+## 12 Frontend → Backend Migration Strategy
 
 **Do not bulk-import random browsers' localStorage into production.**
 
@@ -1757,8 +1914,6 @@ Dev flag: `VITE_API_BASE` empty → current localStorage behaviour for demos. Pr
 
 ------------------------------------------------------------------------
 
-# 35. Frontend API adapter strategy
-
 Do **not** rewrite components to call `fetch`.
 
     useProducts()
@@ -1780,247 +1935,7 @@ Keep function names: `submitProduct`, `approveProduct`, `publishProduct`, `reser
 
 ------------------------------------------------------------------------
 
-# 36. Media CDN strategy
-
--   Upload: signed PUT, content-type locked, content-length max
--   Key: `media/{yyyy}/{mm}/{mediaId}/{original.ext}` --- **immutable**
--   Replacement = new object + new media row or new key; old object retained
--   CDN: long `Cache-Control: public, max-age=31536000, immutable`
--   Variants: **do not auto-convert AVIF→WebP**. Optional later width variants (`?w=`) via a dedicated image service --- out of V1
--   Frontend already lazy-loads; keep `PratikshyaImage`
--   Staff unpublished assets: signed GET TTL 5 minutes
-
-------------------------------------------------------------------------
-
-# 37. Security architecture
-
--   CORS allowlist: production origin + preview hosts. Never `*`
--   Secure response headers middleware: CSP where applicable, `nosniff`, `frame-ancestors 'none'`, HSTS
--   Rate limit: login 5/min/IP, forgot 3/min, upload 20/min, pay intent 10/min
--   Request validation: Pydantic/OpenAPI schemas + domain
--   Secrets: server env only (`DATABASE_URL`, `SESSION_SECRET`, `S3_*`, `PAYMENTS_*`). Never `VITE_` for secrets
--   Password Argon2id
--   File upload: magic bytes, size, allowlist, no SVG (XSS)
--   SQL: parameterized only (SQLAlchemy/asyncpg)
--   CSRF: §9.5
--   Webhook: raw body signature
--   Audit: §28
--   Admin/employee cookies `Secure` + separate names
--   Do not expose stack traces, internal IDs only as UUIDs already public
-
-------------------------------------------------------------------------
-
-# 38. Testing strategy
-
-  ----------------------------------------------------------------------------------------------------------------
-  Layer                              What
-  ---------------------------------- -----------------------------------------------------------------------------
-  Unit                               validators, pricing, lifecycle table, offer eligibility, principal policies
-
-  Integration                        repositories against Testcontainers PostgreSQL
-
-  API                                HTTP status matrix: 200/401/403/404/409/422
-
-  Authz                              every staff command: customer token 403, wrong employee 403
-
-  Workflow                           illegal transitions; approve ≠ publish; bulk independent
-
-  Payment                            webhook signature fail; amount mismatch; duplicate event
-
-  Inventory concurrency              two reserves, one unit --- one 409
-
-  Returns                            inspect before restock; live refund needs provider
-  ----------------------------------------------------------------------------------------------------------------
-
-Critical workflows: product publication, order creation, inventory reservation, payment confirmation, refund, return, marketing placement resolve, role authorization.
-
-**Do not weaken** existing frontend architecture tests (`canonicalLifecycle`, `publishVisibility`, `marketingPlacement`, `canonicalDepartmentArchitecture`, `collectionResolution`, ...). Add API tests alongside.
-
-------------------------------------------------------------------------
-
-# 39. Observability strategy
-
--   Structured JSON logs: `level, time, requestId, principalKind, route, status, ms`
--   `X-Request-Id` generated if missing; echoed
--   `GET /health` process up
--   `GET /ready` DB `SELECT 1` + optional storage head
--   Payment webhook: log provider_event_id, result, never raw PAN
--   Error tracking: optional Sentry later --- not required to start
--   No ELK/Datadog in V1 unless ops already has it
-
-------------------------------------------------------------------------
-
-# 40. Performance strategy
-
-Targets (reasonable, not premature):
-
-  Metric                     Target
-  -------------------------- --------------------------
-  p95 public catalogue GET   \< 200 ms excluding CDN
-  p95 checkout reserve       \< 300 ms
-  p95 webhook handler        \< 200 ms
-  DB connections             pool 10--20 per instance
-
--   Pagination on products, orders, media, activity (cursor)
--   Indexes in §33
--   CDN for media
--   No Redis cache in V1 --- catalogue is small (\~128 products, will grow slowly)
--   First endpoints to watch: `GET /catalog/products`, search, `POST /checkout/sessions/:id/reserve`
-
-## 40.1 Caching architecture
-
--   **V1: no distributed cache.** PostgreSQL (with the indexes in §33) is the source of truth; the catalogue is small enough to serve directly.
--   **Edge/CDN caching** for immutable media only (`Cache-Control: immutable`, §36) and for public, non-personalized catalogue GETs (short TTL + `Vary: Accept-Encoding`).
--   **No client-side authority:** any frontend hydration cache is a display cache; authoritative price/stock/publication/role always come from the API.
--   **When Redis is justified later** (hot session cache, cross-instance rate limiting, catalogue at 10k+ SKUs), add it as an infrastructure layer — it must **never** become the source of truth (same rule as in §44's infrastructure table).
-
-------------------------------------------------------------------------
-
-# 41. API contract examples
-
-All examples: `Content-Type: application/json`. Admin cookie implied where stated.
-
-### Create Product
-
-`POST /api/v1/admin/products`\
-Authz: Super Admin or `products.manage`
-
-Request:
-
-``` json
-{
-  "name": "Banarasi Silk Saree",
-  "department": "women",
-  "category": "sarees",
-  "subcategory": "silk",
-  "pricing": { "mrp": 18999, "sellingPrice": 14999, "discountType": "none", "taxMode": "INCLUSIVE" }
-}
-```
-
-Response `201`:
-
-``` json
-{
-  "ok": true,
-  "data": {
-    "id": "PF-W-SAR-SIL-0129",
-    "status": "DRAFT",
-    "review": { "state": "NONE" }
-  }
-}
-```
-
-Errors: `401`, `403`, `422` (taxonomy incomplete → no ID allocated).\
-Side effect: audit `PRODUCT_DRAFT_CREATED`. Always DRAFT.
-
-### Submit Product
-
-`POST /api/v1/admin/products/PF-W-SAR-SIL-0129/submit`
-
-Success `200`: `status=PENDING_REVIEW`, `review.state=PENDING`.\
-`422` with `issues[]` if validator fails.\
-`409 INVALID_TRANSITION` if already PUBLISHED.
-
-### Approve Product
-
-`POST /api/v1/admin/products/PF-W-SAR-SIL-0129/approve`\
-Super Admin. **Does not publish.**
-
-Success: `review.state=APPROVED`, `status` still `PENDING_REVIEW`, storefront GET still 404.\
-Idempotent if already APPROVED (`alreadyApproved: true`).
-
-### Publish Product
-
-`POST /api/v1/admin/products/PF-W-SAR-SIL-0129/publish`\
-Super Admin. Requires APPROVED. Full revalidation.
-
-Success: `status=PUBLISHED`, `publishedAt`.\
-`422 LIFECYCLE_REVIEW_REQUIRED` if not APPROVED.\
-State change: becomes visible on `GET /catalog/products/:id`.
-
-### Assign Product Media
-
-`POST /api/v1/media/pm-abc/assign-product`
-
-``` json
-{ "productId": "PF-W-SAR-SIL-0129", "role": "COVER", "confirm": true }
-```
-
-`409 MEDIA_ALREADY_ASSIGNED` without confirm. Marketing-scoped → `422 MEDIA_MARKETING_ISOLATION`.
-
-### Create Marketing Placement Assignment
-
-`PUT /api/v1/admin/marketing/placements/SAREE_SECTION/products`
-
-``` json
-{ "productIds": ["PF-W-SAR-SIL-0001", "PF-W-SAR-BAN-0004"] }
-```
-
-Stores IDs only. Public `GET /catalog/placements/SAREE_SECTION` returns resolved live products (unpublished dropped).
-
-### Create Cart
-
-`POST /api/v1/cart/items`
-
-``` json
-{ "productId": "PF-W-SAR-SIL-0001", "quantity": 1 }
-```
-
-Response includes **server** `unitPrice` / `lineTotal`. Client price ignored.
-
-### Checkout
-
-`POST /api/v1/checkout/sessions` → `{ id, totals }`\
-`POST /api/v1/checkout/sessions/:id/reserve` + `Idempotency-Key`\
-Totals recomputed. `409` if stock insufficient; reservation created.
-
-### Create Order
-
-`POST /api/v1/orders`
-
-``` json
-{ "checkoutSessionId": "chk_…", "paymentId": "pay_…" }
-```
-
-Server verifies payment PAID (or COD). **Ignores** `paymentStatus` in body. Duplicate session → same order.
-
-### Create Payment
-
-`POST /api/v1/payments/intents`
-
-``` json
-{ "checkoutSessionId": "chk_…", "method": "upi" }
-```
-
-Amount from session, not body. Returns provider payload for Checkout.js / UPI intent. `env` from server config.
-
-### Payment Webhook
-
-`POST /api/v1/payments/webhooks/razorpay`\
-Raw body + signature header. No cookie.
-
-Success `200 { ok: true }`. Duplicate event `200` no-op. Bad signature `400`. Amount mismatch: payment FAILED, reservation not sold, alert log.
-
-State: `payments.status=PAID` → reservation SALE → order PAYMENT_CONFIRMED → offer redemption.
-
-### Create Return
-
-`POST /api/v1/orders/{orderId}/returns`
-
-``` json
-{ "lineIds": ["line-0"], "reason": "size", "resolution": "refund", "note": "" }
-```
-
-`422` if not DELIVERED / window / already requested.
-
-### Approve Refund
-
-`POST /api/v1/admin/returns/{returnId}/refund`\
-After INSPECTED. Creates provider refund for LIVE. Webhook completes. Sandbox may complete in-request **only if** `env=sandbox`.
-
-------------------------------------------------------------------------
-
-# 42. Implementation roadmap (planned — do not start)
+## 13 Implementation Roadmap
 
 > **Relabelled:** the earlier revision used `3A`–`3M`. The phases are now **Phase A–L** so all four documents share one migration vocabulary (`backend-integration-audit.md`, `feature-rationalization-audit.md`). The scope per phase is unchanged; the labels map `3A→A`, `3B→B`, `3C→C`, `3D→C`, `3E→E`, `3F→D`, `3G→H`, `3H→G`, `3I→H`, `3J→I`, `3K→I`, `3L→J`, `3M→K`.
 
@@ -2062,9 +1977,9 @@ Each phase: tests for success / 401 / 403 / 404 / validation / illegal transitio
 
 ------------------------------------------------------------------------
 
-# 43. Risks and trade-offs
+## 14 Risks & Trade-offs
 
-  --------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------
   Risk                                                   Mitigation
   ------------------------------------------------------ -------------------------------------------------------------------
   Client-trusted payment (current demo)                  Webhook-only; ignore client status
@@ -2104,13 +2019,13 @@ Each phase: tests for success / 401 / 403 / 404 / validation / illegal transitio
 
 ------------------------------------------------------------------------
 
-# 44. Features explicitly deferred
+## 15 Future / Deferred Architecture
 
-## 44.1 AI readiness
+### 15.1 AI readiness
 
 AI remains deliberately deferred from V1 implementation. **Do not implement AI now** — the backend is Python/FastAPI so future AI capabilities can be integrated without introducing a second language ecosystem for the AI layer.
 
-### Reserved future boundary (conceptual)
+#### 15.1.1 Reserved future boundary (conceptual)
 
 ``` text
 backend/app/ai/
@@ -2125,7 +2040,7 @@ backend/app/ai/
 
 This is the mandated conceptual structure; the earlier `shopping/ recommendations/ vision/ personalization/ business/` naming maps onto it (`shopping`→`assistants`, `vision`→`product_intelligence`, `business`→`assistants`/`product_intelligence`). The AI layer is a **separate service boundary** — it may be a separate deployable later, but in V1 nothing exists there except a documented scaffold.
 
-### Future AI capabilities (allowed by this architecture)
+#### 15.1.2 Future AI capabilities (allowed by this architecture)
 
 -   LLM APIs (shopping/business/support assistants)
 -   Recommendation engines
@@ -2137,7 +2052,7 @@ This is the mandated conceptual structure; the earlier `shopping/ recommendation
 -   Product intelligence
 -   Marketing intelligence
 
-### Rules
+#### 15.1.3 Rules
 
 -   AI must consume canonical backend data.
 
@@ -2153,7 +2068,7 @@ This is the mandated conceptual structure; the earlier `shopping/ recommendation
 
 -   Do not create `ai_sessions` or AI persistence tables in V1 unless a concrete product requirement is approved.
 
-### Explicitly deferred (unchanged from prior revision)
+#### 15.1.4 Explicitly deferred (unchanged from prior revision)
 
 -   Microservices, Kafka, Kubernetes, GraphQL, Elasticsearch, Redis
 
@@ -2177,7 +2092,7 @@ This is the mandated conceptual structure; the earlier `shopping/ recommendation
 
 -   Importing arbitrary browsers' localStorage
 
-### Extra infrastructure --- when (not now)
+#### 15.1.5 Extra infrastructure --- when (not now)
 
   ---------------------------------------------------------------------------------------------------------------------
   Component               Why later                                             Why PostgreSQL/Python cannot yet
@@ -2195,7 +2110,7 @@ This is the mandated conceptual structure; the earlier `shopping/ recommendation
 
 ------------------------------------------------------------------------
 
-# 45. Decisions requiring approval
+## 16 Decisions Requiring Approval
 
 1.  **Stack lock:** Python 3.12+ + FastAPI + Pydantic v2 + PostgreSQL 16 + SQLAlchemy 2.x + asyncpg + Alembic + S3-compatible storage + cookie sessions.
 
@@ -2225,7 +2140,7 @@ This is the mandated conceptual structure; the earlier `shopping/ recommendation
 
 ------------------------------------------------------------------------
 
-# 46. Approval gate
+## 17 Approval Gate
 
 **STOP.**
 

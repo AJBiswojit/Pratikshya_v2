@@ -1,30 +1,33 @@
 # Employee Management API Contract
 
-**Audience:** backend implementation intern  
-**Frontend owner:** Admin Portal `/admin/employees` (management) + Employee Portal (self-service: profile, attendance, leave, performance, activity, assisted orders, reports)  
-**Backend framework:** **Python + FastAPI** (planned — not implemented). Pydantic v2 schemas; PostgreSQL via SQLAlchemy/Alembic as the migration target.  
-**Authorization boundary:** **SUPER_ADMIN required** for every employee-**management** operation. Self-service (`/employees/me`, own attendance/leave/performance/activity) requires the authenticated employee (or a scoped manager/admin where noted).
+> **Status:** PLANNED / TARGET — nothing in this contract is implemented.
+> **Backend:** Python + FastAPI
+> **Database:** PostgreSQL + SQLAlchemy / Alembic
+> **API version:** `/api/v1`
+> **Audience:** backend implementation engineer
+> **Scope:** Admin employee management plus Employee Portal self-service and workforce operations.
+> **Authority:** system-wide architecture in `backend-architecture.md`; migration mapping in `backend-integration-audit.md`.
 
-This contract documents the backend seam required by the existing frontend employee repositories. It does **not** introduce a second authentication system, an Admin-as-employee record, or a parallel employee database.
+## 1 Scope
 
-All paths are **planned** `/api/v1` routes. The earlier revision used un-prefixed `/employees` paths; those are superseded by `/api/v1/…` (a `/employees` alias is not provided — the frontend pins `API_BASE`).
+This contract covers employee authentication, Admin employee management, Employee self-service, attendance, leave, performance, activity, assisted orders, and employee reports. It does not introduce a second authentication system, an Admin-as-employee record, or a parallel employee/order database.
 
-**Migration sequencing:** employee auth lands in **Phase B** and employee/workforce features in **Phase J** of the Phase A–L plan (`backend-architecture.md` §42 / `backend-integration-audit.md` §10). Nothing here is implemented.
-
-## Technology mapping (current frontend → planned FastAPI)
+### 1.1 Frontend → FastAPI technology mapping
 
 | Current frontend | Planned FastAPI surface |
 | --- | --- |
-| `employeeAuthService` (`signInEmployee`, `signOutEmployee`, `changeEmployeePassword`, `refreshEmployeeSession`) | `POST /api/v1/auth/employee/login` / `logout` / `refresh` |
-| `employeeService` (`createEmployee`, `updateEmployee`, `updateOwnEmployeeProfile`, `updateEmployeeRole`, `updateEmployeePermissions`, `setEmployeeStatus`, `resetEmployeePassword`) | `/api/v1/employees/*` + `/api/v1/employees/me` |
-| `workforce/attendanceService` (`checkIn`, `checkOut`, `monthRecordsForEmployee`, …) | `/api/v1/employees/{employee_id}/attendance*` |
-| `workforce/leaveService` (`requestLeave`, `reviewLeave`, `cancelLeave`, `myLeave`) | `/api/v1/employees/{employee_id}/leave`, `/api/v1/leave/{leave_id}` |
-| `workforce/performanceService` (`getEmployeePerformance`, `performanceHistory`, …) | `/api/v1/employees/{employee_id}/performance` |
-| `activityService` (`activityForEmployee`) | `/api/v1/employees/{employee_id}/activity` |
+| `employeeAuthService` | `POST /api/v1/auth/employee/login` / `logout` / `refresh` |
+| `employeeService` | `/api/v1/employees/*` + `/api/v1/employees/me` |
+| `workforce/attendanceService` | `/api/v1/employees/{employee_id}/attendance*` |
+| `workforce/leaveService` | `/api/v1/employees/{employee_id}/leave`, `/api/v1/leave/{leave_id}` |
+| `workforce/performanceService` | `/api/v1/employees/{employee_id}/performance` |
+| `activityService` | `/api/v1/employees/{employee_id}/activity` |
 | `orderService` / `operationsService.getAssistedOrders` | `/api/v1/employees/{employee_id}/orders/assisted` |
-| `EmployeeReports.jsx` (sales, products, customers, inventory, returns, offers, employees) | `/api/v1/employees/reports/*` |
+| `EmployeeReports.jsx` | `/api/v1/employees/reports/*` |
 
-## Responsibility and identity boundary
+**Migration sequencing:** employee authentication lands in **Phase B** and employee/workforce features in **Phase J** of the Phase A–L plan. Nothing here is implemented.
+
+## 2 Identity & Authorization Model
 
 - Admin identities authenticate through the Admin domain.
 - Employee identities authenticate through the Employee domain.
@@ -34,7 +37,6 @@ All paths are **planned** `/api/v1` routes. The earlier revision used un-prefixe
 - Operational employee permissions do not imply `employees.manage`.
 - Deactivation is non-destructive: credentials are blocked and active assignment eligibility stops, while employee, product-review, activity, attendance, order, and other historical references remain.
 
-## Authentication and authorization
 
 Use the Admin session/token middleware for management operations and the Employee session/token middleware for self-service. For management operations the backend must verify:
 
@@ -60,7 +62,20 @@ Recommended errors:
 | 422 | `VALIDATION_ERROR` | Invalid fields, role, status, or permission |
 | 429 | `RATE_LIMITED` | Credential reset, login, or repeated mutation limited |
 
-## Employee object
+## 3 Common API Conventions
+
+- **Base path:** `/api/v1`
+- **Format:** JSON request/response bodies; refresh tokens use the backend session standard.
+- **Authentication:** short-lived JWT access token + rotating refresh token.
+- **IDs:** `employeeId` is backend-generated, immutable, and globally unique.
+- **Timestamps:** ISO 8601.
+- **Pagination:** cursor/limit for collection reads where supported.
+- **Validation:** Pydantic v2 plus domain rules; invalid input returns `422 VALIDATION_ERROR`.
+- **Authorization:** server-side on every protected operation. UI hiding is not authority.
+- **Concurrency:** state-changing commands use transactions and idempotency where required.
+- **Audit:** security-sensitive and mutating operations write structured events without secrets.
+
+## 4 Data Models
 
 ```json
 {
@@ -86,7 +101,7 @@ Recommended errors:
 }
 ```
 
-### Field rules
+### 4.1 Field rules
 
 | Field | Rule |
 | --- | --- |
@@ -109,9 +124,30 @@ Passwords, credential hashes, reset tokens, and fingerprints must never appear o
 
 ---
 
-## Authentication endpoints
+### 4.2 Employee
+The Employee object above is the public response model. Credential hashes, reset tokens, and fingerprints never appear in it.
 
-### `POST /api/v1/auth/employee/login`
+### 4.3 Employee credentials
+Credential material is server-only and never part of Employee responses.
+
+### 4.4 Attendance
+Attendance records are scoped to the employee or authorized manager/admin.
+
+### 4.5 Leave
+Leave requests carry ownership, dates, status, review metadata, and lifecycle rules.
+
+### 4.6 Performance
+Performance is a read model exposed through the performance endpoints.
+
+### 4.7 Activity
+Activity uses the shared audit/activity source.
+
+### 4.8 Assisted orders
+Assisted orders are canonical orders with `channel=ASSISTED` and `source=employee_assisted`; they are not a second order entity.
+
+## 5 Authentication APIs
+
+### 5.1 `POST /api/v1/auth/employee/login`
 
 - **Purpose:** authenticate an employee and issue an access + refresh session.
 - **Auth:** public. **Rate-limited** (e.g. 5/min/IP + identifier).
@@ -121,7 +157,7 @@ Passwords, credential hashes, reset tokens, and fingerprints must never appear o
 - **Errors:** `401`, `403`, `422`, `429`.
 - **Audit:** `EMPLOYEE_LOGIN` (and `EMPLOYEE_LOGIN_FAILED` on failure, without secrets).
 
-### `POST /api/v1/auth/employee/refresh`
+### 5.2 `POST /api/v1/auth/employee/refresh`
 
 - **Purpose:** rotate the refresh token and issue a new short-lived access token.
 - **Auth:** valid refresh token only (no access token required).
@@ -131,7 +167,7 @@ Passwords, credential hashes, reset tokens, and fingerprints must never appear o
 - **Errors:** `401 UNAUTHENTICATED` / `TOKEN_EXPIRED`, `403`, `429`.
 - **Audit:** not required per refresh (avoid log noise); record family revocation.
 
-### `POST /api/v1/auth/employee/logout`
+### 5.3 `POST /api/v1/auth/employee/logout`
 
 - **Purpose:** revoke the current session (and optionally all sessions).
 - **Auth:** employee session.
@@ -141,9 +177,9 @@ Passwords, credential hashes, reset tokens, and fingerprints must never appear o
 
 ---
 
-## Collection response
+## 6 Employee Management APIs
 
-### `GET /api/v1/employees`
+### 6.1 `GET /api/v1/employees`
 
 **SUPER_ADMIN required** (management scope).
 
@@ -179,9 +215,8 @@ Validation and behavior:
 
 Errors: `401`, `403`, `422` for invalid filters.
 
-## Detail response
 
-### `GET /api/v1/employees/{employee_id}`
+### 6.2 `GET /api/v1/employees/{employee_id}`
 
 **SUPER_ADMIN required** (management scope; an employee may read their own record via `/employees/me`).
 
@@ -211,9 +246,8 @@ Activity is optional if supplied by the shared activity/audit source (`GET /api/
 
 Errors: `401`, `403`, `404`.
 
-## Create employee
 
-### `POST /api/v1/employees`
+### 6.3 `POST /api/v1/employees`
 
 **SUPER_ADMIN required**.
 
@@ -267,9 +301,8 @@ Validation:
 
 Errors: `401`, `403`, `409`, `422`.
 
-## Edit employee profile/account
 
-### `PATCH /api/v1/employees/{employee_id}`
+### 6.4 `PATCH /api/v1/employees/{employee_id}`
 
 **SUPER_ADMIN required**.
 
@@ -307,9 +340,8 @@ Errors: `401`, `403`, `404`, `409`, `422`.
 
 > The granular operations below (`/status`, `/role`, `/permissions`) are retained as explicit endpoints because the current frontend exercises them as distinct workflows. A backend may implement them as sub-routes of `PATCH /employees/{employee_id}` — but they must remain individually authorizable and audited.
 
-## Delete employee
 
-### `DELETE /api/v1/employees/{employee_id}`
+### 6.5 `DELETE /api/v1/employees/{employee_id}`
 
 **SUPER_ADMIN required**.
 
@@ -321,27 +353,8 @@ Errors: `401`, `403`, `404`, `409`, `422`.
 
 Errors: `401`, `403`, `404`, `409`, `422`.
 
-## Self-service profile
 
-### `GET /api/v1/employees/me`
-
-- **Purpose:** return the authenticated employee's own record + resolved effective permissions.
-- **Auth:** employee session (or admin).
-- **Response `200`:** `{ "ok": true, "data": Employee, "permissions": ["dashboard.view", "products.view"] }`.
-- **Errors:** `401`.
-
-### `PATCH /api/v1/employees/me`
-
-- **Purpose:** employee edits their own profile (limited fields only — identity, status, assignment, role, permissions are excluded).
-- **Auth:** employee session (owner).
-- **Request body:** optional `{ "phone": …, "store": … }` (whitelisted profile fields only).
-- **Response `200`:** `{ "data": Employee }`.
-- **Audit:** `EMPLOYEE_PROFILE_UPDATED`.
-- **Errors:** `401`, `409`, `422`.
-
-## Status operation
-
-### `PATCH /api/v1/employees/{employee_id}/status`
+### 6.6 `PATCH /api/v1/employees/{employee_id}/status`
 
 **SUPER_ADMIN required**.
 
@@ -359,9 +372,8 @@ Rules:
 
 Errors: `401`, `403`, `404`, `422`.
 
-## Role operation
 
-### `PATCH /api/v1/employees/{employee_id}/role`
+### 6.7 `PATCH /api/v1/employees/{employee_id}/role`
 
 **SUPER_ADMIN required**.
 
@@ -381,9 +393,8 @@ Rules: reject Admin roles; when mode is `role`, resolve the shared role defaults
 
 Errors: `401`, `403`, `404`, `422`.
 
-## Permission operation
 
-### `PATCH /api/v1/employees/{employee_id}/permissions`
+### 6.8 `PATCH /api/v1/employees/{employee_id}/permissions`
 
 **SUPER_ADMIN required**.
 
@@ -407,9 +418,8 @@ Rules:
 
 Errors: `401`, `403`, `404`, `422`.
 
-## Reset credentials
 
-### `POST /api/v1/employees/{employee_id}/reset-credentials`
+### 6.9 `POST /api/v1/employees/{employee_id}/reset-credentials`
 
 **SUPER_ADMIN required**.
 
@@ -449,9 +459,27 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 
 ---
 
-## Attendance
+## 7 Employee Self-Service APIs
 
-### `GET /api/v1/employees/{employee_id}/attendance`
+### 7.1 `GET /api/v1/employees/me`
+
+- **Purpose:** return the authenticated employee's own record + resolved effective permissions.
+- **Auth:** employee session (or admin).
+- **Response `200`:** `{ "ok": true, "data": Employee, "permissions": ["dashboard.view", "products.view"] }`.
+- **Errors:** `401`.
+
+### 7.2 `PATCH /api/v1/employees/me`
+
+- **Purpose:** employee edits their own profile (limited fields only — identity, status, assignment, role, permissions are excluded).
+- **Auth:** employee session (owner).
+- **Request body:** optional `{ "phone": …, "store": … }` (whitelisted profile fields only).
+- **Response `200`:** `{ "data": Employee }`.
+- **Audit:** `EMPLOYEE_PROFILE_UPDATED`.
+- **Errors:** `401`, `409`, `422`.
+
+## 8 Attendance APIs
+
+### 8.1 `GET /api/v1/employees/{employee_id}/attendance`
 
 - **Purpose:** attendance records/summary for one employee.
 - **Auth:** employee (owner) or scoped manager/admin (`attendance.view`).
@@ -459,7 +487,7 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Response `200`:** `{ "data": { "records": [...], "summary": { "present": 22, "late": 1, "absent": 0 } } }`.
 - **Errors:** `401`, `403`, `404`.
 
-### `POST /api/v1/employees/{employee_id}/attendance/check-in`
+### 8.2 `POST /api/v1/employees/{employee_id}/attendance/check-in`
 
 - **Purpose:** record a check-in punch.
 - **Auth:** employee (owner) or manager with `attendance.manage`.
@@ -468,7 +496,7 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Errors:** `400`, `401`, `403`, `409` (already checked in), `422`.
 - **Audit:** `ATTENDANCE_CHECK_IN`.
 
-### `POST /api/v1/employees/{employee_id}/attendance/check-out`
+### 8.3 `POST /api/v1/employees/{employee_id}/attendance/check-out`
 
 - **Purpose:** record a check-out punch.
 - **Auth:** employee (owner) or manager with `attendance.manage`.
@@ -477,9 +505,9 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Errors:** `400`, `401`, `403`, `409` (no open check-in), `422`.
 - **Audit:** `ATTENDANCE_CHECK_OUT`.
 
-## Leave
+## 9 Leave APIs
 
-### `GET /api/v1/employees/{employee_id}/leave`
+### 9.1 `GET /api/v1/employees/{employee_id}/leave`
 
 - **Purpose:** leave requests for one employee (own or scoped view).
 - **Auth:** employee (owner) or manager/admin (`leave.view`).
@@ -487,7 +515,7 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Response `200`:** `{ "data": [ { "leaveId": ..., "type": "CASUAL", "startDate": …, "endDate": …, "status": "PENDING" } ] }`.
 - **Errors:** `401`, `403`, `404`.
 
-### `POST /api/v1/employees/{employee_id}/leave`
+### 9.2 `POST /api/v1/employees/{employee_id}/leave`
 
 - **Purpose:** request leave.
 - **Auth:** employee (owner) or manager (`leave.request`).
@@ -496,7 +524,7 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Errors:** `401`, `403`, `409` (overlapping/insufficient balance), `422`.
 - **Audit:** `LEAVE_REQUESTED`.
 
-### `PATCH /api/v1/leave/{leave_id}`
+### 9.3 `PATCH /api/v1/leave/{leave_id}`
 
 - **Purpose:** review/cancel a leave request.
 - **Auth:** manager/admin (`leave.approve` / `leave.reject`); owner may `cancel`.
@@ -505,9 +533,9 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Audit:** `LEAVE_APPROVED` / `LEAVE_REJECTED` / `LEAVE_CANCELLED`.
 - **Errors:** `401`, `403`, `404`, `409` (invalid transition), `422`.
 
-## Performance
+## 10 Performance APIs
 
-### `GET /api/v1/employees/{employee_id}/performance`
+### 10.1 `GET /api/v1/employees/{employee_id}/performance`
 
 - **Purpose:** performance records/summary for one employee.
 - **Auth:** employee (owner) or manager/admin (`performance.view`).
@@ -515,9 +543,9 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Response `200`:** `{ "data": { "period": "2026-08", "score": 87, "targets": {...}, "history": [...] } }`.
 - **Errors:** `401`, `403`, `404`.
 
-## Activity
+## 11 Activity APIs
 
-### `GET /api/v1/employees/{employee_id}/activity`
+### 11.1 `GET /api/v1/employees/{employee_id}/activity`
 
 - **Purpose:** account-administration + audit-relevant activity for one employee (shared `audit_logs` source).
 - **Auth:** employee (owner, own activity) or admin (`employees.manage`) / manager.
@@ -525,9 +553,9 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Response `200`:** `{ "data": [ { "id": "act-123", "action": "EMPLOYEE_UPDATED", "summary": …, "actorName": …, "at": … } ], "meta": { "nextCursor": null } }`.
 - **Errors:** `401`, `403`, `404`.
 
-## Assisted orders
+## 12 Assisted Orders APIs
 
-### `GET /api/v1/employees/{employee_id}/orders/assisted`
+### 12.1 `GET /api/v1/employees/{employee_id}/orders/assisted`
 
 - **Purpose:** assisted orders created by/attributed to an employee (read from the canonical order register, `channel=ASSISTED`).
 - **Auth:** employee (owner) or manager/admin (`orders.view`).
@@ -535,7 +563,7 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Response `200`:** `{ "data": [ { "orderId": …, "customer": …, "items": …, "status": …, "channel": "ASSISTED" } ], "meta": { "nextCursor": null } }`.
 - **Errors:** `401`, `403`, `404`.
 
-### `POST /api/v1/employees/{employee_id}/orders/assisted`
+### 12.2 `POST /api/v1/employees/{employee_id}/orders/assisted`
 
 - **Purpose:** create an assisted (floor) order through the **same** order entity as checkout orders (`channel=ASSISTED`, `source=employee_assisted`).
 - **Auth:** employee with `orders.create` (employee scope) or manager/admin.
@@ -544,9 +572,9 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 - **Errors:** `400`, `401`, `403`, `409` (stock), `422`.
 - **Audit:** `ORDER_CREATED` with `channel=ASSISTED` + employee actor.
 
-## Reports
+## 13 Reports APIs
 
-### `GET /api/v1/employees/reports/{section}`
+### 13.1 `GET /api/v1/employees/reports/{section}`
 
 `section ∈ { sales, products, customers, inventory, returns, offers, employees }` (the current `EmployeeReports.jsx` sections; the same analytics read-model as the Admin Portal, permission-scoped per section).
 
@@ -558,7 +586,34 @@ Errors: `401`, `403`, `404`, `422`, `429`.
 
 ---
 
-## Employee authentication integration
+## 14 Error Contract
+
+| HTTP | Code | Meaning |
+|---|---|---|
+| 400 | `BAD_REQUEST` | Malformed command or business precondition failure |
+| 401 | `UNAUTHENTICATED` / `TOKEN_EXPIRED` / `REFRESH_REQUIRED` | Missing or invalid authentication |
+| 403 | `FORBIDDEN` / `EMPLOYEES_MANAGE_REQUIRED` | Authenticated but not authorized |
+| 404 | `EMPLOYEE_NOT_FOUND` | Target employee/resource does not exist |
+| 409 | `EMPLOYEE_ID_CONFLICT` / `EMAIL_CONFLICT` / state conflict | Unique or lifecycle conflict |
+| 422 | `VALIDATION_ERROR` | Invalid fields, role, status, permission, or query |
+| 429 | `RATE_LIMITED` | Login/reset/mutation rate limit exceeded |
+
+Endpoint-specific error lists remain authoritative for exact operation behavior.
+
+## 15 Security Rules
+
+- Management requires an active Admin with `SUPER_ADMIN` and `employees.manage`.
+- Customer sessions never authorize employee APIs.
+- Employee sessions cannot perform Admin employee-management mutations.
+- Passwords are hashed server-side; plaintext credentials and reset secrets never appear in responses or logs.
+- Suspended/inactive employees cannot refresh or restore sessions.
+- Assignment selectors exclude Admin identities and non-active employees.
+- Audit records include actor, target, action, timestamp, and non-secret summary.
+
+## 16 API Implementation Notes
+
+Use FastAPI routers for HTTP binding, Pydantic v2 for schemas, services for commands/transactions, repositories for SQLAlchemy persistence, and dependencies/policies for authorization. Route handlers must not contain business logic or direct SQL.
+
 
 The Employee login operation must read current employee status before issuing or restoring a session:
 
@@ -567,7 +622,6 @@ The Employee login operation must read current employee status before issuing or
 - `INACTIVE` and `SUSPENDED` must return a blocked-account error and revoke stale sessions.
 - Admin identities must never resolve in the Employee authentication repository.
 
-## Active assignment contract
 
 Operational assignment endpoints/selectors (Product Review, order fulfillment, and similar) should query a shared scope equivalent to:
 
@@ -579,6 +633,27 @@ AND required operational permission (when applicable)
 
 This selector must never return `PF-ADM-*`, `ADMIN`, or `SUPER_ADMIN`. Assignment history may continue to reference an employee who was later deactivated; only new assignment eligibility is removed.
 
-## Audit requirements
 
 At minimum, write structured events for employee creation, profile update, role change, department change, permission change, activation, deactivation/suspension, credential reset, login/logout, attendance check-in/out, leave request/review/cancel, assisted order creation, and permanent deletion. Include actor Admin/Employee ID, target employee ID, action, timestamp, and non-secret summary. Reuse the existing shared activity/audit system (`audit_logs`).
+
+## 17 Endpoint Index
+
+| Method | Endpoint | Purpose | Auth | Permission |
+|---|---|---|---|---|
+| POST | `/api/v1/auth/employee/login` | Employee login | Public | — |
+| POST | `/api/v1/auth/employee/refresh` | Rotate refresh token | Refresh token | — |
+| POST | `/api/v1/auth/employee/logout` | Revoke session | Employee | — |
+| GET | `/api/v1/employees` | List employees | Admin | `employees.manage` |
+| GET | `/api/v1/employees/{employee_id}` | Employee detail | Admin | `employees.manage` |
+| POST | `/api/v1/employees` | Create employee | Admin | `employees.manage` |
+| PATCH | `/api/v1/employees/{employee_id}` | Update employee | Admin | `employees.manage` |
+| DELETE | `/api/v1/employees/{employee_id}` | Deactivate/delete employee | Admin | `employees.manage` |
+| GET/PATCH | `/api/v1/employees/me` | Self profile | Employee | own profile |
+| GET/POST | `/api/v1/employees/{employee_id}/attendance` | Attendance history / check-in | Employee/manager | workforce permission |
+| POST | `/api/v1/employees/{employee_id}/attendance/check-out` | Check-out | Employee/manager | workforce permission |
+| GET/POST | `/api/v1/employees/{employee_id}/leave` | Leave list/request | Employee/manager | leave permission |
+| PATCH | `/api/v1/leave/{leave_id}` | Review/cancel leave | Employee/manager | leave permission |
+| GET | `/api/v1/employees/{employee_id}/performance` | Performance | Employee/manager | performance permission |
+| GET | `/api/v1/employees/{employee_id}/activity` | Activity | Employee/manager | activity permission |
+| GET/POST | `/api/v1/employees/{employee_id}/orders/assisted` | Assisted orders | Employee/manager | `orders.create` for POST |
+| GET | `/api/v1/employees/reports/{section}` | Employee reports | Employee | `analytics.<section>` |
