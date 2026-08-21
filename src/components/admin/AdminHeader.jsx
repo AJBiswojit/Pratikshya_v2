@@ -16,7 +16,7 @@ import { Brand, transition } from "../../design-system";
  * placeholder in this phase — the control is labelled as such rather than
  * pretending to carry unread business events.
  */
-export default function AdminHeader({ navOpen, onToggleNav }) {
+export default function AdminHeader({ navOpen, onToggleNav, menuButtonRef }) {
   const { admin, signOut } = useAdminAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -49,6 +49,7 @@ export default function AdminHeader({ navOpen, onToggleNav }) {
       <div className="flex items-center justify-between gap-4 px-4 py-3 md:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
+            ref={menuButtonRef}
             type="button"
             className="border border-ivory/25 p-2 text-ivory transition-colors hover:border-gold hover:text-gold lg:hidden"
             onClick={onToggleNav}

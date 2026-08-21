@@ -23,6 +23,7 @@ export default function EmployeeHeader({ navOpen, onToggleNav }) {
       <div className="flex items-center justify-between gap-4 px-4 py-3 md:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <button
+            ref={menuButtonRef}
             type="button"
             className="border border-pearl p-2 text-ink lg:hidden"
             onClick={onToggleNav}
