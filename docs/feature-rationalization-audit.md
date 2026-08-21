@@ -1,10 +1,10 @@
 # PRATIKSHYA FASHON — Feature Rationalization & Architecture Cleanup Audit
 
-**Status:** AUDIT COMPLETE — awaiting explicit approval before ANY code change.  
-**Date:** 2026-08-21  
+**Status:** AUDIT UPDATED — **Phase 1 frontend stabilization is COMPLETE.** This revision re-runs the original findings against the current code and marks each previously-reported issue **FIXED / PARTIALLY FIXED / STILL OPEN / SUPERSEDED / NOT VERIFIED**.  
+**Date:** 2026-08-21 (updated)  
 **Scope:** Entire frontend at `AJBiswojit/Pratikshya_v2` (`src/`, `public/`, `tests/`, `scripts/`, configs).  
-**Constraint honoured:** NO application code was modified, deleted, renamed, refactored, or migrated during this audit. This document is the only deliverable. All conclusions were reached by tracing definitions, imports, writers, readers, persistence, routes, UI and tests.  
-**Baseline health:** 347/347 tests pass · production build is a single file (vite-plugin-singlefile) · ~92K lines of source · 128 authored products · 238 static media files (76 MB) · 37 test files · 21 dev scripts.
+**Original constraint (historical):** NO application code was modified during the original audit. That constraint applied to the audit pass; the subsequent Phase 1 stabilization then implemented the approved low-risk cleanups.  
+**Baseline health (current):** 41 test files (including new `phase1Stabilization`, `phase2StorefrontCollectionWiring`, `portalSidebarCollapse`, `adminCollectionDetailLayout`, `explore`, `collectionResolution` regression contracts) · production build is a single file (vite-plugin-singlefile) · 128 authored products · 21 dev scripts. *(The original audit measured 347/347 tests at 37 test files; the suite has since grown. One portal-sidebar test imports the `react` package and therefore requires `node_modules` to be installed — a sandbox artifact, not a code regression.)*
 
 **Companion document:** `docs/backend-integration-audit.md` (the Backend Integration Master Audit) — this audit intentionally does not repeat its API map; it answers the *rationalization* questions (what is duplicated, what is dead, what is demo, what should exist at all) that must be decided **before** backend implementation.
 
@@ -12,24 +12,33 @@
 
 ## 1. Executive summary
 
-PRATIKSHYA FASHON is a **complete operational UX** — customer storefront, Admin Portal and Employee Operations Portal — with **no HTTP backend**. Persistence is `localStorage` plus authored seed modules. The architecture is already shaped as repository/command layers that a backend can replace feature-by-feature without rewriting UI.
+PRATIKSHYA FASHON is a **complete operational UX** — customer storefront, Admin Portal and Employee Operations Portal — with **no HTTP backend**. Persistence is `localStorage` plus authored seed modules. The architecture is already shaped as repository/command layers that a **Python + FastAPI** backend (the planned stack) can replace feature-by-feature without rewriting UI.
 
-The codebase is, on the whole, **remarkably disciplined**: a single product register, a single lifecycle command layer, one permission vocabulary per identity domain, one activity diary, and documented compatibility wrappers everywhere a legacy seam exists. The audit did **not** find parallel catalogue databases, per-department product tables, or competing permission systems.
+The original audit's findings and their **current resolution status** are summarized below. Detailed evidence per finding follows in the referenced sections.
 
-What the audit *did* find, in descending order of importance:
+| # | Original finding | Resolution | Evidence |
+|---|---|---|---|
+| 1 | Two customer stores (`pratikshya_customers` vs `pratikshya_customers_registry`) | **FIXED** | `services/customer/customerRegistry.js` is the single register; `LEGACY_CUSTOMERS_KEY` merged once then removed. Admin CRM, employee directory, account area and analytics all read it (§3.5). |
+| 2 | Assisted orders outside the order register (`pratikshya_employee_assisted_orders`) | **FIXED** | `orderService` merges legacy key once then removes it; assisted orders are canonical orders with `channel="ASSISTED"`, `source="employee_assisted"` (§3.8). |
+| 3 | Dead-but-linked Preferences page (`/account/preferences` unrouted) | **FIXED** | `<Route path="/account/preferences" element={<AccountPreferences/>}>` now exists (§8). |
+| 4 | Unrouted employee analytics page (`EmployeeReports`) | **FIXED** | `/employee/reports` (+ 7 section sub-routes) render `EmployeeReports.jsx` (§8). |
+| 5 | Unreachable inventory desk definitions (8 rows) | **FIXED** | Removed from `EmployeeDesk.jsx` (§7.3). |
+| 6 | Hardcoded mock returns on employee desk | **FIXED** | `/employee/returns` + `/employee/support/returns` project from the canonical order register (`projectReturns(allOrders)`) (§8, R8). |
+| 7 | Three broken collection nav links (`/collections/cotton|linen|chiffon`) | **FIXED** | Nav now derives links from `taxonomyRepository.activeCollections()` (fabric rail from `rule.fabricIncludes`); no hardcoded slugs (§3.4). |
+| 8 | Dead code (CorrectionDialog, AdminModulePlaceholder, AdminComingSoon, placeholder copy, catalogue shim, `loadAttendanceMap`, demoOrders stub) | **FIXED** | All removed/simplified in Phase 1 (§7). |
+| 9 | Demo/simulated layers (mock auth, payments, AI, dashboard numbers, desk rows) | **STILL OPEN (by design)** | Sandbox/demo seams intentionally remain until the backend exists (§5). |
+| 10 | Client-stamped `PAYMENT_CONFIRMED` in `buildOrderRecord` | **STILL OPEN** | Backend-owned (webhook-only) — not a frontend change (§13, HIGH risk item). |
+| — | `/collection/:slug` vs `/collections/:slug` routing duality | **FIXED** | `/collection/:slug` is now a legacy redirect to `/collections/:slug` (§8). |
+| — | Duplicate collection rule-based resolution | **FIXED** | Single `taxonomyRepository.isProductInCollection` (§3.4). |
+| — | Explore `FREE_SHIPPING_THRESHOLD` undefined | **FIXED** | Defined via `commerceDefaults`; Explore reads `readShippingRules()` (§8). |
+| — | New Arrivals disconnected from Admin collection assignment | **FIXED** | `NewArrivals.jsx` uses `taxonomyRepository.isProductInCollection(product, "new-arrivals")` (§2.1 S1). |
+| — | Legacy `collectionPlates` duplicated collection information | **SUPERSEDED** | `collectionPlates` is now a **derived keyed index** of authored editorial/fabric plates (imagery), not duplicated product membership (§3.4). |
+| — | Rigid Admin Collection Detail layout (`min-w-[720px]`, clipped controls) | **FIXED** | Shrinkable `minmax(0,…)` tracks, `min-w-0`, `table-fixed`, truncation, internal scrolling (§2.7 A8). |
+| — | Fixed-only portal sidebar | **FIXED** | Shared `PortalShell`/`PortalSidebar` with desktop rail collapse (72px) + mobile drawer (§2.9 X2). |
+| — | Shipping/COD config duplication (checkoutConfig vs settings vs utils) | **FIXED** | `config/commerceDefaults.js` single defaults; settings authority via `readShippingRules`/`readPaymentRules` (§3.12). |
+| — | `/employee/sales` desk hardcoded figures | **PARTIALLY FIXED** | Real reports routed (R5); `/employee/sales` desk still shows clearly-labelled demo figures (R5 §8). |
 
-1. **Two customer stores.** Customer truth is split between `pratikshya_customers_registry` (written by sign-up/account flows) and `pratikshya_customers` (an admin demo list that is **never written**, always falls back to `INITIAL_DEMO_CUSTOMERS`). Admin customer pages read the stale store; the employee directory and analytics read the live one. → **MERGE** (R1 — removal simulation §12).
-2. **Assisted orders live outside the order register.** `EmployeeAssistedOrder` writes to `pratikshya_employee_assisted_orders`, a second order data store that the order register, returns, analytics and admin never see. → **MERGE** (R2 — removal simulation §12).
-3. **Dead-but-linked Preferences page.** `AccountPreferences.jsx` is not routed; `/account/preferences` is listed in `dedicatedPaths` but has no `<Route>`, so the working links in `AccountNav`, `AccountDashboard` and `AiShoppingAssistant` land on 404. → **REPAIR** (route it) or remove page + links (R4).
-4. **Unrouted, fully-built employee analytics page.** `EmployeeReports.jsx` (permission-aware, real analytics read-model) is never routed; `/employee/reports` renders a **hardcoded mock desk** inside `EmployeeDesk.jsx`. → **REPLACE** mock desk with the real page (R5).
-5. **Unreachable desk definitions.** Eight `EmployeeDesk` desk entries for `/employee/inventory*` are shadowed by real inventory routes and can never render — ~130 lines of dead code (R6).
-6. **Hardcoded mock returns on the employee desk.** `/employee/returns` and `/employee/support/returns` render hardcoded return rows while the real return register (`returnService` + `/admin/returns`) exists. → **REPLACE** with real data (R8).
-7. **Three broken collection nav links.** The Collections mega-menu links to `/collections/cotton`, `/collections/linen`, `/collections/chiffon`, and the Fabrics rail has no such collections in the taxonomy register — the pages 404. The nav hardcodes slugs instead of reading the managed collection catalogue. → **REPAIR** (R7).
-8. **Dead code:** `CorrectionDialog.jsx` (0 references), `AdminModulePlaceholder.jsx` + `AdminComingSoon.jsx` (unrouted), `ADMIN_PLACEHOLDER_COPY` + `MODULE_STATUS` (unused), stubbed `demoOrders.js` generator, legacy attendance key constants, `operationsService.loadAttendanceMap` (no callers), legacy `data/products/catalogue.js` shim (1 importer).
-9. **Demo/simulated layers that are honestly labelled** and should be *replaced, not removed*: three mock auth domains, `MockPaymentService`, sandbox QR (correctly sandbox-only), mock AI provider + procedural AI-mirror, `dashboardData.js` static admin dashboard numbers, hardcoded employee desk rows, `INITIAL_DEMO_CUSTOMERS` / walk-in mocks, workforce seed.
-10. **Canonical architecture protection (§13) is intact** with one deliberate exception flagged for backend: `orderService.buildOrderRecord` stamps `PAYMENT_CONFIRMED` on the client at order creation (payment is confirmed by the frontend today — the known `HIGH` item in the backend audit).
-
-**Recommendation headline:** nothing critical must be removed to reach a clean backend seam. The cleanup is concentrated in (a) merging the two customer stores and the two order stores, (b) repairing five broken/duplicate surface links, (c) deleting ~10 confirmed-dead files/configs, and (d) converting mock desks to real read-models where the real data already exists.
+**Recommendation headline (updated):** the Phase 1 cleanup is done. What remains is (a) backend-owned work (payments, auth, authoritative persistence), (b) sandbox/demo seams that stay until the backend exists, and (c) a small set of optional V1.5 simplifications (§11, §16 Phase 4).
 
 ---
 
@@ -155,9 +164,9 @@ Classification key: **CORE** = the business cannot run without it · **SUPPORTIN
 | # | Feature | Where it lives | Class |
 |---|---|---|---|
 | X1 | Design system (tokens, typography, spacing, motion, ~30 components) | `src/design-system/*` | UI ONLY |
-| X2 | Shared portal sidebar | `components/navigation/PortalSidebar.jsx` (used by Admin + Employee sidebars) | UI ONLY |
+| X2 | Shared portal shell + sidebar (collapsible rail + mobile drawer) | `components/navigation/PortalShell.jsx`, `PortalSidebar.jsx`, `usePortalSidebarCollapse.js`, `usePortalDrawer.js`, `RailTooltip.jsx` (Admin + Employee share them; collapse keys `pratikshya_admin_sidebar_collapsed` / `pratikshya_employee_sidebar_collapsed`) | UI ONLY |
 | X3 | Dev QA/audit scripts (21) | `scripts/*.mjs` + `scripts/node-loader/*` | DEV ONLY |
-| X4 | Test suite (37 files, 347 tests) | `tests/*.test.js`, `tests/helpers`, `tests/temporary/qa-review-prod.mjs` | DEV ONLY |
+| X4 | Test suite (41 files; grew from 37/347 in the original audit) | `tests/*.test.js`, `tests/helpers`, `tests/temporary/qa-review-prod.mjs` | DEV ONLY |
 | X5 | Static media (products 214 files, collections 19, hero 5) | `public/images/*` | CORE asset (fallback) |
 
 ---
@@ -182,31 +191,30 @@ Trace method per candidate: **definition → imports → consumers → writers �
 - Both are the same register differentiated by `scope`/`usageRoles` (HOME_HERO, EDITORIAL, PROMOTION, LOOKBOOK, COLLECTION_COVER…). No separate editorial media store.
 - **Conclusion:** **KEEP** — one register, two usage vocabularies. No merge needed.
 
-### 3.4 Collections vs Editorial Collections
-- **Managed collections:** `taxonomyRepository` seeds + `pratikshya_taxonomy_v2` (ids `new-arrivals`, `featured`, `heritage-weaves`, `festive-edit`, `handloom-stories`, `bridal-trousseau`, `everyday-atelier`, `groom-atelier`, `silk`, `wedding`; some RULE_BASED).
-- **Editorial plates:** `src/data/catalog/collections.js` `editorialCollections` (festive-edit, heritage-weaves, new-arrival) — storytelling imagery for plates, explicitly “NOT product records”.
-- **Nav hardcoding:** `config/navigationConfig.js` hardcodes collection links; **three are dead** — `/collections/cotton`, `/collections/linen`, `/collections/chiffon` have no collection record (only `silk` exists) → CatalogueListing renders NotFound. `/collections/festive-edit` works only because `findCollection` matches by **id** while the record’s slug is `festive` (fragile).
-- **Conclusion:** **KEEP BOTH layers** (plates are fallback imagery, membership is managed), **REPAIR** nav: derive Fabric-collection links from the collection register; add/remove collections in the register, not in `navigationConfig`.
+### 3.4 Collections vs Editorial Collections — **FIXED (nav) / SUPERSEDED (plates)**
+- **Managed collections:** `taxonomyRepository` seeds + `pratikshya_taxonomy_v2` (ids `new-arrivals`, `featured`, `heritage-weaves`, `festive-edit`, `handloom-stories`, `bridal-trousseau`, `everyday-atelier`, `groom-atelier`, `silk`, `wedding`; some RULE_BASED with `rule.flag`/`rule.occasion`/`rule.fabricIncludes`).
+- **Editorial plates:** `src/data/catalog/collections.js` `editorialCollections` + `fabricCollections` (festive-edit, heritage-weaves, new-arrival, chiffon, cotton, linen, silk) — storytelling imagery, explicitly “NOT product records”.
+- **Nav hardcoding (historical):** `navigationConfig.js` previously hardcoded collection links; three were dead (`/collections/cotton`, `/collections/linen`, `/collections/chiffon`). **FIXED:** `collectionNavigationColumns()` now derives both editorial and fabric rails from `taxonomyRepository.activeCollections()`, filtering the fabric rail by `collection.rule?.fabricIncludes`. No hardcoded slugs remain.
+- **`collectionPlates` (historical “duplicate information” finding):** **SUPERSEDED** — `collectionPlates` is now a derived keyed index built from `editorialCollections` + `fabricCollections` (keyed by both `id` and `taxonomyId`) and consumed only as imagery fallback by `CatalogueListing` and `mediaResolver`. It no longer duplicates product membership; membership is resolved by `taxonomyRepository.isProductInCollection` (single resolver — see below).
+- **Conclusion:** **KEEP BOTH layers** (plates are fallback imagery, membership is managed). **FIXED** for nav; membership resolution now has exactly one rule evaluator (`taxonomyRepository.isProductInCollection`: manual `productIds` + label match + `rule.flag` + `rule.occasion` + `rule.fabricIncludes`).
 
-### 3.5 Customer vs Customer Registry — **REAL DUPLICATE**
-- `pratikshya_customers_registry` — written by `AuthContext` (sign-up) and `AccountContext` (profile updates). Read by employee directory (`operationsService.getRegisteredCustomers`), analytics, account area.
-- `pratikshya_customers` — read by `AdminCustomers`, `AdminCustomerDetail`, and as a **legacy fallback** in `analyticsService`. **No writer anywhere.** Always `INITIAL_DEMO_CUSTOMERS` (10 records).
-- Consequence: a customer who signs up appears in the employee directory but **not** in the admin customer list (and vice versa with the demo records).
-- **Conclusion:** **MERGE** into the registry. Admin pages must read `customers_registry` (+ orders). Remove key `pratikshya_customers` and the analytics legacy fallback. Risk LOW (read-only change + key removal).
+### 3.5 Customer vs Customer Registry — **REAL DUPLICATE → FIXED**
+- `pratikshya_customers_registry` — the canonical register (`services/customer/customerRegistry.js`). Written by `AuthContext` (sign-up) and `AccountContext` (profile updates); read by the employee directory, analytics, account area, **and now Admin CRM**.
+- `pratikshya_customers` — **historical** legacy admin list. **FIXED in Phase 1:** `customerRegistry.migrateLegacyCustomers()` merges it into the registry once, then removes the key (`LEGACY_CUSTOMERS_KEY`). `AdminCustomers`/`AdminCustomerDetail` and `analyticsService` now read `loadCustomerRegistry()`.
+- **Resolution:** **FIXED** — one list store; the legacy key is migration/legacy only.
 
 ### 3.6 Customer Account vs Admin Customer Store
-- Same finding as 3.5 (`pratikshya_account_{id}` is a per-user profile cache written by `AccountContext`; it is a *projection* of the registry record + addresses/preferences/security, not a second identity). The true duplication is the two list stores.
-- **Conclusion:** **MERGE** (admin reads registry); **KEEP** the per-account projection until backend sessions exist, then it becomes `GET /me`.
+- `pratikshya_account_{id}` is a per-user profile cache written by `AccountContext` — a *projection* of the registry record + addresses/preferences/security, not a second identity. **FIXED:** the list-store duplication is resolved (§3.5); the per-account projection remains until backend sessions exist, then it becomes `GET /me`.
 
 ### 3.7 Offers vs Promotions
 - `offerRepository` is the single offers/promotions store; `data/shopping/coupons.js` is a documented Phase-17 adapter with one `@deprecated` export (`coupons = []`) kept only for old imports; legacy codes WELCOME10/FESTIVE15/BRIDAL20 were migrated into the offer register.
 - **Conclusion:** **KEEP** adapter, **SIMPLIFY** later (drop deprecated export once cart/checkout import paths are the only consumers — they already go through the adapter functions).
 
-### 3.8 Checkout vs Order Draft vs Assisted Orders — **REAL DUPLICATE (orders)**
-- `pratikshya_checkout` = in-progress checkout draft (cart snapshot + steps). Correct as a draft.
-- `pratikshya_orders` = the order register (checkout orders). `pratikshya_current_order` = the last placed order pointer.
-- `pratikshya_employee_assisted_orders` = **a second order store** written by `EmployeeAssistedOrder.jsx` and read by `operationsService.getAssistedOrders` (desk/dashboard). These orders never enter the order register → invisible to admin orders, returns, analytics, customer history.
-- **Conclusion:** **MERGE** — assisted orders must flow through `orderService` (flag `channel: "ASSISTED"` + employee actor). Remove the dedicated key. Checkout draft itself: **KEEP** (correct staging concept).
+### 3.8 Checkout vs Order Draft vs Assisted Orders — **REAL DUPLICATE (orders) → FIXED**
+- `pratikshya_checkout` = in-progress checkout draft (cart snapshot + steps). Correct as a draft — **KEEP**.
+- `pratikshya_orders` = the canonical order register. `pratikshya_current_order` = the last placed order pointer (derived).
+- `pratikshya_employee_assisted_orders` = **historical** second order store. **FIXED in Phase 1:** `orderService.migrateAssistedOrders()` lifts legacy tickets into `pratikshya_orders` once, then removes the key. New assisted orders are created through `orderService` with `channel: "ASSISTED"` / `source: "employee_assisted"`; `operationsService.getAssistedOrders` now filters the canonical register (`loadOrders().filter(isAssistedOrder)`).
+- **Conclusion:** **FIXED** — one order entity. Checkout draft itself: **KEEP** (correct staging concept).
 
 ### 3.9 Review vs Approval
 - Both are steps of ONE lifecycle (`DRAFT → PENDING_REVIEW → APPROVED → PUBLISHED`). `productReviewFlags` / media groups are review *signals*; `approveProduct` is a *command* that does not publish. The unified review queue (`unifiedProductReview` + `UnifiedReviewQueue`) superseded per-category review panels; `ProductDraftReviewPanel`/`ProductGroupReviewPanel`/`ProductReviewDetail` remain as sub-views of the same queue.
@@ -220,10 +228,10 @@ Trace method per candidate: **definition → imports → consumers → writers �
 - One diary: `activityService` + `pratikshya_employee_activity`, written by every repository command, read by `/admin/activity`, employee feeds, per-entity timelines.
 - Naming collision only: `mediaAudit.js` / `mediaExposure.js` are **QA tooling** (dev scripts/tests), not runtime audit logs. **KEEP** diary; re-label tooling as dev-only.
 
-### 3.12 Settings vs Checkout Configuration — **OVERLAP**
-- `settingsRepository` (`pratikshya_settings`, admin-editable) owns sections for shipping, payments, returns, orders, inventory thresholds, media limits.
-- `config/checkoutConfig.js` hardcodes delivery methods/fees (₹99 flat, ₹5,000 free threshold, ₹199 express, ₹49 COD) and payment methods; `utils/shopping.js` hardcodes the same shipping constants; `SETTINGS_DEFAULTS.shipping` stores the same numbers a third time.
-- **Conclusion:** **MERGE** direction — checkout must resolve delivery/payment rules from `settingsRepository` with `checkoutConfig` demoted to defaults; single source = settings. Risk MEDIUM (touch checkout pricing paths).
+### 3.12 Settings vs Checkout Configuration — **OVERLAP → FIXED**
+- `settingsRepository` (`pratikshya_settings`, admin-editable) is the runtime authority for shipping, payments, returns, orders, inventory thresholds, media limits.
+- **FIXED in Phase 1:** `config/commerceDefaults.js` is now the **single authored default** (`COMMERCE_DEFAULTS`: ₹99 flat, ₹5,000 free threshold, ₹199 express, ₹49 COD). `readShippingRules()` / `readPaymentRules()` resolve **settings-first, defaults-fill**. `utils/shopping.js` re-exports from `commerceDefaults` (`FREE_SHIPPING_THRESHOLD`, `FLAT_SHIPPING_FEE`). `checkoutConfig.js` is demoted to **UI metadata only** (method labels, icons, captions, demo scenarios).
+- **Conclusion:** **FIXED** — one source for commerce numbers; `checkoutConfig` is UI-only. (Backend target: settings become server truth; public numbers via `GET /api/v1/catalog/settings`.)
 
 ### 3.13 Hero vs Marketing Media
 - `data/catalog/hero.js` = authored slide copy + static fallback images; managed `HOME_HERO` marketing media overrides at render (`resolveHeroImageIds` + `useMarketingMedia`). Fallback pattern again.
@@ -326,7 +334,7 @@ Per entity: current source, secondary copies, derived data, cache, seed, mock, s
 | `pratikshya_auth` | customer session snapshot | AuthContext | storefront guards | Customer session | Yes (mock) | A |
 | `pratikshya_customers_registry` | customer identity register | AuthContext / AccountContext | account, employee directory, analytics | Customers | **YES (after §3.5 merge)** | A |
 | `pratikshya_account_{id}` | per-customer profile/addresses/preferences cache | AccountContext | account pages | Customer profile | Derived | A |
-| `pratikshya_customers` | **stale** admin demo customer list | *(no writer)* | AdminCustomers / AdminCustomerDetail / analytics fallback | Customers | **NO — remove after merge** | D |
+| `pratikshya_customers` | **legacy** admin demo customer list | *(legacy merge only)* | `customerRegistry.migrateLegacyCustomers()` (merge-once then remove) | Customers | **NO — FIXED in Phase 1 (merged into registry)** | E |
 | `pratikshya_admins` | admin identity register | adminAuthService | admin guards/profile | Admins | Yes (mock) | A |
 | `pratikshya_admin_credentials` | admin credential fingerprints | adminAuthService | admin sign-in | Admin credentials | Yes (mock) | A |
 | `pratikshya_admin_auth` | admin session | adminAuthService | guards | Admin session | Yes (mock) | A |
@@ -334,24 +342,27 @@ Per entity: current source, secondary copies, derived data, cache, seed, mock, s
 | `pratikshya_employee_credentials` | employee credential fingerprints | employeeService | sign-in / password change | Employee credentials | Yes (mock) | A |
 | `pratikshya_employee_auth` | employee session | employeeAuthService | guards | Employee session | Yes (mock) | A |
 | `pratikshya_employee_activity` | house diary (append-only) | activityService (all repositories) | admin activity, feeds, timelines | Activity | **YES** | A |
-| `pratikshya_employee_assisted_orders` | **second order store** | EmployeeAssistedOrder page | operationsService desk/dashboard | Orders | **NO — merge into `pratikshya_orders`** | D |
+| `pratikshya_employee_assisted_orders` | **legacy** second order store | *(legacy merge only)* | `orderService.migrateAssistedOrders()` (merge-once then remove) | Orders | **NO — FIXED in Phase 1 (merged into `pratikshya_orders`)** | E |
 | `pratikshya_attendance` | attendance events | workforce/attendanceRepository | attendance UI, analytics | Attendance | **YES** | A |
 | `pratikshya_leave` | leave requests | workforce/leaveRepository | leave UI, analytics | Leave | **YES** | A |
 | `pratikshya_performance` | performance records | workforce/performanceRepository | performance UI, analytics | Performance | **YES** | A |
 | `pratikshya_settings` | house configuration (17 sections) | settingsRepository | admin settings, checkout config (planned), attendance thresholds | Settings | **YES** | A |
 | `pratikshya_recently_viewed` | per-customer recent product ids | recentlyViewed service | account dashboard, AI shopping | Personalization | Client cache; backend-able later | B |
-| `pratikshya_preferences` | style preferences (personalization) | stylePreferences | AccountPreferences (dead), AI | Personalization | Client; backend-able later | B |
-| `pf_admin_nav_groups` / `pf_employee_nav_groups` | sidebar collapse state | AdminSidebar / EmployeeSidebar | same components | UI chrome | UI-only, never migrate | B |
+| `pratikshya_preferences` | style preferences (personalization) | stylePreferences | AccountPreferences (now routed), AI | Personalization | Client; backend-able later | B |
+| `pratikshya_admin_sidebar_collapsed` / `pratikshya_employee_sidebar_collapsed` | sidebar **rail collapse** preference | `usePortalSidebarCollapse` | `PortalSidebar`/`PortalShell` | UI chrome | UI-only, never migrate | D |
+| `pf_admin_nav_groups` / `pf_employee_nav_groups` | sidebar **nav group expansion** state | `PortalSidebar` | same component | UI chrome | UI-only, never migrate | D |
 | `pratikshya_ai_shopping_session_*` / `pratikshya_ai_business_session_*` / `pratikshya_ai_mirror_recent_*` | AI demo session transcripts / mirror history | aiSessionStore / aiMirrorService | AI pages | AI sessions | Demo; server-side later | C |
 | `pratikshya_canonical_media_state_2026_08_17` | one-shot media seed wipe marker | mediaStore | mediaStore | Migration marker | Dev-only; remove post-migration | C |
 | `pratikshya_employee_attendance` | legacy attendance key (migrated once) | *(migrated only)* | attendanceRepository migration + dead `loadAttendanceMap` | Attendance | Legacy; remove | C/D |
 | `pratikshya_attendance_settings` | legacy settings (merged into settings) | *(migrated only)* | settingsRepository.migrated() | Settings | Legacy; remove | C/D |
 
-**Buckets:** A = MUST MOVE TO BACKEND (all registers + sessions) · B = CAN REMAIN CLIENT-SIDE (UI chrome, personalization caches — revisit post-backend) · C = DEVELOPMENT ONLY (sandbox AI sessions, migration markers) · D = REMOVE (stale customer list, assisted-orders second store, legacy keys).
+**Buckets (updated to the A–E taxonomy used across documents):** A = MUST MOVE TO BACKEND (all registers + sessions) · B = SHOULD MOVE TO BACKEND / client cache acceptable in V1 (personalization caches, cart/wishlist) · C = CAN REMAIN CLIENT-SIDE (sandbox AI sessions, dev markers) · D = FRONTEND SESSION/UX STATE (sidebar collapse, nav group expansion) · E = LEGACY/MIGRATION ONLY (stale customer list, assisted-orders second store, legacy attendance/settings keys — all consolidated in Phase 1).
 
 ---
 
 ## 7. Dead code report
+
+> **Phase 1 outcome:** the HIGH-confidence dead items were removed in Phase 1 — `CorrectionDialog.jsx` (7.1), `AdminModulePlaceholder.jsx` + `AdminComingSoon.jsx` (7.4), `ADMIN_PLACEHOLDER_COPY`/`MODULE_STATUS` (7.5), the 8 shadowed inventory desk rows (7.6), the `demoOrders.js` stub body + 12 unused customers (7.7/7.16), `operationsService.loadAttendanceMap` (7.8), and the `data/products/catalogue.js` shim (7.10). Items 7.2 and 7.3 were **repaired, not removed** (routed). Legacy migration readers (7.9) remain intentionally until migration is retired. Dev tooling (7.12–7.14) is kept.
 
 | # | File / Symbol | References | Last consumer | Why dead | Confidence |
 |---|---|---|---|---|---|
@@ -386,7 +397,8 @@ Legend: **KEEP** · **MERGE** · **REMOVE** · **DEFER** · **REPAIR**.
 | `/` | home | public | — | KEEP |
 | `/shop` | catalogue front door | public | header | KEEP |
 | `/explore` | discovery feed | public | header/footer | KEEP |
-| `/category/:slug`, `/collection/:slug` | managed listing pages | public | direct URLs (required) | KEEP |
+| `/category/:slug`, `/collections/:slug` | managed listing pages | public | direct URLs (required) | KEEP |
+| `/collection/:slug` | legacy collection URL | public | direct/old links | **FIXED** — `LegacyCollectionRedirect` → `/collections/:slug` (backward-compatible) |
 | `/search` | results | public | header | KEEP |
 | `/product/:productId` | detail | public | direct (required) | KEEP |
 | `/cart`, `/checkout`, `/order-success` | journey | public | header (cart) | KEEP |
@@ -394,12 +406,12 @@ Legend: **KEEP** · **MERGE** · **REMOVE** · **DEFER** · **REPAIR**.
 | `/signin`, `/signup`, `/forgot-password`, `/reset-password` | auth | public | account links | KEEP |
 | `/account`, `/account/profile`, `/account/addresses`, `/account/orders`, `/account/settings`, `/account/security`, `/account/ai-mirror`, `/account/ai-shopping` | account area | customer (guard) | AccountNav | KEEP |
 | `/account/orders/:orderId` (+`/track`, `/return`) | order follow-up | customer | account | KEEP |
-| **`/account/preferences`** | style preferences | customer | AccountNav + dashboard | **REPAIR (R4) — no route exists; page dead** (§7.2) |
+| **`/account/preferences`** | style preferences | customer | AccountNav + dashboard | **FIXED (R4) — route added; page reachable** |
 | ~38 manifest paths (`/women/…`, `/bridal/…`, `/men/…`, `/kids/…`, `/collections/*`) | department/category/subcategory listings | public | mega menu/footer | KEEP (all resolve via managed taxonomy) |
 | `/about`, `/contact`, `/privacy`, `/terms` | static interior pages | public | footer | KEEP |
 | `*` | 404 | public | — | KEEP |
 
-**Repair (R7):** mega-menu links `/collections/cotton`, `/collections/linen`, `/collections/chiffon` → **dead (404)**. Remove them or add those collections to the register; prefer deriving fabric rails from the register.
+**Fixed (R7):** the mega-menu fabric rail is now derived from `taxonomyRepository.activeCollections()` (`collection.rule?.fabricIncludes`); the dead hardcoded `/collections/cotton|linen|chiffon` links are gone. Collection links are generated from the managed register, not authored in `navigationConfig`.
 
 ### 7.2 Admin (AdminProtectedRoute + AdminLayout)
 
@@ -438,12 +450,12 @@ Legend: **KEEP** · **MERGE** · **REMOVE** · **DEFER** · **REPAIR**.
 | `/employee/offers*` (4) | offers | KEEP |
 | `/employee/inventory*` (6 + 3 redirects) | inventory (shared pages) | KEEP |
 | `/employee/warehouse*` (6) | warehouse desk | **DEFER** (placeholder rows fed by real transfer/movement data; no warehouse backend yet) |
-| `/employee/returns` | returns desk | **REPAIR (R8) — hardcoded mock rows; read real return register instead** |
+| `/employee/returns` | returns desk | **FIXED (R8) — `projectReturns(allOrders)` reads the canonical order register** |
 | `/employee/support*` (4) | care desk | **DEFER** (no support-case entity exists) |
 | `/employee/styling*` (6) | styling desk | **DEFER** (no styling entity exists) |
-| `/employee/sales` | sales desk | **REMOVE/REPLACE (R5)** — hardcoded figures; `EmployeeReports` (analytics) covers this, once routed |
+| `/employee/sales` | sales desk | **PARTIALLY FIXED (R5)** — still shows clearly-labelled demo figures; real analytics now lives at `/employee/reports` |
 | `/employee/team` | team list | KEEP (real employee data) |
-| `/employee/reports` | reports | **REPAIR (R5) — route to `EmployeeReports.jsx` (real analytics), remove mock desk** |
+| `/employee/reports` | reports | **FIXED (R5) — routed to `EmployeeReports.jsx` (+ 7 section sub-routes)** |
 | `/employee/management/*` | legacy redirect → profile | KEEP (safe redirect) |
 
 ---
@@ -483,7 +495,7 @@ Findings:
 
 | Feature | Classification |
 |---|---|
-| Navigation collapse state, sidebar chrome, page transitions, design-system components, cart drawer animation, brand lockup | FRONTEND ONLY |
+| Sidebar rail-collapse preference (`pratikshya_admin/employee_sidebar_collapsed`), nav group expansion, sidebar chrome, page transitions, design-system components, cart drawer animation, brand lockup | FRONTEND ONLY (CLIENT-SIDE ONLY) |
 | Storefront listings/facets UI, cart UI, wishlist UI, account UI, checkout steps UI, admin/employee page shells | BACKEND + FRONTEND (UI stays; data becomes API) |
 | Product persistence & lifecycle enforcement, taxonomy persistence, media ownership & upload validation, marketing placement persistence | BACKEND REQUIRED (frontend keeps commands/UI as adapter) |
 | Inventory ledger/reservations, order state machine, payment verification, returns/refunds, offer redemption limits, auth sessions & password hashing, RBAC enforcement, activity/audit log | BACKEND REQUIRED (server-authoritative; frontend must not confirm payments or grant authority) |
@@ -497,19 +509,21 @@ Findings:
 ## 11. V1 / V1.5 / Future classification
 
 ### MUST HAVE — V1 (backend)
-Catalogue + lifecycle (C1–C10), taxonomy/collections (C2–C3), storefront projection (C4), media + ownership + placements (M1–M4), inventory (I1–I4), offers (O1), cart/wishlist/checkout/orders/returns (S8–S12, O2–O6), customer identity (U1–U2, merged §3.5), admin + employee portals over the same APIs, activity diary, settings, analytics read-model.
+Catalogue + lifecycle (C1–C10), taxonomy/collections (C2–C3), storefront projection (C4), media + ownership + placements (M1–M4), inventory (I1–I4), offers (O1), cart/wishlist/checkout/orders/returns (S8–S12, O2–O6), customer identity (U1–U2, merged §3.5), admin + employee portals over the same APIs, activity diary, settings, analytics read-model. (Target: **Python + FastAPI**.)
 
 ### SHOULD HAVE — V1.5
-Recently viewed / style preferences / personalization (S15–S17 — **repair the Preferences route first**), employee assisted orders unified into the order register (O3), real admin dashboard numbers replacing `dashboardData` static values, employee reports page routed (R5), support/styling desks (new entities), sandbox QR retired in favor of real gateway UPI.
+Recently viewed / style preferences / personalization (S15–S17 — Preferences route **already fixed**), real admin dashboard numbers replacing `dashboardData` static values, support/styling desks (new entities), sandbox QR retired in favor of real gateway UPI. *(Employee assisted orders and the reports route are already done in Phase 1.)*
 
 ### FUTURE
 Real AI provider for shopping/business assistants, real virtual try-on (AI Mirror), recommendation service, support-case/ticketing entity, styling appointment entity, warehouse WMS features.
 
-**Deferral policy per feature:** warehouse/support/styling desks → DEFER WITH PLACEHOLDER UI (they are honest “Later” notes today); dead pages (7.2, 7.3, 7.4) → REMOVE (they are unreachable, not future work); mock numbers on routed pages → REPLACE with real read-model data.
+**Deferral policy per feature:** warehouse/support/styling desks → DEFER WITH PLACEHOLDER UI (they are honest “Later” notes today); mock numbers on routed pages → REPLACE with real read-model data (remaining: `/employee/sales`, `dashboardData`).
 
 ---
 
 ## 12. Removal safety analysis (for every recommended removal)
+
+> **Completion status:** R1 (customer store merge), R2 (assisted-order merge), R3 (dead files), R4 (preferences route), R5 (reports route — sales mock figures remain), R6 (shadowed desk rows), R7 (nav links), R9 (demoOrders stub) and R10 (legacy readers deferred to migration retirement) have been implemented in Phase 1. R8 (returns desk reads register) is implemented. R11 (dashboard numbers → analytics) remains deferred to V1.5.
 
 ### R1 — Remove `pratikshya_customers` duplicate store + stale admin reads
 - Files: `AdminCustomers.jsx`, `AdminCustomerDetail.jsx`, `analyticsService.js` (fallback), `AuthContext.jsx` (unaffected registry)
@@ -607,7 +621,7 @@ Columns: FEATURE · PURPOSE · CURRENT IMPLEMENTATION · DUPLICATE? · SOURCE OF
 | Product detail | conversion | detail page + preview seam | No | products | Yes | 5 | Yes | 2 | KEEP | LOW | core |
 | Canonical products | one catalogue | catalogRepository | No | register | Yes | 5 | Yes | 5 | KEEP | CRITICAL-protected | core |
 | Taxonomy (dept/cat/sub) | navigation + filters | taxonomyRepository | No | `pratikshya_taxonomy_v2` | Yes | 5 | Yes | 3 | KEEP | LOW | core |
-| Collections (managed) | curation | taxonomyRepository + plates | Overlap w/ plates only | taxonomy register | Yes | 4 | Yes | 3 | KEEP + REPAIR nav links | LOW | 3 dead links |
+| Collections (managed) | curation | taxonomyRepository + plates | Overlap w/ plates only | taxonomy register | Yes | 4 | Yes | 3 | KEEP — nav links **FIXED** | LOW | 3 dead links removed |
 | Editorial plates | storytelling imagery | `data/catalog/collections.js` static | Fallback, not dup | authored seed | Yes | 3 | Later | 2 | KEEP | LOW | fallback pattern |
 | Product lifecycle | governance | workflow command layer | No (wrappers delegate) | products row | Yes | 5 | Yes | 5 | KEEP | CRITICAL-protected | core |
 | Unified review queue | review inbox | unifiedProductReview + queue UI | Consolidated already | products+groups | Yes | 4 | Yes | 4 | KEEP | LOW | core |
@@ -623,11 +637,11 @@ Columns: FEATURE · PURPOSE · CURRENT IMPLEMENTATION · DUPLICATE? · SOURCE OF
 | Wishlist | saves | WishlistContext | No | `pratikshya_wishlist` | Yes | 4 | Yes | 2 | KEEP | LOW | core |
 | Checkout | purchase journey | CheckoutContext + config | Overlap w/ settings only | `pratikshya_checkout` | Yes | 5 | Yes | 5 | KEEP; **MERGE pricing rules into settings** | HIGH | §3.12 |
 | Payments | money capture | MockPaymentService + sandbox QR | No | in-memory | Yes | 5 | Yes | 5 | REPLACE (backend) | CRITICAL | demo confirm breach |
-| Orders | fulfillment | orderService + context | Assisted orders = second store | `pratikshya_orders` | Yes | 5 | Yes | 5 | KEEP + **MERGE assisted orders** | HIGH | §3.8 |
+| Orders | fulfillment | orderService + context | Assisted orders **FIXED** (one entity) | `pratikshya_orders` | Yes | 5 | Yes | 5 | KEEP — assisted orders merged | HIGH | §3.8 |
 | Fulfillment | pick/pack/dispatch | fulfillmentService | No | order row | Yes | 5 | Yes | 4 | KEEP (drop client forceTransition on BE) | HIGH | core |
-| Returns/refunds | after-sales | returnService | Employee desk shows hardcoded copies | order.returns | Yes | 5 | Yes | 4 | KEEP + REPLACE desk mocks | MED | R8 |
+| Returns/refunds | after-sales | returnService | Employee desk **FIXED** (reads order.returns) | order.returns | Yes | 5 | Yes | 4 | KEEP — desk reads register | MED | R8 |
 | Tracking | customer visibility | trackingService (synthetic legs) | No | derived | Yes | 3 | Yes | 2 | KEEP / DEFER real carrier | LOW | fine as demo |
-| Customer registry | identity | AuthContext | **dup with stale admin store** | `pratikshya_customers_registry` | Yes | 5 | Yes | 4 | **MERGE** admin store into registry | LOW | §3.5 |
+| Customer registry | identity | AuthContext | **FIXED** (single registry) | `pratikshya_customers_registry` | Yes | 5 | Yes | 4 | **FIXED** — admin store merged | LOW | §3.5 |
 | Customer account | profile/addresses/prefs | AccountContext | Projection (fine) | registry + `pratikshya_account_{id}` | Yes | 5 | Yes | 3 | KEEP | MED | core |
 | Auth (customer/admin/employee) | sessions | three isolated mock domains | By design, not dup | own keys | Yes | 5 | Yes | 5 | REPLACE (backend) | HIGH | mock |
 | Employee management | people ops | employeeService + admin UI | No | `pratikshya_employees` | Yes | 5 | Yes | 5 | KEEP | MED | core |
@@ -641,17 +655,17 @@ Columns: FEATURE · PURPOSE · CURRENT IMPLEMENTATION · DUPLICATE? · SOURCE OF
 | AI Shopping Assistant | guided discovery | mock provider over live products | No | live catalogue | Yes | 3 | Later | 4 | KEEP FOR SANDBOX | LOW | mock seam clean |
 | AI Business Assistant | operator insights | mock provider over analytics | No | analytics read-model | Yes | 3 | Later | 4 | KEEP FOR SANDBOX | LOW | mock seam clean |
 | AI Mirror | virtual try-on | procedural mock | No | products+media | Yes | 3 | Later | 4 | KEEP FOR SANDBOX | LOW | mock seam clean |
-| Style preferences page | personalization inputs | AccountPreferences + stylePreferences | No | `pratikshya_preferences` | **No (404!)** | 3 | Later | 2 | **REPAIR route** (V1.5) | LOW | R4 |
+| Style preferences page | personalization inputs | AccountPreferences + stylePreferences | No | `pratikshya_preferences` | Yes | 3 | Later | 2 | **FIXED** — route added | LOW | R4 |
 | Recently viewed | re-engagement | recentlyViewed service | No | own key | Yes | 3 | Later | 1 | KEEP | LOW | cache |
 | Employee desk (warehouse/support/styling) | future ops | placeholder tables + notes | Rows partially real (inventory/transfers) | mixed | Yes (placeholder) | 2 | Later | 2 | DEFER WITH PLACEHOLDER UI | LOW | honest “Later” |
 | Employee desk (returns) | returns ops | **hardcoded mock rows** | duplicates returnService | should be orders | Yes | 4 | Yes | 2 | REPLACE with real returns | MED | R8 |
 | Employee desk (sales/reports) | store metrics | **hardcoded figures** | duplicates analytics | should be orders | Yes | 3 | Yes | 2 | REPLACE (route EmployeeReports) | MED | R5 |
-| Employee reports page | analytics | EmployeeReports (real) | **unrouted; desk mock shadows it** | orders etc. | **No** | 4 | Yes | 3 | **ROUTE IT** | MED | R5 |
+| Employee reports page | analytics | EmployeeReports (real) | **FIXED** — routed | orders etc. | Yes | 4 | Yes | 3 | **FIXED** — routed | MED | R5 |
 | AdminModulePlaceholder/ComingSoon | legacy placeholder | unrouted pages | No | — | No | 0 | — | 1 | REMOVE | LOW | dead |
 | CorrectionDialog | attendance corrections | component | No | — | No | 0 | — | 1 | REMOVE | LOW | dead |
 | demoOrders generator | demo order seed | stubbed `[]` | No | — | No | 0 | — | 1 | REMOVE | LOW | dead stub |
 | Legacy data/products shims (catalogue.js) | compat imports | re-export | facade, 1 importer | canonical seed | Yes | — | — | 1 | SIMPLIFY (remove) | LOW | 1 import fix |
-| Dev scripts + tests | QA | 21 scripts, 347 tests | No | — | dev only | 5 (dev) | — | 3 | KEEP | LOW | tooling |
+| Dev scripts + tests | QA | 21 scripts, 41 test files | No | — | dev only | 5 (dev) | — | 3 | KEEP | LOW | tooling |
 
 ---
 
@@ -679,38 +693,25 @@ Columns: FEATURE · PURPOSE · CURRENT IMPLEMENTATION · DUPLICATE? · SOURCE OF
 | Dead files (7.1–7.10) | 0 | 0 | 1 | 0 | **4** | 0 | 5 | strongest removal candidates |
 | Recently viewed / preferences | 2 | 3 | 1 | 0 | 1 | 2 | 9 | keep, defer BE |
 
-**Strongest cleanup candidates (DUPLICATE / HIGH COMPLEXITY):** customer dual store, assisted-orders second store, mock desk returns/sales/reports. **Quick wins (LOW VALUE / LOW COMPLEXITY):** dead file list §7, shadowed desk rows, dead collection links.
+**Strongest cleanup candidates (now resolved in Phase 1):** customer dual store ✅, assisted-orders second store ✅, mock desk returns/reports ✅ (sales mock figures remain). **Quick wins (shipped):** dead file list §7, shadowed desk rows, dead collection links.
 
 ---
 
-## 16. Recommended cleanup order
+## 16. Recommended cleanup order — **completion status**
 
-**Phase 0 — approvals (no code without it).** Items in §19–§22 are the approval checklist.
+**Phase 0 — approvals.** (Done — Phase 1 was approved and shipped.)
 
-**Phase 1 — zero-risk deletions (LOW, automatable):**
-1. `CorrectionDialog.jsx` (7.1)
-2. `AdminModulePlaceholder.jsx` + `AdminComingSoon.jsx` + `ADMIN_PLACEHOLDER_COPY` + `MODULE_STATUS` (7.4–7.5)
-3. 8 shadowed inventory desk rows in `EmployeeDesk.jsx` (7.6)
-4. `demoOrders.js` stub body (keep file only if a future generator is wanted) (7.7)
-5. `operationsService.loadAttendanceMap` + legacy attendance key constant (7.8–7.9, after one release)
-6. `data/products/catalogue.js` shim + 1 import fix (7.10)
-7. Remove 3 dead fabric collection links or add collections (R7)
+**Phase 1 — zero-risk deletions: ✅ DONE.** Items 1–6 shipped (7.1, 7.4–7.5, 7.6, 7.7, 7.8, 7.10). Item 7 (collection nav links) resolved by deriving the rail from the register (R7).
 
-**Phase 2 — data-store merges (MEDIUM, explicit review):**
-8. Merge `pratikshya_customers` → registry; re-point admin pages + analytics fallback (R1)
-9. Merge assisted orders → order register with `channel: ASSISTED` (R2)
+**Phase 2 — data-store merges: ✅ DONE.** Item 8 (customer registry merge, R1) and item 9 (assisted-order merge, R2) both shipped via `customerRegistry` and `orderService` migration helpers.
 
-**Phase 3 — surface repairs (MEDIUM, explicit review):**
-10. Route `/account/preferences` (R4) — or remove page + links
-11. Route `/employee/reports` → `EmployeeReports.jsx`; remove reports/sales mock desks (R5)
-12. Employee returns desk reads `returnService` (R8)
-13. Checkout resolves delivery/payment rules from settings (keep checkoutConfig as defaults) (3.12)
+**Phase 3 — surface repairs: ✅ MOSTLY DONE.** Item 10 (preferences route, R4) shipped; item 11 (reports route, R5) shipped — but the `/employee/sales` mock desk remains (labelled demo figures); item 12 (returns desk reads real register, R8) shipped; item 13 (shipping/COD single source, 3.12) shipped via `commerceDefaults.js`.
 
-**Phase 4 — post-backend simplifications (deferred until API exists):**
-14. Delete compatibility wrappers (`productWorkflow.js`) after importers move to command layer
-15. Drop deprecated `coupons` export; retire `pratikshya_canonical_media_state_*` marker; retire legacy attendance/settings migration readers
-16. Replace `dashboardData` static numbers with analytics; remove sandbox-only paths (QR, mock AI) behind provider/env flags
-17. Migrate authored media plates (`product.media`, hero images, editorial plates) into the media register/object storage
+**Phase 4 — post-backend simplifications: ⏳ DEFERRED until the FastAPI backend exists.**
+14. Delete compatibility wrappers (`productWorkflow.js`) after importers move to the command layer.
+15. Drop deprecated `coupons` export; retire `pratikshya_canonical_media_state_*` marker; retire legacy attendance/settings migration readers.
+16. Replace `dashboardData` static numbers with analytics; remove sandbox-only paths (QR, mock AI) behind provider/env flags.
+17. Migrate authored media plates (`product.media`, hero images, editorial plates) into the media register/object storage.
 
 ---
 
@@ -734,10 +735,10 @@ Columns: FEATURE · PURPOSE · CURRENT IMPLEMENTATION · DUPLICATE? · SOURCE OF
 └───────────────▲───────────────────────────────▲──────────────────────────────────┘
                 │ typed adapter layer (same function names as today)                 │
 ┌───────────────┴───────────────────────────────┴──────────────────────────────────┐
-│ BACKEND API (single Node service + PostgreSQL — per docs/backend-integration-audit.md) │
+│ BACKEND API — Python + FastAPI + PostgreSQL + SQLAlchemy + Alembic                │
 │  auth  · catalog/products  · taxonomy  · media  · marketing  · inventory  ·        │
 │  offers · cart/wishlist · checkout · payments (webhook-confirmed) · orders ·       │
-│  returns · workforce · analytics · audit · settings                                │
+│  returns · workforce · analytics · audit · settings · notifications                │
 └───────────────────────────────────────────────────────────────────────────────────┘
 
 Single sources of truth (post-cleanup):
@@ -745,58 +746,42 @@ Single sources of truth (post-cleanup):
   taxonomy        → departments/categories/subcategories/collections tables (seed = data/catalog/taxonomy.js)
   media           → media_assets + object storage (authored plates migrate here)
   placements      → marketing_placements + _products (IDs only)
-  customers       → users (single table; pratikshya_customers and account_* projections collapse)
-  orders          → orders/order_items/timeline (assisted orders = same table, channel flag)
+  customers       → customers (single table; pratikshya_customers already merged into the registry in Phase 1; account_* projection collapses to /me)
+  orders          → orders/order_items/timeline (assisted orders = same table, channel flag — already merged in Phase 1)
   inventory       → balances/movements/transfers/reservations (server transactions)
   payments        → payments/payment_events (server/webhook authority)
   workforce       → attendance/leave/performance tables
   activity        → audit_logs (append-only)
-  settings        → settings (checkout reads from here; checkoutConfig demoted to UI defaults)
+  settings        → settings (checkout reads from here; checkoutConfig demoted to UI defaults — already done in Phase 1 via commerceDefaults)
 
-Frontend-only survivors: design system, shell chrome, nav collapse keys,
+Frontend-only survivors: design system, shell chrome, sidebar rail-collapse keys
+(pratikshya_admin/employee_sidebar_collapsed) + nav group expansion keys,
 personalization caches (recently viewed/style prefs until V1.5), sandbox-only
 demo seams behind provider/env flags (mock AI, sandbox QR, demo seeds).
 ```
 
 ---
 
-## 19. Exact list of features/files to REMOVE (after approval)
+## 19. Exact list of features/files to REMOVE — **completion status**
 
-**Dead code — safe to delete:**
-1. `src/components/workforce/CorrectionDialog.jsx`
-2. `src/pages/admin/AdminModulePlaceholder.jsx`
-3. `src/components/admin/AdminComingSoon.jsx`
-4. `ADMIN_PLACEHOLDER_COPY` + `MODULE_STATUS` exports from `src/config/adminNavigation.js`
-5. Eight unreachable desk entries in `src/pages/employee/EmployeeDesk.jsx` (`/employee/inventory`, `inventory/movements`, `inventory/transfers`, `inventory/low-stock`, `inventory/out-of-stock`, `inventory/receive`, `inventory/adjust`, `inventory/requests`)
-6. `src/data/products/catalogue.js` (after re-pointing the single importer `taxonomyRepository.js` to `data/catalog/products`)
-7. Stub body of `src/services/orders/demoOrders.js` (12 unused customers + `[]` generator) — keep or delete file per approval
-8. `loadAttendanceMap` from `src/services/employees/operationsService.js`
-9. Legacy constants/readers after one migration-safe release: `EMPLOYEE_STORAGE_KEYS.ATTENDANCE` (`pratikshya_employee_attendance`), `pratikshya_attendance_settings` legacy read in `settingsRepository.js`
+**Dead code — safe to delete:** ✅ items 1–8 **removed in Phase 1** (`CorrectionDialog.jsx`, `AdminModulePlaceholder.jsx`, `AdminComingSoon.jsx`, `ADMIN_PLACEHOLDER_COPY`/`MODULE_STATUS`, 8 shadowed desk entries, `data/products/catalogue.js`, `demoOrders.js` stub body, `loadAttendanceMap`). Item 9 (legacy migration readers) remains intentionally until the migration is retired.
 
-**Data stores — remove after merge:**
-10. localStorage key `pratikshya_customers` (+ its readers re-pointed to the registry)
-11. localStorage key `pratikshya_employee_assisted_orders` (+ writer re-pointed to `orderService`)
+**Data stores — remove after merge:** ✅ items 10–11 **done** — `pratikshya_customers` and `pratikshya_employee_assisted_orders` are now merge-once-then-remove legacy keys.
 
-**Duplicate surface — remove after replacement:**
-12. Hardcoded return rows at `/employee/returns` and `/employee/support/returns` (replace with `returnService` reads)
-13. Hardcoded sales/reports desk rows at `/employee/sales` and `/employee/reports` (replace with `EmployeeReports.jsx` analytics)
-14. Dead collection nav links `/collections/cotton`, `/collections/linen`, `/collections/chiffon` (or create the collections — content decision)
+**Duplicate surface — remove after replacement:** ✅ item 12 done (returns desk reads real register); ⚠️ item 13 partially done (reports desk replaced; `/employee/sales` mock figures remain labelled); ✅ item 14 done (nav derives from register).
 
-**Post-backend (deferred removals):**
-15. `services/productWorkflow.js` compatibility wrapper module (after its 8 importers move to the command layer)
-16. Deprecated `coupons` export in `src/data/shopping/coupons.js`
-17. `pratikshya_canonical_media_state_2026_08_17` one-shot marker (with mediaStore migration code)
+**Post-backend (deferred removals):** ⏳ items 15–17 remain (require the FastAPI backend).
 
-## 20. Exact list of features to MERGE
+## 20. Exact list of features to MERGE — **completion status**
 
-1. **Customer list stores** → `pratikshya_customers` into `pratikshya_customers_registry` (admin pages, analytics fallback, employee directory read the same register).
-2. **Order stores** → `pratikshya_employee_assisted_orders` into `pratikshya_orders` via `orderService` with `channel: "ASSISTED"`.
-3. **Checkout pricing configuration** → `checkoutConfig.js` + `utils/shopping.js` shipping constants into `settingsRepository` (settings become the authority; checkoutConfig stays as UI defaults).
-4. **Admin dashboard numbers** → replace `dashboardData.js` static series with the analytics read-model (V1.5).
-5. **Employee returns desk** → read `returnService`/order returns instead of hardcoded rows.
-6. **Employee reports** → the already-built `EmployeeReports.jsx` (merge the route; remove the mock desk).
-7. **Legacy attendance settings** → already merged into `pratikshya_settings`; finish by deleting the legacy readers (completion, not new merge).
-8. **Legacy coupon list** → already merged into the offer register (Phase 17); finish by removing the deprecated export.
+1. ✅ **Customer list stores** — merged in Phase 1 (`customerRegistry`).
+2. ✅ **Order stores** — merged in Phase 1 (`orderService`, `channel: "ASSISTED"`).
+3. ✅ **Checkout pricing configuration** — resolved in Phase 1 (`commerceDefaults.js` = defaults, settings = authority, `checkoutConfig` = UI metadata).
+4. ⏳ **Admin dashboard numbers** → analytics read-model (V1.5 — deferred).
+5. ✅ **Employee returns desk** — reads order returns (Phase 1).
+6. ✅ **Employee reports** — `EmployeeReports.jsx` routed (Phase 1); `/employee/sales` mock remains.
+7. ⏳ **Legacy attendance settings** — merged already; delete legacy readers at migration retirement.
+8. ⏳ **Legacy coupon list** — merged already (Phase 17); remove deprecated export post-backend.
 
 ## 21. Exact list of features to DEFER
 
@@ -806,8 +791,8 @@ demo seams behind provider/env flags (mock AI, sandbox QR, demo seeds).
 4. Real payment gateway (UPI/cards) — sandbox QR + MockPaymentService remain sandbox-only meanwhile.
 5. Real AI providers for shopping/business assistants and virtual try-on — mock provider seam stays.
 6. Real carrier tracking integrations — synthetic tracking legs stay.
-7. Recently viewed / style preferences / personalization service — client-side caches acceptable until V1.5 (fix the Preferences route first if keeping the UI).
-8. Per-feature backend APIs — sequenced by `docs/backend-integration-audit.md` after this audit is approved.
+7. Recently viewed / style preferences / personalization service — client-side caches acceptable until V1.5 (Preferences route now fixed).
+8. Per-feature backend APIs — sequenced by the **Phase A–L** plan in `docs/backend-integration-audit.md` (§10/§12) and `docs/backend-architecture.md` (§42) after approval.
 
 ## 22. Exact list of features to REMAIN UNCHANGED
 
@@ -828,18 +813,18 @@ demo seams behind provider/env flags (mock AI, sandbox QR, demo seeds).
 15. Analytics read-model (aggregates only — owns nothing).
 16. Brand lockup (`src/assets/pratikshya_logo.webp`, `Brand.jsx`) — LOCKED.
 17. Sandbox QR payload rules (`env:"sandbox"`, no credentials).
-18. Design system, portal shell, and UI-only localStorage keys (`pf_admin_nav_groups`, `pf_employee_nav_groups`).
-19. Test suite (347 tests) and the 21 dev QA/audit scripts.
+18. Design system, portal shell, and UI-only localStorage keys (`pratikshya_admin_sidebar_collapsed` / `pratikshya_employee_sidebar_collapsed` rail collapse; `pf_admin_nav_groups` / `pf_employee_nav_groups` group expansion).
+19. Test suite (41 files) and the 21 dev QA/audit scripts.
 20. Static media assets under `public/images/` (migrate to object storage later, never duplicate).
 
 ---
 
 ## 23. Approvals needed before any change
 
-- [ ] Phase 1 deletions (§19 items 1–7) — LOW risk, automatable
-- [ ] Data-store merges (§20 items 1–2) — MEDIUM
-- [ ] Surface repairs (§20 items 3–7: settings authority, preferences route, reports route, returns desk, nav links)
-- [ ] Phase 4 post-backend simplifications (§19 items 15–17, §20 item 8)
-- [ ] High-risk item #1 (payment confirmation) is backend-only work and must never ship as a frontend change
+- [x] Phase 1 deletions (§19 items 1–8) — **DONE**
+- [x] Data-store merges (§20 items 1–2) — **DONE**
+- [x] Surface repairs (§20 items 3, 5, 6, nav links; preferences route; reports route; returns desk) — **DONE** (except the `/employee/sales` mock figures, which remain labelled demo data)
+- [ ] Phase 4 post-backend simplifications (§19 items 15–17, §20 items 4, 7, 8) — **DEFERRED until FastAPI backend**
+- [ ] High-risk item #1 (payment confirmation) is backend-only work and must never ship as a frontend change — **STILL OPEN (backend owns it)**
 
-*End of audit. No files were modified.*
+*End of audit. No files were modified during the original audit pass; Phase 1 then implemented the approved cleanups.*

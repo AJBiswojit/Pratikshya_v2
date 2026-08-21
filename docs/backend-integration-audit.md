@@ -1,7 +1,7 @@
 # PRATIKSHYA FASHON — Backend Integration Master Audit
 
-**Status:** AUDIT COMPLETE — awaiting approval before any architectural change or backend implementation.  
-**Date:** 2026-08-20  
+**Status:** AUDIT UPDATED — reflects the current (post-Phase 1) frontend and the **planned Python + FastAPI** backend. The backend is **not implemented**; every endpoint/table below is a migration target, not a shipped feature.  
+**Date:** 2026-08-21 (updated)  
 **Scope:** Entire frontend at `AJBiswojit/Pratikshya_v2` (`src/`, `components`, `pages`, `services`, `data`, `config`, `hooks`, `tests`, package configuration).  
 **Constraint honoured:** No application code was modified. This document is the deliverable.
 
@@ -9,7 +9,7 @@
 
 ## 0. Executive findings
 
-The frontend is a **complete operational UX** (customer storefront + Admin Portal + Employee Operations Portal) with **no HTTP backend**. Persistence is `localStorage` plus authored seed modules. The architecture is already shaped as a **repository/command layer** that a backend can replace feature-by-feature without rewriting UI.
+The frontend is a **complete operational UX** (customer storefront + Admin Portal + Employee Operations Portal) with **no HTTP backend**. Persistence is `localStorage` plus authored seed modules. Phase 1 stabilization is **complete** (canonical customer/order stores, collection/Explore fixes, shared portal sidebar, responsive Admin Collection Detail). The architecture is already shaped as a **repository/command layer** that a FastAPI backend can replace feature-by-feature without rewriting UI.
 
 ### What must be preserved
 
@@ -38,28 +38,31 @@ The frontend is a **complete operational UX** (customer storefront + Admin Porta
 
 ### Persistence inventory (current source of truth)
 
-| Key | Domain |
-|---|---|
-| `pratikshya_products` | Canonical product register |
-| `pratikshya_media` | Managed media register |
-| `pratikshya_canonical_media_state_2026_08_17` | One-shot media seed wipe marker |
-| `pratikshya_media_groups` | Human group-review decisions |
-| `pratikshya_marketing_placements` | Placement → ordered product IDs |
-| `pratikshya_taxonomy_v2` | Categories, subcategories, collections |
-| `pratikshya_offers` | Coupons / promotions |
-| `pratikshya_inventory` / `_movements` / `_locations` / `_transfers` / `_reservations` | Stock layer |
-| `pratikshya_orders` / `pratikshya_current_order` / `pratikshya_order_sequence` | Orders |
-| `pratikshya_cart` / `pratikshya_wishlist` | Shopping (survive sign-out) |
-| `pratikshya_checkout` | In-progress checkout draft |
-| `pratikshya_auth` / `pratikshya_customers_registry` / `pratikshya_account_{id}` | Customer identity + profile |
-| `pratikshya_customers` | Admin customer list (demo, separate from registry) |
-| `pratikshya_admins` / `_admin_credentials` / `_admin_auth` | Admin identity |
-| `pratikshya_employees` / `_employee_credentials` / `_employee_auth` / `_employee_activity` | Employees + diary |
-| `pratikshya_attendance` / `pratikshya_leave` / `pratikshya_performance` | Workforce |
-| `pratikshya_settings` | House configuration |
-| `pratikshya_preferences` / `pratikshya_recently_viewed` | Personalization |
-| `pratikshya_ai_shopping_session_*` / `pratikshya_ai_business_session_*` / `pratikshya_ai_mirror_recent_*` | AI mock sessions |
-| `pf_admin_nav_groups` / `pf_employee_nav_groups` | UI chrome only |
+| Key | Domain | Status |
+|---|---|---|
+| `pratikshya_products` | Canonical product register | ACTIVE |
+| `pratikshya_media` | Managed media register | ACTIVE |
+| `pratikshya_canonical_media_state_2026_08_17` | One-shot media seed wipe marker | LEGACY/DEV |
+| `pratikshya_media_groups` | Human group-review decisions | ACTIVE |
+| `pratikshya_marketing_placements` | Placement → ordered product IDs | ACTIVE |
+| `pratikshya_taxonomy_v2` | Categories, subcategories, collections | ACTIVE |
+| `pratikshya_offers` | Coupons / promotions | ACTIVE |
+| `pratikshya_inventory` / `_movements` / `_locations` / `_transfers` / `_reservations` | Stock layer | ACTIVE |
+| `pratikshya_orders` / `pratikshya_current_order` / `pratikshya_order_sequence` | Orders (canonical) | ACTIVE |
+| `pratikshya_cart` / `pratikshya_wishlist` | Shopping (survive sign-out) | ACTIVE (client until server) |
+| `pratikshya_checkout` | In-progress checkout draft | ACTIVE (client until server) |
+| `pratikshya_auth` / `pratikshya_customers_registry` / `pratikshya_account_{id}` | Customer identity + profile | ACTIVE (canonical registry) |
+| `pratikshya_customers` | Legacy admin demo list — **merged into the registry in Phase 1, then removed** | LEGACY/MIGRATION |
+| `pratikshya_admins` / `pratikshya_admin_credentials` / `pratikshya_admin_auth` | Admin identity | ACTIVE (mock) |
+| `pratikshya_employees` / `pratikshya_employee_credentials` / `pratikshya_employee_auth` / `pratikshya_employee_activity` | Employees + diary | ACTIVE (mock auth) |
+| `pratikshya_employee_assisted_orders` | Legacy second order store — **merged into `pratikshya_orders` in Phase 1, then removed** | LEGACY/MIGRATION |
+| `pratikshya_attendance` / `pratikshya_leave` / `pratikshya_performance` | Workforce | ACTIVE |
+| `pratikshya_employee_attendance` / `pratikshya_attendance_settings` | Legacy keys (migrated once, never written) | LEGACY/MIGRATION |
+| `pratikshya_settings` | House configuration | ACTIVE |
+| `pratikshya_preferences` / `pratikshya_recently_viewed` | Personalization | ACTIVE (client cache) |
+| `pratikshya_ai_shopping_session_*` / `pratikshya_ai_business_session_*` / `pratikshya_ai_mirror_recent_*` | AI mock sessions | DEMO/CLIENT |
+| `pratikshya_admin_sidebar_collapsed` / `pratikshya_employee_sidebar_collapsed` | Rail collapse preference (UI chrome) | ACTIVE (client) |
+| `pf_admin_nav_groups` / `pf_employee_nav_groups` | Nav group expansion state (UI chrome) | ACTIVE (client) |
 
 Authored static seeds (used when registers are empty, and merged by ID so admin edits win):
 
@@ -81,11 +84,11 @@ Legend for **STATUS**: `MOCK` = demo-only; `CLIENT_AUTH` = rules exist but clien
 
 | FEATURE | CURRENT SOURCE OF TRUTH | CURRENT PERSISTENCE | REQUIRED BACKEND ENTITY | REQUIRED API | READ | WRITE | AUTHORIZATION | VALIDATION | LIFECYCLE | DEPENDENCIES | MIGRATION RISK | STATUS |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Customer sign-up / sign-in | `AuthContext` + `INITIAL_DEMO_CUSTOMERS` | `pratikshya_auth`, `pratikshya_customers_registry` | `users`, `credentials`, `sessions` | `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/me` | session, profile | register, login, logout | none (any ≥6-char password matches known email/phone) | email/phone/password length client-side | none | Account, orders, cart merge | **HIGH** — passwords are never stored; login is identity lookup only | MOCK / CLIENT_AUTH |
-| Customer password reset | `AuthContext.forgotPassword/resetPassword` | none (always “sent”) | `password_reset_tokens` | `/auth/forgot`, `/auth/reset` | — | token issue/consume | public + token | email exists (must not leak) | token TTL | users | LOW (UI already exists) | MOCK |
-| Customer profile / addresses / preferences | `AccountContext` | `pratikshya_account_{id}` + registry | `users`, `addresses`, `notification_preferences` | `/me`, `/me/addresses` | profile, addresses | CRUD address, patch profile | owner session | address fields, unique email | address default flag | checkout | MEDIUM — two stores (account_* and registry) must collapse | CLIENT_AUTH |
-| Admin sign-in | `adminAuthService` + `INITIAL_ADMINS` | `pratikshya_admins`, `_credentials`, `_auth` | `admins` (or `users` with `kind=ADMIN`) | `/admin/auth/login`, `/admin/auth/logout`, `/admin/me` | session | login/logout, profile (name/email/phone/title only) | `SUPER_ADMIN` + `ACTIVE`; fingerprint is **not a hash** | identifier + password | ACTIVE / SUSPENDED | workflow commands | **HIGH** | MOCK / CLIENT_AUTH |
-| Employee sign-in / password change | `employeeAuthService` + `employeeService` | `pratikshya_employees`, `_credentials`, `_auth` | `employees`, `credentials`, `sessions` | `/employee/auth/login`, `/password` | session, profile | login, password change | `canEmployeeLogin(status)` | password rules from settings | employee status machine | permissions, assignment | **HIGH** | MOCK / CLIENT_AUTH |
+| Customer sign-up / sign-in | `AuthContext` + `INITIAL_DEMO_CUSTOMERS` | `pratikshya_auth`, `pratikshya_customers_registry` | `customers`, `customer_credentials`, `sessions` | `/auth/register`, `/auth/login`, `/auth/logout`, `/auth/me` | session, profile | register, login, logout | none (any ≥6-char password matches known email/phone) | email/phone/password length client-side | none | Account, orders, cart merge | **HIGH** — passwords are never stored; login is identity lookup only | MOCK / CLIENT_AUTH |
+| Customer password reset | `AuthContext.forgotPassword/resetPassword` | none (always “sent”) | `password_reset_tokens` | `/auth/forgot`, `/auth/reset` | — | token issue/consume | public + token | email exists (must not leak) | token TTL | customers | LOW (UI already exists) | MOCK |
+| Customer profile / addresses / preferences | `AccountContext` | `pratikshya_account_{id}` + registry | `customers`, `customer_addresses`, `customer_preferences` | `/me`, `/me/addresses` | profile, addresses | CRUD address, patch profile | owner session | address fields, unique email | address default flag | checkout | **FIXED in Phase 1** — account_* projection + registry now share one register | CLIENT_AUTH |
+| Admin sign-in | `adminAuthService` + `INITIAL_ADMINS` | `pratikshya_admins`, `_credentials`, `_auth` | `admins` (never a `customers` row) | `/admin/auth/login`, `/admin/auth/logout`, `/admin/me` | session | login/logout, profile (name/email/phone/title only) | `SUPER_ADMIN` + `ACTIVE`; fingerprint is **not a hash** | identifier + password | ACTIVE / SUSPENDED | workflow commands | **HIGH** | MOCK / CLIENT_AUTH |
+| Employee sign-in / password change | `employeeAuthService` + `employeeService` | `pratikshya_employees`, `_credentials`, `_auth` | `employees`, `employee_credentials`, `sessions` | `/api/v1/auth/employee/login`, `/api/v1/employees/me/password` | session, profile | login, password change | `canEmployeeLogin(status)` | password rules from settings | employee status machine | permissions, assignment | **HIGH** | MOCK / CLIENT_AUTH |
 | Employee account admin | Admin portal `/admin/employees` | employee register | `employees`, `employee_permissions` | `/admin/employees` CRUD | list/detail | create/edit/suspend/reset/permissions | Admin `employees.manage` only — never an employee grant | unique employeeId, role, status | ACTIVE / SUSPENDED / … | products.assignedEmployeeId | MEDIUM | CLIENT_AUTH |
 | RBAC | `employeePermissions.js`, `employeeRoles.js`, `adminAccess.js` | stored on employee record; admin role-owned | `roles`, `permissions`, `grants` | included in `/me` + server checks | permission catalogue | grant/revoke (admin) | server must re-check every mutation | known permission keys; employee-account keys reserved to Admin | — | every staff mutation | MEDIUM — **do not invent a second permission vocabulary** | CLIENT_AUTH |
 | Route guards | `ProtectedRoute`, `AdminProtectedRoute`, `EmployeeProtectedRoute` | session keys | — | 401/403 from API | — | — | UI hide is **not** authority | — | — | all portals | LOW if APIs enforce | CLIENT_AUTH |
@@ -139,20 +142,20 @@ Legend for **STATUS**: `MOCK` = demo-only; `CLIENT_AUTH` = rules exist but clien
 | Fulfillment | orderService allocate/pick/pack/dispatch | embedded on order | `fulfillments` (or order columns) + timeline | `/admin/orders/:id/allocate` etc. | — | canonical transitions | orders.fulfill / pick / pack / dispatch | location, tracking required on dispatch | PENDING→…→DELIVERED | inventory locations, employees | MEDIUM — `forceTransition` must **not** exist in production API | READY |
 | Returns / refunds | `returnService` + order.returns | orders document | `returns`, `refunds` | `/orders/:id/returns`, admin return APIs | — | request / review / inspect / refund | customer request; staff manage | RETURNABLE_STATUSES; inspection before restock | return journey | inventory.returnStock / inspectReturnedStock | HIGH if refund marked without payment provider | MOCK money |
 | Inventory | `inventoryRepository` | 5 inventory keys | `inventory_balances`, `stock_movements`, `locations`, `transfers`, `reservations` | `/inventory/*` | query/metrics | receive/adjust/damage/return/inspect/transfer/reserve | inventory.* | no negative available; location active; variant required when variants exist | transfer DRAFT→…→RECEIVED | products, orders | HIGH — reservations currently expire in-browser | READY |
-| Assisted orders | employee orders UI | orders `source=employee_assisted` | orders.source | `/employee/orders/assisted` | — | create | `orders.create` | customer identity optional only on this path | same order machine | customers, inventory | MEDIUM | READY |
+| Assisted orders | employee orders UI | orders `source=employee_assisted` (canonical register) | orders.source | `/api/v1/employees/{id}/orders/assisted` | — | create | `orders.create` | customer identity optional only on this path | same order machine | customers, inventory | **FIXED in Phase 1** (single store) | READY |
 
 ### 1.6 People, ops, content extras
 
 | FEATURE | CURRENT SOURCE OF TRUTH | CURRENT PERSISTENCE | REQUIRED BACKEND ENTITY | REQUIRED API | READ | WRITE | AUTHORIZATION | VALIDATION | LIFECYCLE | DEPENDENCIES | MIGRATION RISK | STATUS |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Admin customers list | `pratikshya_customers` + demo | **separate** from customer registry | **reuse `users`** — do not keep a second customer table | `/admin/customers` | list/detail + order history | notes later | Admin | — | — | orders | MEDIUM — two demo customer stores today | MOCK |
+| Admin customers list | `pratikshya_customers_registry` (+ legacy `pratikshya_customers` merged in Phase 1) | **single registry** | **reuse `customers`** — do not keep a second customer table | `/admin/customers` | list/detail + order history | notes later | Admin | — | — | orders | **FIXED in Phase 1** — one registry | MOCK |
 | Attendance / leave / performance | workforce repos | `pratikshya_attendance`, `_leave`, `_performance` | `attendance_events`, `leave_requests`, `performance_records` | `/workforce/*` | self / team / admin | check-in/out, leave CRUD, reviews | attendance.* / leave.* / performance.* | location/time rules from settings | leave approve/reject | employees | MEDIUM | READY |
 | Settings | `settingsRepository` | `pratikshya_settings` | `settings` (JSON sections) or typed tables | `/admin/settings` | sections | Super Admin | Super Admin | known sections | — | shipping, tax, media limits, attendance | MEDIUM — shipping/tax must become server truth | READY |
 | Analytics | `analyticsService` (aggregates local registers) | none (computed) | read models / queries | `/admin/analytics/*` | snapshots | none | analytics.* | date range | — | orders, products, inventory, returns, offers | LOW (read-only) | DERIVED |
 | AI Shopping / Business / Mirror | mock providers + session store | namespaced localStorage | **defer** (optional later: `ai_sessions`) | none in v1 backend | — | — | — | — | — | catalogue read | LOW — keep mock until catalogue API exists | MOCK |
 | Employee desks (warehouse/support/styling placeholders) | `EmployeeDesk` | none | **no new entities** until those UIs exist | none | — | — | — | — | — | — | Do not invent tables | PLACEHOLDER |
-| Recently viewed / style prefs | customer services | `pratikshya_recently_viewed`, `_preferences` | optional `user_events` | `/me/recent`, `/me/preferences` | — | append | owner | product ids | — | products | LOW | CLIENT |
-| Nav group collapse | sidebars | `pf_*_nav_groups` | **none** | none | — | — | — | — | — | — | Keep client-only | UI |
+| Recently viewed / style prefs | customer services | `pratikshya_recently_viewed`, `_preferences` | optional `customer_events` | `/me/recent`, `/me/preferences` | — | append | owner | product ids | — | products | LOW | CLIENT |
+| Sidebar rail collapse + nav group expansion | `PortalShell`/`PortalSidebar`/`usePortalSidebarCollapse` | `pratikshya_admin_sidebar_collapsed` / `pratikshya_employee_sidebar_collapsed` (rail) + `pf_admin_nav_groups` / `pf_employee_nav_groups` (group expansion) | **none** | none | — | — | — | — | — | — | Keep client-only | UI |
 
 ---
 
@@ -170,25 +173,33 @@ Legend for **STATUS**: `MOCK` = demo-only; `CLIENT_AUTH` = rules exist but clien
    ```
 6. **localStorage** may remain as a **development fallback** behind a flag (`VITE_API_BASE` empty → current behaviour). Production builds must not write authoritative business state only to the browser.
 
-### 2.2 Suggested layout (after approval)
+### 2.2 Planned backend layout (Python + FastAPI — supersedes the earlier Node suggestion)
+
+> **Updated decision.** The backend stack is **Python + FastAPI + PostgreSQL + SQLAlchemy + Alembic**. The earlier revision suggested "Node + a single SQL database"; that is **superseded** — FastAPI is the locked framework, and PostgreSQL is the database. Nothing here is implemented.
 
 ```
 backend/
-  src/
-    http/            # routes, auth middleware, error envelope
-    identity/        # users, admins, employees, sessions, rbac
-    catalog/         # products, variants, taxonomy, collections
-    workflow/        # product commands + validator (port of productWorkflowCommands)
-    media/           # assets, ownership, upload, placements
-    commerce/        # cart, offers, checkout, orders, payments
-    inventory/       # balances, movements, transfers, reservations
-    workforce/       # attendance, leave, performance
-    audit/           # append-only activity
-    settings/
-    storage/         # object store adapter
+  app/
+    main.py           # FastAPI application factory, lifespan, health
+    core/             # environment, constants, placement catalogue, permission keys
+    api/v1/           # FastAPI routers — HTTP only
+    models/           # SQLAlchemy ORM models
+    schemas/          # Pydantic v2 request/response schemas
+    repositories/     # SQLAlchemy data access (no HTTP, no auth decisions)
+    services/         # business commands: identity, catalog, workflow, media,
+                      #   marketing, inventory, commerce, payments, workforce, audit, settings
+    dependencies/     # auth principal, RBAC, pagination
+    middleware/       # auth, RBAC, idempotency, rate-limit, request-id, CORS, CSRF
+    workers/          # background jobs (expiry sweepers, notifications)
+    ai/               # FUTURE AI service boundary (empty scaffold)
+  alembic/            # migrations
+  seeds/              # taxonomy, canonical products, admin, settings
+  tests/
+  requirements.txt
+  .env.example
 ```
 
-Keep **Node + a single SQL database** (PostgreSQL recommended) so transactions match inventory/order/payment atomicity already implied by the frontend repositories.
+Domain grouping is **logical** (a modular monolith), not microservices. One Python process, one PostgreSQL database; cross-domain work (checkout) is a service transaction calling multiple repositories inside `BEGIN … COMMIT`.
 
 Do **not** introduce microservices, a second catalogue DB, or department-specific services.
 
@@ -218,21 +229,23 @@ Each existing module becomes a thin adapter:
 
 ### 3.1 Entities to create (canonical)
 
+> **Naming note (aligned with `backend-architecture.md`):** this audit previously used `users` for customers. The canonical names are now `customers` / `customer_credentials` / `customer_addresses` / `customer_preferences`, with one shared `sessions` table keyed by `principal_kind`. "users" is retired.
+
 **Identity**
 
-- `users` (customers) — id, email unique, phone, names, dob, avatar, status, timestamps
-- `user_credentials` — user_id, password_hash (argon2/bcrypt), password_changed_at
-- `user_sessions` — token hash, user_id, expires_at, device meta
-- `user_addresses` — user_id, fields matching AddressModal, is_default
-- `user_preferences` — notification flags
+- `customers` — id, email unique, phone, names, dob, avatar, status, timestamps
+- `customer_credentials` — customer_id, password_hash (argon2id/bcrypt), password_changed_at
+- `customer_addresses` — customer_id, fields matching AddressModal, is_default
+- `customer_preferences` — notification flags
 - `admins` — admin_id, name, email, phone, role=`SUPER_ADMIN`, status, last_login
-- `admin_credentials`, `admin_sessions`
+- `admin_credentials`
 - `employees` — employee_id, names, role, status, department, location, assignment meta
-- `employee_credentials`, `employee_sessions`
+- `employee_credentials`
+- `sessions` — one table, `principal_kind ∈ {CUSTOMER, ADMIN, EMPLOYEE}`, token hash, expiry, device meta
 - `employee_permission_grants` — extra grants beyond role defaults  
   *(Do not store employee-account admin permissions on employees.)*
 
-Alternatively a single `accounts` table with `kind ∈ {CUSTOMER, ADMIN, EMPLOYEE}` — acceptable **only if** the three auth boundaries remain separate sessions and cannot cross portals. Prefer separate tables to match the frontend’s three isolated contexts.
+Alternatively a single `accounts` table with `kind ∈ {CUSTOMER, ADMIN, EMPLOYEE}` — acceptable **only if** the three auth boundaries remain separate sessions and cannot cross portals. Prefer separate tables to match the frontend’s three isolated contexts (same as `backend-architecture.md`).
 
 **Taxonomy & catalogue**
 
@@ -310,7 +323,7 @@ products 1—n media_assets (ownership)
 products n—n collections
 marketing_placements n—n products (IDs)
 inventory_balances n—1 products, n—1 locations
-orders n—1 users, 1—n order_items n—1 products
+orders n—1 customers, 1—n order_items n—1 products
 payments n—1 orders
 stock_reservations n—1 carts/orders
 employees 1—n assigned products
@@ -319,7 +332,7 @@ audit_logs n—0..1 products/orders/media/offers
 
 ### 3.4 Constraints (minimum)
 
-- Unique: `products.id`, `products.slug`, SKU across products+variants, `offers.code`, `users.email`, `employees.employee_id`, `admins.admin_id`
+- Unique: `products.id`, `products.slug`, SKU across products+variants, `offers.code`, `customers.email`, `employees.employee_id`, `admins.admin_id`
 - Check: product status, media status/scope, order status, payment env
 - FK: product.category → categories; media.product_id → products ON UPDATE CASCADE is **dangerous** — prefer application-level rename command (already implemented) over DB cascade
 - Soft-delete: products default **ARCHIVE**; media default **ARCHIVED**; hard delete only via `deleteProductPermanently` rules
@@ -354,11 +367,16 @@ audit_logs n—0..1 products/orders/media/offers
 | POST | `/auth/register` | public | — | hash password server-side |
 | POST | `/auth/login` | public | — | rate-limit |
 | POST | `/auth/logout` | session | owner | |
+| POST | `/auth/refresh` | refresh token | — | rotate refresh |
 | GET | `/auth/me` | session | owner | |
 | POST | `/auth/forgot` | public | — | always generic response |
 | POST | `/auth/reset` | token | — | |
 | POST | `/admin/auth/login` | public | admin credentials | separate cookie name |
-| POST | `/employee/auth/login` | public | employee credentials | cannot use admin cookie |
+| POST | `/auth/employee/login` | public | employee credentials | cannot use admin cookie |
+| POST | `/auth/employee/refresh` | refresh token | — | rotate refresh |
+| POST | `/auth/employee/logout` | employee | owner | |
+
+Employee management, attendance, leave, performance, activity, assisted orders and reports use `/api/v1/employees/*` as specified in `docs/employee-management-api-contract.md`.
 
 ### 4.2 Catalogue (public)
 
@@ -429,7 +447,7 @@ Staff preview: `GET /admin/products/:id/preview` (not a public query param that 
 
 ### 4.6 Inventory, taxonomy, offers, workforce, analytics, settings
 
-Mirror existing repository methods 1:1 (`receiveStock`, `adjustStock`, `createTransfer`, `transitionTransfer`, category/collection CRUD, offer activate/pause/archive, attendance check-in, analytics GETs, settings sections).
+Mirror existing repository methods 1:1 (`receiveStock`, `adjustStock`, `createTransfer`, `transitionTransfer`, category/collection CRUD, offer activate/pause/archive, attendance check-in/out, leave request/review, analytics GETs, settings sections). Employee/workforce endpoints follow `docs/employee-management-api-contract.md` under `/api/v1/employees/*`; admin-side mirrors use `/api/v1/admin/*`.
 
 ---
 
@@ -439,7 +457,7 @@ Mirror existing repository methods 1:1 (`receiveStock`, `adjustStock`, `createTr
 
 | Portal | Principal | Cookie / audience |
 |---|---|---|
-| Storefront | `users` | `pf_customer` |
+| Storefront | `customers` | `pf_customer` |
 | Admin | `admins` with `SUPER_ADMIN` + `ACTIVE` | `pf_admin` |
 | Employee | `employees` with login-allowed status | `pf_employee` |
 
@@ -598,30 +616,105 @@ Refunds: provider API from server after return inspection — demo copy today al
 
 ## 10. Migration strategy from localStorage / static data
 
-Follow the requested order. Each step: API + port existing service + keep UI + tests listed in §12.
+> **Relabelled to Phase A–L** so all four documents share one vocabulary (see `backend-architecture.md` §42). The earlier numbered steps 1–16 map onto the phases below. This is a phased, non-“big-bang” migration: frontend repository/service interfaces stay stable, and each phase adds a thin API adapter behind the existing function names.
 
-| # | Feature | Old source | Fallback |
+| Phase | Scope | Old source | Fallback |
 |---|---|---|---|
-| 1 | Authentication | auth contexts, mock fingerprints | localStorage sessions if `VITE_API_BASE` unset |
-| 2 | Catalogue list | seed + `pratikshya_products` | seed merge remains for offline demo |
-| 3 | Product details | `getProductById` | same |
-| 4 | Admin products | `catalogRepository` writes | same |
-| 5 | Review / lifecycle | `productWorkflowCommands` | same function names, HTTP inside |
-| 6 | Media | mediaStore + public/images | keep static plates; uploads go to object store |
-| 7 | Collections | taxonomyRepository | seed collections |
-| 8 | Marketing | placement register | empty assignments = current house fallbacks |
-| 9 | Inventory | inventoryRepository | empty until stocked (already the seed behaviour) |
-| 10 | Cart | `pratikshya_cart` | merge guest cart on login |
-| 11 | Wishlist | `pratikshya_wishlist` | merge |
-| 12 | Checkout | CheckoutContext | |
-| 13 | Payments | MockPaymentService | mock only when provider=mock |
-| 14 | Orders | orderService + demoOrders | **do not seed demo orders in production** |
-| 15 | Customer account | AccountContext dual store | single user+addresses |
-| 16 | Analytics / admin ops | computed locally | SQL aggregations |
+| A | Backend foundation | — (FastAPI + PostgreSQL + SQLAlchemy + Alembic) | — |
+| B | Authentication (customer/admin/employee) + RBAC | auth contexts, mock fingerprints | localStorage sessions if `VITE_API_BASE` unset |
+| C | Product/catalogue + lifecycle | seed + `pratikshya_products`, `productWorkflowCommands` | seed merge + same function names, HTTP inside |
+| D | Taxonomy / categories / collections / marketing | taxonomyRepository, placement register | seed collections; empty assignments = house fallbacks |
+| E | Media / marketing media + object storage | mediaStore + public/images | keep static plates; uploads go to object store |
+| F | Customers (addresses, preferences) | `pratikshya_customers_registry` + `pratikshya_account_{id}` | single `customers` + addresses |
+| G | Cart / wishlist / offers | `pratikshya_cart` / `pratikshya_wishlist` / `pratikshya_offers` | merge guest cart on login |
+| H | Orders / inventory | orderService + `pratikshya_inventory*` | **do not seed demo orders in production** |
+| I | Payments / returns / refunds | MockPaymentService + returnService | mock only when provider=mock |
+| J | Employee / workforce / settings / analytics | workforce repos, settingsRepository, analyticsService | SQL aggregations |
+| K | Notifications / background jobs + remove authoritative localStorage | — | seeds, production flag, drop business keys |
+| L | AI services (future) | mock AI providers | provider seam stays until real providers |
 
 **Do not** bulk-import random browsers’ localStorage. Provide an optional **dev** “export workspace JSON” later if needed.
 
 Cart/wishlist remain client-cacheable but server is authoritative once logged in.
+
+---
+
+## 10.1 Boundary classification (A–E)
+
+Every current localStorage / repository / service boundary is classified. **Business-critical persistent data moves server-side eventually; pure UI preferences (sidebar collapse) stay client-side unless there is a strong reason to synchronize them.**
+
+| Category | Meaning |
+|---|---|
+| **A. MUST MOVE TO BACKEND** | Business-critical persistent data; server must be authoritative (registers, money, stock, identity, lifecycle) |
+| **B. SHOULD MOVE TO BACKEND** | Valuable cross-device data, but a client cache is acceptable in V1 |
+| **C. CAN REMAIN CLIENT-SIDE** | Development/sandbox or genuinely device-local state |
+| **D. FRONTEND SESSION/UX STATE** | UI chrome and ephemeral UX state — never business authority |
+| **E. LEGACY/MIGRATION ONLY** | Already consolidated/removed in Phase 1 or one-shot migration keys |
+
+| Boundary | Category | Notes |
+|---|---|---|
+| `pratikshya_products` | A | Canonical product register → `products` |
+| `pratikshya_taxonomy_v2` | A | Categories/subcategories/collections → taxonomy tables |
+| `pratikshya_media` | A | Metadata → `media_assets`; bytes → object storage |
+| `pratikshya_media_groups` | A | Human group decisions → `media_groups` |
+| `pratikshya_marketing_placements` | A | Placement IDs → `marketing_placement_products` |
+| `pratikshya_offers` | A | → `offers` / `offer_redemptions` |
+| `pratikshya_orders` | A | Canonical orders → `orders` / `order_items` / `order_timeline` |
+| `pratikshya_current_order` | A | Derived pointer → **REMOVE** (server derives) |
+| `pratikshya_order_sequence` | A | Invoice sequence → `product_id_sequences`-style sequence object |
+| `pratikshya_inventory` / `_movements` / `_locations` / `_transfers` / `_reservations` | A | → inventory tables |
+| `pratikshya_customers_registry` | A | Canonical customers → `customers` |
+| `pratikshya_account_{id}` | A | Per-customer profile projection → `customers` + `customer_addresses`/`customer_preferences` |
+| `pratikshya_settings` | A | → `settings` |
+| `pratikshya_employees` | A | → `employees` |
+| `pratikshya_employee_credentials` | A | → `employee_credentials` (hashed) |
+| `pratikshya_employee_activity` | A | → `audit_logs` |
+| `pratikshya_attendance` / `pratikshya_leave` / `pratikshya_performance` | A | → workforce tables |
+| `pratikshya_admins` / `pratikshya_admin_credentials` | A | → `admins` / `admin_credentials` (hashed) |
+| `pratikshya_cart` | B | Server cart authoritative once logged in; client cache meanwhile |
+| `pratikshya_wishlist` | B | Server wishlist once logged in; client cache meanwhile |
+| `pratikshya_checkout` | A | Checkout draft → `checkout_sessions` (expiring) |
+| `pratikshya_recently_viewed` | B | Optional `customer_events` later |
+| `pratikshya_preferences` | B | `customer_preferences` later; client cache in V1 |
+| `pratikshya_auth` (customer session) | A/D | Mock today (D); production session is server-issued (A) |
+| `pratikshya_admin_auth` / `pratikshya_employee_auth` | A/D | Mock today (D); production session is server-issued (A) |
+| `pratikshya_admin_sidebar_collapsed` / `pratikshya_employee_sidebar_collapsed` | D | Sidebar rail collapse — pure UI preference; keep client-side |
+| `pf_admin_nav_groups` / `pf_employee_nav_groups` | D | Nav group expansion — UI chrome; keep client-side |
+| `pratikshya_ai_*_session_*` / `pratikshya_ai_mirror_recent_*` | C | Sandbox AI transcripts — server-side later, never migrated |
+| `pratikshya_canonical_media_state_*` | E | One-shot media seed marker — remove post-migration |
+| `pratikshya_customers` | E | **Consolidated in Phase 1** (merged into registry, then removed) |
+| `pratikshya_employee_assisted_orders` | E | **Consolidated in Phase 1** (merged into `pratikshya_orders`, then removed) |
+| `pratikshya_employee_attendance` / `pratikshya_attendance_settings` | E | Migrated once; readers are legacy |
+
+### Per-domain migration chain
+
+For each domain, the chain is **CURRENT AUTHORITY → CURRENT STORAGE → CURRENT READERS → CURRENT WRITERS → TARGET FASTAPI ENDPOINT → TARGET DATABASE TABLE → MIGRATION STRATEGY → FRONTEND INTEGRATION STRATEGY**. (Endpoints are planned/target — nothing is implemented.)
+
+**Products** — `catalogRepository` + `productWorkflowCommands` → `pratikshya_products` → all portals, workflow, media, offers, inventory, analytics → catalogRepository/workflow commands → `GET/POST/PATCH /api/v1/admin/products`, `GET /api/v1/catalog/products`, workflow command routes → `products` (+ variants, price/field history, flags) → seed migrates with existing `PF-…` IDs; operator edits only via controlled export → `catalogRepository`/`productWorkflowCommands` keep function names, swap storage for HTTP.
+
+**Taxonomy/collections** — `taxonomyRepository` → `pratikshya_taxonomy_v2` → nav, listings, offers, admin → taxonomyRepository → `GET /api/v1/catalog/taxonomy`, `/api/v1/admin/categories|subcategories|collections` → `departments`/`categories`/`subcategories`/`collections`/`collection_products` → seed authored taxonomy; stored wins by id → `taxonomyRepository` becomes an HTTP adapter; `isProductInCollection` resolution moves server-side (single resolver).
+
+**Media** — `mediaStore`/`mediaRepository` → `pratikshya_media` → media UI, product media set, placements → mediaRepository → `/api/v1/media/*` (signed upload + complete) → `media_assets` + object storage → authored plates migrate as metadata; bytes to object store → `mediaRepository`/`mediaStore` become HTTP + signed PUT.
+
+**Marketing placements** — `marketingPlacementRepository` → `pratikshya_marketing_placements` → rails, hero, listing surfaces → placement admin → `GET /api/v1/catalog/placements/:id`, `/api/v1/admin/marketing/placements/:id/products` → `marketing_placements` + `marketing_placement_products` (IDs only) → IDs migrate; resolver join stays identical server-side → resolver remains pure; repository stores IDs via HTTP.
+
+**Offers** — `offerRepository` → `pratikshya_offers` → cart coupon adapter, admin/employee, explore → offerRepository → `POST /api/v1/offers/validate`, `/api/v1/admin/offers` → `offers` + `offer_redemptions` → seed offers; unique redemption moves server-side → `offerRepository` becomes HTTP; `validateOffer` runs on server.
+
+**Customers** — `customerRegistry` (Phase 1 single store) → `pratikshya_customers_registry` (+ `pratikshya_account_{id}` projection) → AuthContext/AccountContext, admin CRM, employee directory, analytics → AuthContext/AccountContext → `/api/v1/auth/*`, `/api/v1/me`, `/api/v1/admin/customers` → `customers` + `customer_credentials`/`customer_addresses`/`customer_preferences` → identity migrates; passwords cannot be recovered (force reset) → auth contexts become HTTP session adapters; admin/directory read `/admin/customers`.
+
+**Orders** — `orderService` (Phase 1 single store) → `pratikshya_orders` (+ sequence, current-order pointer) → account, admin, employee, analytics, returns → orderService/fulfillment → `/api/v1/orders`, `/api/v1/admin/orders/*`, `/api/v1/employees/{id}/orders/assisted` → `orders`/`order_items`/`order_timeline`/`order_fulfillments` → canonical orders migrate; assisted orders already share the entity (`channel=ASSISTED`); demo orders never seed production → `orderService` becomes HTTP; fulfillment commands map 1:1.
+
+**Inventory** — `inventoryRepository` → 5 `pratikshya_inventory*` keys → stock UI, checkout, analytics, transfers → inventoryRepository → `/api/v1/inventory/*` (+ transfers/transitions) → `inventory_locations`/`balances`/`movements`/`reservations`/`transfers` → seed two locations; quantities/movements migrate if exported → `inventoryRepository` becomes HTTP; reservations move server-side (TTL job).
+
+**Settings** — `settingsRepository` (+ `commerceDefaults`) → `pratikshya_settings` → checkout rules, attendance thresholds, admin settings → settingsRepository → `GET/PUT /api/v1/admin/settings/:section`, `GET /api/v1/catalog/settings` (public slices) → `settings` → sections migrate; shipping/COD/tax become server truth → `readShippingRules`/`readPaymentRules` read API; `checkoutConfig` stays UI metadata.
+
+**Employees/workforce** — `employeeService` + workforce repos → `pratikshya_employees` / `_credentials` / `_activity` / `_attendance` / `_leave` / `_performance` → admin employee management, employee portal, workflow principal, analytics → employeeService + workforce services → `/api/v1/employees/*`, `/api/v1/employees/me`, `/api/v1/employees/{id}/attendance|leave|performance|activity|orders/assisted`, `/api/v1/employees/reports/*` (see `employee-management-api-contract.md`) → `employees`/`employee_credentials`/`roles`/`permissions`/`attendance_events`/`leave_requests`/`performance_records` → identity + workforce migrate; passwords hashed, temp password one-time → `employeeService`/workforce services become HTTP adapters.
+
+**Cart/wishlist** — `CartContext`/`WishlistContext` → `pratikshya_cart`/`pratikshya_wishlist` → bag UI, checkout, AI, account → CartContext/WishlistContext → `/api/v1/cart`, `/api/v1/wishlist` → `carts`/`cart_items`/`wishlists`/`wishlist_items` → merge guest cart/wishlist on login; server reprice/revalidate → contexts become adapters over the API; client price ignored.
+
+**Auth/session (customer/admin/employee)** — three mock auth contexts → `pratikshya_auth`/`pratikshya_admin_*`/`pratikshya_employee_*` → guards, `/me`, RBAC → auth contexts → `/api/v1/auth/*`, `/api/v1/admin/auth/*`, `/api/v1/auth/employee/*` → `sessions` + credential tables → replace mock fingerprints with Argon2id hashes; issue JWT access+refresh; sessions server-issued → auth contexts become HTTP session adapters; guards still hide nav (hiding ≠ security).
+
+**Sidebar UI preference** — `usePortalSidebarCollapse` → `pratikshya_admin_sidebar_collapsed` / `pratikshya_employee_sidebar_collapsed` (and `pf_*_nav_groups` for group expansion) → `PortalSidebar` → `usePortalSidebarCollapse` → **no endpoint** → **no table** → **stay client-side (D)** — no reason to synchronize → unchanged.
 
 ---
 
@@ -635,7 +728,7 @@ Cart/wishlist remain client-cacheable but server is authoritative once logged in
 | Department split | Would break canonical catalogue + IDs | One `products` table; filter by department |
 | Placement snapshots | Stale unpublished products on homepage | Store IDs; resolve live |
 | Blob URLs | Broken images after refresh | Already stripped; object store required before real uploads |
-| Dual customer stores | `pratikshya_customers` vs `_customers_registry` vs `account_*` | One `users` entity |
+| Dual customer stores | **FIXED in Phase 1** — `pratikshya_customers` merged into `pratikshya_customers_registry` | One `customers` table |
 | `forceTransition` | Admin can skip fulfilment | Omit from production API |
 | Demo order seed | Fake orders appear on empty storage | Production: empty; demo flag only |
 | Inventory reservations in localStorage | Holds vanish / never expire across devices | Server TTL job |
@@ -653,32 +746,22 @@ Cart/wishlist remain client-cacheable but server is authoritative once logged in
 
 ---
 
-## 12. Ordered implementation plan
+## 12. Ordered implementation plan (Phase A–L)
 
-**Stop here until this audit is approved.** After approval, implement in this order (each with success / 401 / 403 / 404 / validation / illegal transition / duplicate / refresh / cleared-storage / direct URL tests):
+**Stop here until this audit is approved.** After approval, implement **Phase A → Phase L** from §10 (each with success / 401 / 403 / 404 / validation / illegal transition / duplicate / refresh / cleared-storage / direct URL tests). The earlier numbered 1–22 list is superseded by the phase plan; the concrete work per phase is unchanged:
 
-1. **Platform:** PostgreSQL, migrations, error envelope, CORS, security headers, rate limits, audit_logs table.  
-2. **Authentication (customer, admin, employee)** — separate sessions; replace mock credentials; `/me`.  
-3. **RBAC middleware** — port permission keys.  
-4. **Taxonomy read API** — seed departments/categories/subcategories.  
-5. **Catalogue read API** — published-only storefront; wire `getLiveStorefrontProducts`.  
-6. **Product detail** — public GET by id; staff preview endpoint.  
-7. **Admin product CRUD** — createDraft/updateDraft/duplicate; canonical IDs.  
-8. **Workflow commands API** — submit/approve/publish/… and bulk; deleteProductPermanently.  
-9. **Media metadata + object storage** — upload validation; ownership commands; no blob persistence.  
-10. **Collections API** — membership IDs/rules; slug URLs.  
-11. **Marketing placements API** — IDs only; resolve live.  
-12. **Inventory API** — locations, receive/adjust/transfer, availability.  
-13. **Cart & wishlist APIs** — server prices; merge on login.  
-14. **Offers API** — validate + admin lifecycle.  
-15. **Checkout reserve** — TTL reservations.  
-16. **Payments** — sandbox vs live; webhook confirmation; Sandbox QR remains labelled sandbox.  
-17. **Orders & fulfillment commands** — no forceTransition; COD pending.  
-18. **Returns / refunds** — inspect then restock; refunds via provider.  
-19. **Customer account** — profile, addresses, preferences.  
-20. **Workforce + settings + analytics**.  
-21. **Remove production localStorage writes** for authoritative entities (keep UI chrome keys).  
-22. **Full regression:** existing `npm test` + audit scripts + production `vite build`.
+- **Phase A — Platform:** FastAPI app, PostgreSQL, SQLAlchemy, Alembic, error envelope, CORS, security headers, rate limits, `audit_logs` table.
+- **Phase B — Authentication (customer, admin, employee) + RBAC:** separate sessions + JWT access/refresh; replace mock credentials; `/me`; port permission keys.
+- **Phase C — Product/catalogue:** taxonomy + product seed; published-only storefront; wire `getLiveStorefrontProducts`; product CRUD; workflow commands (submit/approve/publish/…, bulk, deleteProductPermanently).
+- **Phase D — Taxonomy/collections/marketing:** collection membership IDs/rules; slug URLs; placements IDs-only, resolve live.
+- **Phase E — Media + object storage:** upload validation; ownership commands; no blob persistence.
+- **Phase F — Customers:** profile, addresses, preferences.
+- **Phase G — Cart/wishlist/offers:** server prices; merge on login; offer validate + admin lifecycle.
+- **Phase H — Orders + inventory:** locations, receive/adjust/transfer, availability; TTL reservations; orders & fulfillment commands (no `forceTransition`; COD pending).
+- **Phase I — Payments/returns/refunds:** sandbox vs live; webhook confirmation; inspect then restock; provider refund.
+- **Phase J — Workforce + settings + analytics.**
+- **Phase K — Notifications/background jobs + remove production localStorage writes** for authoritative entities (keep UI chrome keys).
+- **Phase L — AI services (future):** AI service boundary only; no core-commerce coupling.
 
 ### Test additions (every integrated feature)
 
@@ -707,6 +790,7 @@ This audit is complete. **No backend scaffolding, schema, or frontend persistenc
 3. Placements as product ID lists resolved at read time  
 4. Webhook-only payment capture; Sandbox QR isolated  
 5. Three-portal auth  
-6. Feature-by-feature migration order in §12  
+6. **Python + FastAPI + PostgreSQL + SQLAlchemy + Alembic** stack (§2.2)  
+7. Phase A → Phase L migration order (§10, §12)  
 
-After approval, implementation begins at §12 step 1.
+After approval, implementation begins at **Phase A**.
