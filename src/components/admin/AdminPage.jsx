@@ -14,7 +14,7 @@ export default function AdminPage({
   className = "",
 }) {
   return (
-    <div className={cn("pb-16", className)}>
+    <div className={cn("min-w-0 w-full max-w-full pb-16", className)}>
       <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="max-w-2xl">
           {eyebrow ? (

@@ -14,7 +14,7 @@ const STORAGE_KEY = "pf_admin_nav_groups";
  * Authorization is enforced upstream by AdminProtectedRoute; the single
  * SUPER_ADMIN role sees every module, so no per-item filtering is applied.
  */
-export default function AdminSidebar({ onNavigate }) {
+export default function AdminSidebar({ onNavigate, collapsed = false, onToggleCollapsed }) {
   const { admin, signOut } = useAdminAuth();
 
   return (
@@ -34,6 +34,8 @@ export default function AdminSidebar({ onNavigate }) {
       footerLinks={[{ id: "profile", label: "Profile", to: "/admin/profile", icon: "user" }]}
       signOut={signOut}
       onNavigate={onNavigate}
+      collapsed={collapsed}
+      onToggleCollapsed={onToggleCollapsed}
     />
   );
 }

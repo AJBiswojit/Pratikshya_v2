@@ -15,7 +15,7 @@ const STORAGE_KEY = "pf_employee_nav_groups";
  * comes from the existing employee permission catalogue (authorization.js),
  * and route guards in EmployeeLayout continue to enforce access.
  */
-export default function EmployeeSidebar({ onNavigate }) {
+export default function EmployeeSidebar({ onNavigate, collapsed = false, onToggleCollapsed }) {
   const { employee, hasPermission, signOut } = useEmployeeAuth();
   const groups = navigationForRole(employee?.role, hasPermission);
   const badges = useEmployeeNavBadges(employee);
@@ -39,6 +39,8 @@ export default function EmployeeSidebar({ onNavigate }) {
       footerLinks={[{ id: "profile", label: "Profile", to: "/employee/profile", icon: "user" }]}
       signOut={signOut}
       onNavigate={onNavigate}
+      collapsed={collapsed}
+      onToggleCollapsed={onToggleCollapsed}
     />
   );
 }

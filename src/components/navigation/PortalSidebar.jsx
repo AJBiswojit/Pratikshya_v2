@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "../../utils/cn";
+import RailTooltip from "./RailTooltip";
 
 /**
  * PRATIKSHYA FASHON — Shared Portal sidebar rendering.
@@ -9,6 +11,7 @@ import { cn } from "../../utils/cn";
  *   - an identity header (real authenticated identity)
  *   - collapsible, role/scope-aware navigation groups
  *   - a utility footer (Profile + Sign out)
+ *   - a desktop rail collapse control (labels hide; icons remain)
  *
  * All authorization filtering happens upstream (navigationForRole /
  * the admin config). This component is purely presentational, so it never
@@ -16,6 +19,9 @@ import { cn } from "../../utils/cn";
  *
  * Icon resolution, active-route resolution, badge source and persistence
  * key are injected so each portal keeps its own identity.
+ *
+ * `collapsed` is a desktop-only rail. Below `lg` the drawer always shows
+ * full labels regardless of the persisted preference.
  */
 export default function PortalSidebar({
   navId,
@@ -29,6 +35,8 @@ export default function PortalSidebar({
   onNavigate,
   storageKey,
   iconResolver,
+  collapsed = false,
+  onToggleCollapsed,
 }) {
   const location = useLocation();
   const pathname = location?.pathname ?? "";
@@ -114,26 +122,30 @@ export default function PortalSidebar({
   const displayRole = identity?.roleLabel || "Team member";
   const displayInitials = identity?.initials || "PF";
 
+  const collapseLabel = collapsed ? "Expand sidebar" : "Collapse sidebar";
+
   return (
     <div className="flex h-full min-h-0 flex-col bg-canvas">
       {/* ------------------------------------------------ identity */}
-      <div className="border-b border-mist/70 px-4 py-4">
-        <div className="flex items-center gap-3">
-          {identity?.avatar ? (
-            <img
-              src={identity.avatar}
-              alt=""
-              className="h-10 w-10 shrink-0 object-cover"
-            />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="flex h-10 w-10 shrink-0 items-center justify-center bg-ink font-display text-sm font-light text-ivory"
-            >
-              {displayInitials}
-            </span>
-          )}
-          <div className="min-w-0">
+      <div className={cn("border-b border-mist/70 px-4 py-4", collapsed && "lg:px-2")}>
+        <div className={cn("flex items-center gap-3", collapsed && "lg:flex-col lg:gap-2")}>
+          <RailTooltip label={`${displayName} · ${displayRole}`} enabled={collapsed} className="inline-flex shrink-0">
+            {identity?.avatar ? (
+              <img
+                src={identity.avatar}
+                alt=""
+                className="h-10 w-10 shrink-0 object-cover"
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="flex h-10 w-10 shrink-0 items-center justify-center bg-ink font-display text-sm font-light text-ivory"
+              >
+                {displayInitials}
+              </span>
+            )}
+          </RailTooltip>
+          <div className={cn("min-w-0 flex-1", collapsed && "lg:hidden")}>
             <p className="truncate font-display text-base font-medium leading-tight text-ink">
               {displayName}
             </p>
@@ -142,26 +154,53 @@ export default function PortalSidebar({
             </p>
           </div>
         </div>
+        {typeof onToggleCollapsed === "function" ? (
+          <RailTooltip label={collapseLabel} enabled={collapsed}>
+            <button
+              type="button"
+              onClick={onToggleCollapsed}
+              aria-label={collapseLabel}
+              aria-expanded={!collapsed}
+              className={cn(
+                "mt-3 hidden w-full items-center gap-2 border border-mist/80 px-2 py-1.5 text-taupe transition-colors duration-200 hover:border-ink hover:text-ink lg:flex",
+                collapsed && "lg:justify-center lg:px-0"
+              )}
+            >
+              {collapsed ? (
+                <PanelLeftOpen size={14} strokeWidth={1.5} aria-hidden="true" />
+              ) : (
+                <PanelLeftClose size={14} strokeWidth={1.5} aria-hidden="true" />
+              )}
+              <span className={cn("font-ui text-[10px] uppercase tracking-[.14em]", collapsed && "lg:sr-only")}>
+                {collapsed ? "Expand" : "Collapse"}
+              </span>
+            </button>
+          </RailTooltip>
+        ) : null}
       </div>
 
       {/* ------------------------------------------------ navigation */}
       <nav
         id={navId}
         aria-label={ariaLabel}
-        className="min-h-0 flex-1 overflow-y-auto px-2 py-3"
+        className={cn("min-h-0 flex-1 overflow-y-auto px-2 py-3", collapsed && "lg:px-1")}
       >
         {navGroups.map((group) => {
           const GroupIcon = resolveIcon(group.icon);
           const open = isOpen(group.id);
+          const showItems = open || collapsed;
           return (
             <section key={group.id} className="mb-3 last:mb-0">
-              <h2 className="px-2">
+              <h2 className={cn("px-2", collapsed && "lg:px-0")}>
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.id)}
                   aria-expanded={open}
                   aria-controls={`navgroup-${group.id}`}
-                  className="group/heading flex w-full items-center justify-between gap-2 px-1 py-1.5 text-left"
+                  className={cn(
+                    "group/heading flex w-full items-center justify-between gap-2 px-1 py-1.5 text-left",
+                    collapsed && "lg:hidden"
+                  )}
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <GroupIcon
@@ -176,10 +215,28 @@ export default function PortalSidebar({
                   </span>
                   <Chevron iconResolver={resolveIcon} open={open} />
                 </button>
+                <RailTooltip label={group.label} enabled={collapsed}>
+                  <span
+                    className={cn(
+                      "hidden items-center justify-center py-2",
+                      collapsed && "lg:flex"
+                    )}
+                    aria-hidden="true"
+                  >
+                    <GroupIcon
+                      size={13}
+                      strokeWidth={1.5}
+                      className="shrink-0 text-brass"
+                    />
+                  </span>
+                </RailTooltip>
               </h2>
 
-              {open ? (
-                <ul id={`navgroup-${group.id}`} className="mt-0.5 space-y-0.5">
+              {showItems ? (
+                <ul
+                  id={`navgroup-${group.id}`}
+                  className={cn("mt-0.5 space-y-0.5", !open && collapsed && "hidden lg:block")}
+                >
                   {group.items.map((item) => (
                     <GroupItems
                       key={item.id}
@@ -188,6 +245,7 @@ export default function PortalSidebar({
                       badge={badges?.[item.id]}
                       onNavigate={onNavigate}
                       iconResolver={resolveIcon}
+                      collapsed={collapsed}
                     />
                   ))}
                 </ul>
@@ -198,7 +256,7 @@ export default function PortalSidebar({
       </nav>
 
       {/* ------------------------------------------------ footer */}
-      <div className="border-t border-mist/70 px-3 py-3">
+      <div className={cn("border-t border-mist/70 px-3 py-3", collapsed && "lg:px-1")}>
         <ul className="space-y-0.5">
           {footerItems.map((link) => {
             const Icon = resolveIcon(link.icon);
@@ -207,32 +265,40 @@ export default function PortalSidebar({
             const linkActive = isPathActive(pathname, link.to);
             return (
               <li key={link.id}>
-                <Link
-                  to={link.to}
-                  onClick={onNavigate}
-                  aria-current={linkActive ? "page" : undefined}
-                  className={cn(
-                    "flex items-center gap-3 rounded-none px-3 py-2 font-ui text-[11px] uppercase tracking-[.14em]",
-                    linkActive
-                      ? "bg-ink text-ivory"
-                      : "text-taupe hover:bg-surface hover:text-ink"
-                  )}
-                >
-                  <Icon aria-hidden="true" size={14} strokeWidth={1.5} />
-                  <span>{link.label}</span>
-                </Link>
+                <RailTooltip label={link.label} enabled={collapsed}>
+                  <Link
+                    to={link.to}
+                    onClick={onNavigate}
+                    aria-current={linkActive ? "page" : undefined}
+                    className={cn(
+                      "flex items-center gap-3 rounded-none px-3 py-2 font-ui text-[11px] uppercase tracking-[.14em] transition-colors duration-200",
+                      collapsed && "lg:justify-center lg:px-0",
+                      linkActive
+                        ? "bg-ink text-ivory"
+                        : "text-taupe hover:bg-surface hover:text-ink"
+                    )}
+                  >
+                    <Icon aria-hidden="true" size={14} strokeWidth={1.5} />
+                    <span className={cn(collapsed && "lg:sr-only")}>{link.label}</span>
+                  </Link>
+                </RailTooltip>
               </li>
             );
           })}
           <li>
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="flex w-full items-center gap-3 px-3 py-2 text-left font-ui text-[11px] uppercase tracking-[.14em] text-taupe hover:bg-surface hover:text-ink"
-            >
-              <LogoutIcon aria-hidden="true" size={14} strokeWidth={1.5} />
-              <span>Sign out</span>
-            </button>
+            <RailTooltip label="Sign out" enabled={collapsed}>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className={cn(
+                  "flex w-full items-center gap-3 px-3 py-2 text-left font-ui text-[11px] uppercase tracking-[.14em] text-taupe transition-colors duration-200 hover:bg-surface hover:text-ink",
+                  collapsed && "lg:justify-center lg:px-0"
+                )}
+              >
+                <LogoutIcon aria-hidden="true" size={14} strokeWidth={1.5} />
+                <span className={cn(collapsed && "lg:sr-only")}>Sign out</span>
+              </button>
+            </RailTooltip>
           </li>
         </ul>
       </div>
@@ -255,41 +321,62 @@ function Chevron({ open, iconResolver }) {
   );
 }
 
-function GroupItems({ item, activeId, badge, onNavigate, iconResolver }) {
+function GroupItems({ item, activeId, badge, onNavigate, iconResolver, collapsed }) {
   const Icon = iconResolver(item.icon);
   const isActive = item.id === activeId;
   const hasChildren = Array.isArray(item.children) && item.children.length > 0;
 
   return (
     <li>
-      <Link
-        to={item.to}
-        onClick={onNavigate}
-        title={item.label}
-        aria-current={isActive ? "page" : undefined}
-        className={cn(
-          "relative flex min-w-0 items-center gap-2.5 rounded-none border-l-2 py-2 pl-3 pr-2 font-ui text-[11px] uppercase tracking-[.12em] transition-colors",
-          isActive
-            ? "border-accent bg-ink font-medium text-ivory"
-            : "border-transparent text-taupe hover:bg-surface hover:text-ink"
-        )}
-      >
-        <Icon
-          size={14}
-          strokeWidth={isActive ? 2 : 1.5}
-          aria-hidden="true"
-          className={cn("shrink-0", isActive ? "text-accent" : "text-brass")}
-        />
-        <span className="min-w-0 flex-1 truncate">{item.label}</span>
-        {badge > 0 ? (
-          <span className="shrink-0 rounded-full bg-accent px-1.5 py-0.5 font-ui text-[9px] font-medium leading-none text-white">
-            {badge}
-          </span>
-        ) : null}
-      </Link>
+      <RailTooltip label={item.label} enabled={collapsed}>
+        <Link
+          to={item.to}
+          onClick={onNavigate}
+          title={collapsed ? undefined : item.label}
+          aria-current={isActive ? "page" : undefined}
+          className={cn(
+            "relative flex min-w-0 items-center gap-2.5 rounded-none border-l-2 py-2 pl-3 pr-2 font-ui text-[11px] uppercase tracking-[.12em] transition-colors duration-200",
+            collapsed && "lg:justify-center lg:gap-0 lg:px-0 lg:py-2.5",
+            isActive
+              ? "border-accent bg-ink font-medium text-ivory"
+              : "border-transparent text-taupe hover:bg-surface hover:text-ink"
+          )}
+        >
+          <Icon
+            size={14}
+            strokeWidth={isActive ? 2 : 1.5}
+            aria-hidden="true"
+            className={cn("shrink-0", isActive ? "text-accent" : "text-brass")}
+          />
+          <span className={cn("min-w-0 flex-1 truncate", collapsed && "lg:sr-only")}>{item.label}</span>
+          {badge > 0 ? (
+            <>
+              <span
+                className={cn(
+                  "shrink-0 rounded-full bg-accent px-1.5 py-0.5 font-ui text-[9px] font-medium leading-none text-white",
+                  collapsed && "lg:hidden"
+                )}
+              >
+                {badge}
+              </span>
+              {collapsed ? (
+                <span
+                  className="absolute right-1.5 top-1.5 hidden h-1.5 w-1.5 bg-accent lg:block"
+                  aria-hidden="true"
+                />
+              ) : null}
+            </>
+          ) : null}
+        </Link>
+      </RailTooltip>
 
       {hasChildren ? (
-        <ul className="mt-0.5 space-y-0.5 border-l-2 border-mist/50 pl-4">
+        <ul
+          className={cn(
+            "mt-0.5 space-y-0.5 border-l-2 border-mist/50 pl-4",
+            collapsed && "lg:border-l-0 lg:pl-0"
+          )}
+        >
           {item.children.map((child) => (
             <li key={child.id}>
               <ChildLink
@@ -297,6 +384,7 @@ function GroupItems({ item, activeId, badge, onNavigate, iconResolver }) {
                 activeId={activeId}
                 onNavigate={onNavigate}
                 iconResolver={iconResolver}
+                collapsed={collapsed}
               />
             </li>
           ))}
@@ -306,30 +394,33 @@ function GroupItems({ item, activeId, badge, onNavigate, iconResolver }) {
   );
 }
 
-function ChildLink({ child, activeId, onNavigate, iconResolver }) {
+function ChildLink({ child, activeId, onNavigate, iconResolver, collapsed }) {
   const Icon = iconResolver(child.icon);
   const isActive = child.id === activeId;
   return (
-    <Link
-      to={child.to}
-      onClick={onNavigate}
-      title={child.label}
-      aria-current={isActive ? "page" : undefined}
-      className={cn(
-        "relative flex min-w-0 items-center gap-2 rounded-none border-l-2 py-1.5 pl-3 pr-2 font-ui text-[10px] uppercase tracking-[.12em] transition-colors",
-        isActive
-          ? "border-accent bg-ink font-medium text-ivory"
-          : "border-transparent text-taupe hover:bg-surface hover:text-ink"
-      )}
-    >
-      <Icon
-        size={12}
-        strokeWidth={isActive ? 2 : 1.5}
-        aria-hidden="true"
-        className={cn("shrink-0", isActive ? "text-accent" : "text-brass")}
-      />
-      <span className="min-w-0 flex-1 truncate">{child.label}</span>
-    </Link>
+    <RailTooltip label={child.label} enabled={collapsed}>
+      <Link
+        to={child.to}
+        onClick={onNavigate}
+        title={collapsed ? undefined : child.label}
+        aria-current={isActive ? "page" : undefined}
+        className={cn(
+          "relative flex min-w-0 items-center gap-2 rounded-none border-l-2 py-1.5 pl-3 pr-2 font-ui text-[10px] uppercase tracking-[.12em] transition-colors duration-200",
+          collapsed && "lg:justify-center lg:gap-0 lg:px-0 lg:py-2",
+          isActive
+            ? "border-accent bg-ink font-medium text-ivory"
+            : "border-transparent text-taupe hover:bg-surface hover:text-ink"
+        )}
+      >
+        <Icon
+          size={12}
+          strokeWidth={isActive ? 2 : 1.5}
+          aria-hidden="true"
+          className={cn("shrink-0", isActive ? "text-accent" : "text-brass")}
+        />
+        <span className={cn("min-w-0 flex-1 truncate", collapsed && "lg:sr-only")}>{child.label}</span>
+      </Link>
+    </RailTooltip>
   );
 }
 

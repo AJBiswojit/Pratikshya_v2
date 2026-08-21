@@ -15,7 +15,7 @@ export default function AdminPanel({
   bodyClassName = "",
 }) {
   return (
-    <section className={cn("border border-mist/80 bg-surface/40", className)}>
+    <section className={cn("min-w-0 max-w-full border border-mist/80 bg-surface/40", className)}>
       <header className="flex flex-wrap items-end justify-between gap-3 border-b border-mist/70 px-5 py-4 sm:px-6">
         <div className="min-w-0">
           {eyebrow ? (
@@ -26,7 +26,7 @@ export default function AdminPanel({
         </div>
         {action}
       </header>
-      <div className={cn("px-5 py-5 sm:px-6", bodyClassName)}>{children}</div>
+      <div className={cn("min-w-0 px-5 py-5 sm:px-6", bodyClassName)}>{children}</div>
     </section>
   );
 }
