@@ -50,7 +50,7 @@ export default function Shop() {
 
   const featured = collectionRoutes.featured;
   const featuredImage = resolveCollectionCover(featured);
-  const featuredHref = collectionHref(taxonomyRepository.findCollection("featured")) ?? "/collection/featured";
+  const featuredHref = collectionHref(taxonomyRepository.findCollection("featured")) ?? "/collections/featured";
   const featuredCount = products.filter((product) => product.isFeatured).length;
 
   return (
@@ -129,7 +129,7 @@ export default function Shop() {
 
         <CatalogueBrowser
           emptyAction={
-            <AtelierButton as={Link} to="/collection/new-arrivals" variant="outline" size="md">
+            <AtelierButton as={Link} to="/collections/new-arrivals" variant="outline" size="md">
               See New Arrivals
             </AtelierButton>
           }
