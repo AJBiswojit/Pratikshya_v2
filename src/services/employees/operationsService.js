@@ -6,10 +6,8 @@
  * support are not working from a disconnected dataset.
  */
 
-import { INITIAL_DEMO_CUSTOMERS } from "../../data/mockCustomers";
 import {
   MOCK_APPOINTMENTS,
-  MOCK_ASSISTED_ORDERS,
   MOCK_FEEDBACK,
   MOCK_FOLLOW_UPS,
   MOCK_OFFERS,
@@ -18,8 +16,9 @@ import {
   MOCK_STYLING_REQUESTS,
   MOCK_WALKIN_CUSTOMERS,
 } from "../../data/employees/operations";
+import { loadCustomerRegistry } from "../customer/customerRegistry";
 import { products } from "../../data/products";
-import { loadOrders } from "../orders/orderService";
+import { isAssistedOrder, loadOrders } from "../orders/orderService";
 import offerRepository, {
   describeEligibility,
   formatOfferDiscount,
@@ -27,15 +26,8 @@ import offerRepository, {
 import { readStorage } from "../../utils/shopping";
 import { formatEmployeeDateTime, todayKey } from "../../utils/employee";
 import inventoryRepository from "../inventory/inventoryRepository";
-import { EMPLOYEE_STORAGE_KEYS } from "./storage";
 
-const CUSTOMERS_REGISTRY_KEY = "pratikshya_customers_registry";
-
-export const getRegisteredCustomers = () => {
-  const stored = readStorage(CUSTOMERS_REGISTRY_KEY, null);
-  if (Array.isArray(stored) && stored.length > 0) return stored;
-  return INITIAL_DEMO_CUSTOMERS;
-};
+export const getRegisteredCustomers = () => loadCustomerRegistry();
 
 export const getDirectoryCustomers = () => {
   const registered = getRegisteredCustomers().map((customer) => ({
@@ -57,12 +49,26 @@ export const getDirectoryCustomers = () => {
 
 export const getBusinessOrders = () => loadOrders();
 
+const projectAssistedOrder = (order) => ({
+  id: order.id,
+  employeeId: order.createdBy || order.employeeId || null,
+  associate: order.associate || order.fulfillment?.assignedEmployeeName || "",
+  customer: order.customer?.fullName || "",
+  phone: order.customer?.phone || "",
+  department: order.items?.[0]?.name || "",
+  pieces: (order.items || []).map((item) => item.name).join(" · "),
+  amount: Number(order.pricing?.total || order.amount || 0),
+  status: order.floorStatus || order.status,
+  createdAt: order.createdAt,
+  channel: "ASSISTED",
+  createdBy: order.createdBy || order.employeeId || null,
+  productId: order.items?.[0]?.productId || null,
+});
+
 export const getAssistedOrders = (employeeId = null) => {
-  const stored = readStorage(EMPLOYEE_STORAGE_KEYS.ASSISTED_ORDERS, null);
-  const extra = Array.isArray(stored) ? stored : [];
-  const all = [...extra, ...MOCK_ASSISTED_ORDERS];
+  const all = loadOrders().filter(isAssistedOrder).map(projectAssistedOrder);
   if (!employeeId) return all;
-  return all.filter((order) => order.employeeId === employeeId);
+  return all.filter((order) => order.employeeId === employeeId || order.createdBy === employeeId);
 };
 
 export const getFollowUps = (employeeId = null) =>
@@ -212,11 +218,6 @@ export const searchProducts = (term = "") => {
     .slice(0, 24);
 };
 
-export const loadAttendanceMap = () => {
-  const stored = readStorage(EMPLOYEE_STORAGE_KEYS.ATTENDANCE, null);
-  return stored && typeof stored === "object" ? stored : {};
-};
-
 /** Compatibility shim — prefer workforce/attendanceService. */
 export const attendanceFor = (employeeId) => {
   try {
@@ -354,7 +355,6 @@ export default {
   getPerformance,
   getCatalogueStock,
   searchProducts,
-  loadAttendanceMap,
   attendanceFor,
   defaultDashboardMetrics,
 };

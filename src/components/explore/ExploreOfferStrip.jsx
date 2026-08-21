@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { body, duration, eyebrow, transition } from "../../design-system";
 import { describeEligibility, formatOfferDiscount } from "../../services/offers/offerRepository";
-import { FREE_SHIPPING_THRESHOLD } from "../../utils/shopping";
+import { readShippingRules } from "../../config/commerceDefaults";
 import { cn } from "../../utils/cn";
 
 /**

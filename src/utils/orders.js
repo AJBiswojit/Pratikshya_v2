@@ -318,6 +318,14 @@ export const normaliseOrder = (raw) => {
     notes: normaliseNotes(raw.notes),
     createdAt,
     updatedAt: raw.updatedAt ?? createdAt,
+    channel:
+      raw.channel === "ASSISTED" || raw.source === "employee_assisted"
+        ? "ASSISTED"
+        : raw.channel || "STOREFRONT",
+    createdBy: raw.createdBy || raw.employeeId || null,
+    source: raw.source || null,
+    associate: raw.associate || null,
+    floorStatus: raw.floorStatus || null,
   };
 };
 

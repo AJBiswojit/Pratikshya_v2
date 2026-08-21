@@ -1,3 +1,4 @@
+import { COMMERCE_DEFAULTS } from "../config/commerceDefaults";
 import { readStorage, writeStorage } from "../utils/shopping";
 
 export const SETTINGS_KEY = "pratikshya_settings";
@@ -10,8 +11,8 @@ export const SETTINGS_DEFAULTS = {
   attendance: { workingStartTime: "09:30", workingEndTime: "18:30", lateThresholdMinutes: 10, minimumHalfDayMinutes: 240, fullDayMinutes: 540 },
   holidays: { items: [] },
   tax: { enabled: false, gstin: "", defaultRate: 0, cgst: 0, sgst: 0, igst: 0, mode: "EXCLUSIVE" },
-  shipping: { enabled: true, defaultShippingFee: 99, freeShippingThreshold: 5000, carriers: ["Delhivery", "Blue Dart", "DTDC", "India Post", "Store Delivery"], defaultCarrier: "Delhivery", estimatedDeliveryDays: 5 },
-  payments: { refundMethod: "Original payment method", refundNote: "Demo configuration only; no payment is processed.", refundSla: "5–7 business days", partialRefundEnabled: true },
+  shipping: { enabled: true, defaultShippingFee: COMMERCE_DEFAULTS.defaultShippingFee, freeShippingThreshold: COMMERCE_DEFAULTS.freeShippingThreshold, expressDeliveryFee: COMMERCE_DEFAULTS.expressDeliveryFee, carriers: ["Delhivery", "Blue Dart", "DTDC", "India Post", "Store Delivery"], defaultCarrier: "Delhivery", estimatedDeliveryDays: 5 },
+  payments: { refundMethod: "Original payment method", refundNote: "Demo configuration only; no payment is processed.", refundSla: "5–7 business days", partialRefundEnabled: true, codFee: COMMERCE_DEFAULTS.codFee },
   orders: { allowCancellation: true, cancellationWindowHours: 24, allowOrderEditing: false, autoExpiryHours: 24, paymentTimeoutMinutes: 15 },
   returns: { enabled: true, returnWindowDays: 7, exchangeEnabled: true, refundEnabled: true, pickupEnabled: true, inspectionRequired: true, restockingRule: "Inspect before restocking" },
   inventory: { defaultLowStockThreshold: 5, defaultReorderThreshold: 10, negativeStockAllowed: false, lowStockAlerts: true, outOfStockAlerts: true, overstockAlerts: false },

@@ -12,12 +12,11 @@
  */
 
 import {
-  COD_FEE,
   DELIVERY_METHODS,
   getDeliveryMethod,
 } from "../config/checkoutConfig";
+import { readPaymentRules, readShippingRules } from "../config/commerceDefaults";
 import {
-  FREE_SHIPPING_THRESHOLD,
   readStorage,
   writeStorage,
 } from "./shopping";
@@ -40,14 +39,12 @@ import {
 export const calculateDeliveryFee = (methodId, payableSubtotal) => {
   const method = getDeliveryMethod(methodId);
   if (payableSubtotal <= 0) return 0;
-  try {
-    const shipping = JSON.parse(localStorage.getItem("pratikshya_settings"))?.shipping;
-    if (shipping?.enabled === false) return 0;
-    if (method.freeAtThreshold && payableSubtotal >= Number(shipping?.freeShippingThreshold ?? FREE_SHIPPING_THRESHOLD)) return 0;
-    return method.freeAtThreshold ? Number(shipping?.defaultShippingFee ?? method.fee) : method.fee;
-  } catch {
-    return method.freeAtThreshold && payableSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : method.fee;
-  }
+  const shipping = readShippingRules();
+  if (shipping.enabled === false) return 0;
+  if (method.freeAtThreshold && payableSubtotal >= shipping.freeShippingThreshold) return 0;
+  if (method.freeAtThreshold) return shipping.defaultShippingFee;
+  if (method.id === "express") return shipping.expressDeliveryFee;
+  return method.fee;
 };
 
 /**
@@ -61,8 +58,10 @@ export const calculateCheckoutTotals = (
 ) => {
   const payable = cartTotals.total - cartTotals.shipping;
   const shipping = calculateDeliveryFee(deliveryMethodId, payable);
-  const codFee = paymentMethodId === "cod" ? COD_FEE : 0;
+  const payments = readPaymentRules();
+  const codFee = paymentMethodId === "cod" ? payments.codFee : 0;
   const total = payable + shipping + codFee;
+  const threshold = readShippingRules().freeShippingThreshold;
 
   return {
     ...cartTotals,
@@ -70,9 +69,7 @@ export const calculateCheckoutTotals = (
     codFee,
     total,
     freeShippingRemainder:
-      payable > 0 && payable < FREE_SHIPPING_THRESHOLD
-        ? FREE_SHIPPING_THRESHOLD - payable
-        : 0,
+      payable > 0 && payable < threshold ? threshold - payable : 0,
   };
 };
 

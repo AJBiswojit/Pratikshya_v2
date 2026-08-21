@@ -14,8 +14,7 @@ import {
   RETURN_STATUS,
   getReturnReason,
 } from "../../config/orderConfig";
-import { CUSTOMERS_REGISTRY_KEY } from "../../context/AuthContext";
-import { INITIAL_DEMO_CUSTOMERS } from "../../data/mockCustomers";
+import { loadCustomerRegistry } from "../customer/customerRegistry";
 import { getRoleLabel } from "../../config/employeeRoles";
 import { getDepartmentLabel } from "../../config/employeeDepartments";
 import { PERFORMANCE_STATUS } from "../../config/performanceConfig";
@@ -37,7 +36,6 @@ import { loadOrders } from "../orders/orderService";
 import { getReturnMetrics } from "../orders/returnService";
 import { loadEmployees } from "../employees/employeeService";
 import { employeeFullName } from "../../utils/employee";
-import { readStorage } from "../../utils/shopping";
 import {
   hydrateDay,
   summarizeRecords,
@@ -266,23 +264,7 @@ export const segmentCustomer = ({ lifetimeSpend = 0, lifetimeOrders = 0 } = {}) 
   return CUSTOMER_SEGMENTS.NEW;
 };
 
-export const loadCustomerRegistry = () => {
-  const registry = readStorage(CUSTOMERS_REGISTRY_KEY, null);
-  const legacy = readStorage("pratikshya_customers", null);
-  const merged = new Map();
-  const ingest = (list) => {
-    (Array.isArray(list) ? list : []).forEach((customer) => {
-      if (!customer || typeof customer !== "object") return;
-      const id = customer.id || customer.email;
-      if (!id || merged.has(id)) return;
-      merged.set(id, customer);
-    });
-  };
-  ingest(registry);
-  ingest(legacy);
-  ingest(INITIAL_DEMO_CUSTOMERS);
-  return [...merged.values()];
-};
+export { loadCustomerRegistry };
 
 const customerIdentity = (order) => {
   const email = String(order?.customer?.email || "").trim().toLowerCase();

@@ -7,12 +7,12 @@
  * JSX, and every consumer (the delivery selector, the order summary, the
  * pricing utilities) reads the same source of truth.
  *
- * Shipping thresholds deliberately reference the Phase 6 bag rules
- * (`FREE_SHIPPING_THRESHOLD`, `FLAT_SHIPPING_FEE` in `utils/shopping.js`)
- * so checkout and bag can never disagree.
+ * Shipping thresholds deliberately reference `COMMERCE_DEFAULTS` so
+ * checkout, bag and Admin Settings share one authored default. Runtime
+ * fees resolve through `readShippingRules` / `readPaymentRules`.
  */
 
-import { FLAT_SHIPPING_FEE } from "../utils/shopping";
+import { COMMERCE_DEFAULTS } from "./commerceDefaults";
 
 /* ------------------------------------------------------------------ */
 /* Delivery                                                            */
@@ -31,14 +31,14 @@ export const DELIVERY_METHODS = [
     id: "standard",
     label: "Standard Delivery",
     caption: "3–5 business days",
-    fee: FLAT_SHIPPING_FEE,
+    fee: COMMERCE_DEFAULTS.defaultShippingFee,
     freeAtThreshold: true,
   },
   {
     id: "express",
     label: "Express Delivery",
     caption: "1–2 business days",
-    fee: 199,
+    fee: COMMERCE_DEFAULTS.expressDeliveryFee,
     freeAtThreshold: false,
   },
 ];
@@ -48,7 +48,7 @@ export const getDeliveryMethod = (id) =>
   DELIVERY_METHODS.find((method) => method.id === id) ?? DELIVERY_METHODS[0];
 
 /** The flat surcharge carried by cash-on-delivery orders, when applicable. */
-export const COD_FEE = 49;
+export const COD_FEE = COMMERCE_DEFAULTS.codFee;
 
 /* ------------------------------------------------------------------ */
 /* Payment methods                                                     */

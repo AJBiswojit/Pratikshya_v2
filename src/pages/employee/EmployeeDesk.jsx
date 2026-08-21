@@ -1,170 +1,26 @@
+import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import EmployeePage from "../../components/employee/EmployeePage";
 import DataTable from "../../components/employee/DataTable";
 import FutureNote from "../../components/employee/FutureNote";
 import {
   getAppointments,
-  getCatalogueStock,
   getFeedback,
-  getStockMovements,
   getStylingRequests,
   getSupportCases,
   getTransfers,
   getWarehouseTasks,
 } from "../../services/employees/operationsService";
-import { employeeFullName, formatEmployeeDateTime } from "../../utils/employee";
+import { employeeFullName } from "../../utils/employee";
 import { formatINR } from "../../utils/shopping";
 import { useEmployeeManagement } from "../../context/EmployeeManagementContext";
+import { useOrder } from "../../context/OrderContext";
 import { getRoleLabel } from "../../config/employeeRoles";
 import { getDepartmentLabel } from "../../config/employeeDepartments";
+import { RETURN_STATUSES } from "../../config/orderConfig";
 import StatusBadge from "../../components/employee/StatusBadge";
 
 const desks = {
-  "/employee/inventory": () => {
-    const stock = getCatalogueStock();
-    return {
-      eyebrow: "Inventory",
-      title: (
-        <>
-          Stock across the <span className="italic text-accent">house.</span>
-        </>
-      ),
-      description: `${stock.available} available · ${stock.low || 7} low · ${stock.out || 3} out. Catalogue availability, not a warehouse backend.`,
-      rows: stock.availableItems,
-      columns: [
-        { id: "name", label: "Piece" },
-        { id: "sku", label: "SKU" },
-        { id: "availabilityLabel", label: "Availability" },
-        { id: "stock", label: "Units" },
-        { id: "price", label: "Price", render: (row) => formatINR(row.price) },
-      ],
-    };
-  },
-  "/employee/inventory/movements": () => ({
-    eyebrow: "Movements",
-    title: (
-      <>
-        Stock <span className="italic text-accent">movements.</span>
-      </>
-    ),
-    description: "Receiving, transfers, adjustments and outgoing — the diary of the stock desk.",
-    rows: getStockMovements(),
-    columns: [
-      { id: "id", label: "Ref" },
-      { id: "type", label: "Type" },
-      { id: "piece", label: "Piece" },
-      { id: "qty", label: "Qty" },
-      { id: "location", label: "Location" },
-      { id: "by", label: "By" },
-      { id: "at", label: "When", render: (row) => formatEmployeeDateTime(row.at) },
-    ],
-  }),
-  "/employee/inventory/transfers": () => ({
-    eyebrow: "Transfers",
-    title: (
-      <>
-        Floor <span className="italic text-accent">transfers.</span>
-      </>
-    ),
-    description: "Pieces moving between warehouse, floors and the bridal suite.",
-    rows: getTransfers(),
-    columns: [
-      { id: "id", label: "Ref" },
-      { id: "piece", label: "Piece" },
-      { id: "qty", label: "Qty" },
-      { id: "from", label: "From" },
-      { id: "to", label: "To" },
-      { id: "status", label: "Status" },
-      { id: "requestedBy", label: "Requested by" },
-    ],
-  }),
-  "/employee/inventory/low-stock": () => {
-    const stock = getCatalogueStock();
-    return {
-      eyebrow: "Low stock",
-      title: (
-        <>
-          Running <span className="italic text-accent">low.</span>
-        </>
-      ),
-      description: "Pieces the floor should not promise freely.",
-      rows: stock.lowItems,
-      columns: [
-        { id: "name", label: "Piece" },
-        { id: "sku", label: "SKU" },
-        { id: "stock", label: "Units" },
-        { id: "price", label: "Price", render: (row) => formatINR(row.price) },
-      ],
-    };
-  },
-  "/employee/inventory/out-of-stock": () => {
-    const stock = getCatalogueStock();
-    return {
-      eyebrow: "Out of stock",
-      title: (
-        <>
-          Not on the <span className="italic text-accent">floor.</span>
-        </>
-      ),
-      description: "Unavailable pieces. Do not write an assisted ticket against these.",
-      rows: stock.outItems,
-      columns: [
-        { id: "name", label: "Piece" },
-        { id: "sku", label: "SKU" },
-        { id: "availabilityLabel", label: "Status" },
-      ],
-    };
-  },
-  "/employee/inventory/receive": () => ({
-    eyebrow: "Receive",
-    title: (
-      <>
-        Stock <span className="italic text-accent">received.</span>
-      </>
-    ),
-    description: "Today's inbound pieces. Receiving is recorded as a mock movement.",
-    rows: getStockMovements().filter((item) => item.type === "Received"),
-    columns: [
-      { id: "piece", label: "Piece" },
-      { id: "qty", label: "Qty" },
-      { id: "location", label: "Location" },
-      { id: "by", label: "Received by" },
-      { id: "at", label: "When", render: (row) => formatEmployeeDateTime(row.at) },
-    ],
-  }),
-  "/employee/inventory/adjust": () => ({
-    eyebrow: "Adjust",
-    title: (
-      <>
-        Stock <span className="italic text-accent">adjustments.</span>
-      </>
-    ),
-    description: "Counts that needed a human correction. Not a settings panel.",
-    rows: getStockMovements().filter((item) => item.type === "Adjustment"),
-    columns: [
-      { id: "piece", label: "Piece" },
-      { id: "qty", label: "Qty" },
-      { id: "location", label: "Location" },
-      { id: "by", label: "By" },
-    ],
-  }),
-  "/employee/inventory/requests": () => ({
-    eyebrow: "Requests",
-    title: (
-      <>
-        Transfer <span className="italic text-accent">requests.</span>
-      </>
-    ),
-    description: "Open requests from the floor. Inventory staff raise them; managers close them.",
-    rows: getTransfers().filter((item) => item.status !== "Completed"),
-    columns: [
-      { id: "id", label: "Ref" },
-      { id: "piece", label: "Piece" },
-      { id: "from", label: "From" },
-      { id: "to", label: "To" },
-      { id: "status", label: "Status" },
-    ],
-  }),
   "/employee/warehouse": () => ({
     eyebrow: "Warehouse",
     title: (
@@ -292,49 +148,6 @@ const desks = {
       { id: "status", label: "Status" },
     ],
   }),
-  "/employee/returns": () => ({
-    eyebrow: "Returns",
-    title: (
-      <>
-        Pending <span className="italic text-accent">returns.</span>
-      </>
-    ),
-    description: "Return requests the care desk is holding. Four are waiting on review in this preview.",
-    rows: [
-      { id: "RET-1041", customer: "Priyanka Patel", piece: "Innerwear set", status: "Under review", resolution: "Refund" },
-      { id: "RET-1036", customer: "Rohan Mehta", piece: "Kurta pajama · midnight", status: "Pickup scheduled", resolution: "Exchange" },
-      { id: "RET-1028", customer: "Kavita Menon", piece: "Printed saree", status: "Requested", resolution: "Refund" },
-      { id: "RET-1022", customer: "Nandini Rao", piece: "Gold-finish bangles", status: "Received", resolution: "Refund" },
-    ],
-    columns: [
-      { id: "id", label: "Return" },
-      { id: "customer", label: "Customer" },
-      { id: "piece", label: "Piece" },
-      { id: "status", label: "Status" },
-      { id: "resolution", label: "Resolution" },
-    ],
-  }),
-  "/employee/support/returns": () => ({
-    eyebrow: "Returns",
-    title: (
-      <>
-        Pending <span className="italic text-accent">returns.</span>
-      </>
-    ),
-    rows: [
-      { id: "RET-1041", customer: "Priyanka Patel", piece: "Innerwear set", status: "Under review", resolution: "Refund" },
-      { id: "RET-1036", customer: "Rohan Mehta", piece: "Kurta pajama · midnight", status: "Pickup scheduled", resolution: "Exchange" },
-      { id: "RET-1028", customer: "Kavita Menon", piece: "Printed saree", status: "Requested", resolution: "Refund" },
-      { id: "RET-1022", customer: "Nandini Rao", piece: "Gold-finish bangles", status: "Received", resolution: "Refund" },
-    ],
-    columns: [
-      { id: "id", label: "Return" },
-      { id: "customer", label: "Customer" },
-      { id: "piece", label: "Piece" },
-      { id: "status", label: "Status" },
-      { id: "resolution", label: "Resolution" },
-    ],
-  }),
   "/employee/support/feedback": () => ({
     eyebrow: "Feedback",
     title: (
@@ -458,32 +271,48 @@ const desks = {
     ],
     note: "Later AI sales insights will read this same departmental view.",
   }),
-  "/employee/reports": () => ({
-    eyebrow: "Reports",
-    title: (
-      <>
-        Store <span className="italic text-accent">reports.</span>
-      </>
-    ),
-    description: "A short leadership view. Full analytics belong to the later Admin Portal.",
-    rows: [
-      { metric: "Store sales today", value: "₹8,42,600" },
-      { metric: "Conversion this week", value: "28%" },
-      { metric: "Pending returns", value: "4" },
-      { metric: "Low stock alerts", value: "7" },
-      { metric: "Team on floor", value: "14" },
-    ],
-    columns: [
-      { id: "metric", label: "Report" },
-      { id: "value", label: "Value" },
-    ],
-  }),
 };
+
+const returnColumns = [
+  { id: "id", label: "Return" },
+  { id: "customer", label: "Customer" },
+  { id: "piece", label: "Piece" },
+  { id: "status", label: "Status" },
+  { id: "resolution", label: "Resolution" },
+];
+
+const projectReturns = (orders) =>
+  (orders || []).flatMap((order) =>
+    (order.returns || []).map((record) => ({
+      id: record.id,
+      customer: order.customer?.fullName || "Customer",
+      piece: (record.items || []).map((item) => item.name).join(" · ") || "—",
+      status: RETURN_STATUSES[record.status]?.label || record.status,
+      resolution: record.resolution === "exchange" ? "Exchange" : "Refund",
+    }))
+  );
 
 export default function EmployeeDesk() {
   const { pathname } = useLocation();
   const { employees } = useEmployeeManagement();
+  const { allOrders = [] } = useOrder();
+  const returnRows = useMemo(() => projectReturns(allOrders), [allOrders]);
   let spec = desks[pathname];
+
+  if (pathname === "/employee/returns" || pathname === "/employee/support/returns") {
+    spec = () => ({
+      eyebrow: "Returns",
+      title: (
+        <>
+          Pending <span className="italic text-accent">returns.</span>
+        </>
+      ),
+      description: "Return requests held on the canonical order register.",
+      rows: returnRows,
+      columns: returnColumns,
+      empty: "No return requests in the order register yet.",
+    });
+  }
 
   if (pathname === "/employee/team") {
     spec = () => ({
@@ -514,7 +343,7 @@ export default function EmployeeDesk() {
 
   return (
     <EmployeePage eyebrow={view.eyebrow} title={view.title} description={view.description}>
-      <DataTable rows={view.rows} columns={view.columns} />
+      <DataTable rows={view.rows} columns={view.columns} empty={view.empty} />
       {view.note ? (
         <div className="mt-6">
           <FutureNote title="Later">{view.note}</FutureNote>
