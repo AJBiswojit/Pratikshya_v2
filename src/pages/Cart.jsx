@@ -55,7 +55,7 @@ export default function Cart() {
                 <AtelierButton as={Link} to="/shop" variant="primary" size="md">
                   Explore the Collection
                 </AtelierButton>
-                <AtelierButton as={Link} to="/collection/new-arrivals" variant="outline" size="md">
+                <AtelierButton as={Link} to="/collections/new-arrivals" variant="outline" size="md">
                   New Arrivals
                 </AtelierButton>
               </>

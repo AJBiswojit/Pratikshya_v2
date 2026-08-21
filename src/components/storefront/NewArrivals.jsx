@@ -39,10 +39,15 @@ export default function NewArrivals() {
      deterministic new-arrival selection stands when nothing is curated. */
   const liveProducts = getLiveStorefrontProducts();
   const curated = usePlacementProducts(MARKETING_PLACEMENTS.NEW_ARRIVALS, liveProducts);
+  const collectionArrivals = liveProducts.filter((product) =>
+    taxonomyRepository.isProductInCollection(product, "new-arrivals")
+  );
   const arrivals =
     curated.length > 0
       ? curated.slice(0, COUNT)
-      : selectNewArrivalProducts(liveProducts, COUNT);
+      : collectionArrivals.length > 0
+        ? collectionArrivals.slice(0, COUNT)
+        : selectNewArrivalProducts(liveProducts, COUNT);
 
   /* Rows carry the published cover when the Admin Portal has set one. */
   const rows = useProductCovers(arrivals);
@@ -50,7 +55,7 @@ export default function NewArrivals() {
   const collection = taxonomyRepository.findCollection("new-arrivals");
   const viewAllTo =
     collection?.displayStatus === "ACTIVE"
-      ? `/collection/${collection.slug}`
+      ? `/collections/${collection.slug}`
       : "/shop";
 
   if (!rows.length) return null;

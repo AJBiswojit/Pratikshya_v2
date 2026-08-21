@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
 import { LoadingState } from "./design-system";
 import { routeManifest } from "./config/navigationConfig";
 import { hasNavigationScope } from "./data/products/taxonomy";
@@ -144,6 +144,11 @@ const dedicatedPaths = new Set([
   "/forgot-password",
   "/reset-password",
 ]);
+
+function LegacyCollectionRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/collections/${slug}`} replace />;
+}
 
 export default function App() {
   return (
@@ -310,7 +315,8 @@ export default function App() {
                         <Route path="/shop" element={<Shop />} />
                         <Route path="/explore" element={<Explore />} />
                         <Route path="/category/:slug" element={<CatalogueListing variant="category" />} />
-                        <Route path="/collection/:slug" element={<CatalogueListing variant="collection" />} />
+                        <Route path="/collection/:slug" element={<LegacyCollectionRedirect />} />
+                        <Route path="/collections/:slug" element={<CatalogueListing variant="collection" />} />
                         <Route path="/search" element={<SearchResults />} />
                         <Route path="/product/:productId" element={<ProductDetail />} />
 

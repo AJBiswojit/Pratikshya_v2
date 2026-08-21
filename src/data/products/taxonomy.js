@@ -119,22 +119,16 @@ const categoryScope = (category) => scope(category.id, {
     filters: { category: category.id },
 });
 
-const collectionScope = (collection) => {
-  const filters = collection.rule?.flag
-    ? { flag: collection.rule.flag }
-    : collection.rule?.occasion
-      ? { occasion: collection.rule.occasion }
-      : { collectionId: collection.id };
-  return scope(collection.id, {
+const collectionScope = (collection) =>
+  scope(collection.id, {
     title: collection.name,
     eyebrow: collection.eyebrow || "Collection",
     description: collection.description,
     image: collection.image,
     heroMediaId: collection.heroMediaId,
     thumbnailMediaId: collection.thumbnailMediaId,
-    filters,
+    filters: { collectionId: collection.id },
   });
-};
 
 export const categoryRoutes = Object.fromEntries(
   activeCategories().flatMap((category) => {
@@ -158,15 +152,7 @@ export const collectionRoutes = Object.fromEntries(
  * (`src/data/catalog/taxonomy.js`); collection paths and the legacy
  * jewellery aliases are kept so existing deep links still resolve.
  */
-const collectionFilter = (collection) => {
-  if (collection.rule?.flag) return { flag: collection.rule.flag };
-  if (collection.rule?.occasion) return { occasion: collection.rule.occasion };
-  if (collection.rule?.fabricIncludes) {
-    const fabric = String(collection.rule.fabricIncludes);
-    return { fabric: fabric.charAt(0).toUpperCase() + fabric.slice(1) };
-  }
-  return { collectionId: collection.id };
-};
+const collectionFilter = (collection) => ({ collectionId: collection.id });
 
 const managedCollectionScopes = Object.fromEntries(
   taxonomyRepository.activeCollections().flatMap((collection) => {

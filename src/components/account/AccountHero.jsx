@@ -51,7 +51,7 @@ export default function AccountHero() {
           <AtelierButton as={Link} to="/account/orders" variant="outline" size="chip">
             View Orders
           </AtelierButton>
-          <AtelierButton as={Link} to="/collection/new-arrivals" variant="outline" size="chip">
+          <AtelierButton as={Link} to="/collections/new-arrivals" variant="outline" size="chip">
             Explore New Arrivals
           </AtelierButton>
           <button

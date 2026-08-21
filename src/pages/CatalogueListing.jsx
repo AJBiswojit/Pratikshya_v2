@@ -66,13 +66,17 @@ export default function CatalogueListing({ variant }) {
     scope = collectionRoutes[params.slug] ?? null;
     if (!scope) {
       const collection = taxonomyRepository.findCollection(params.slug);
-      if (collection?.displayStatus === "ACTIVE") {
+      if (collection && (collection.displayStatus === "ACTIVE" || collection.status === "ACTIVE")) {
         scope = {
           id: collection.id,
           title: collection.name,
           eyebrow: collection.eyebrow || "Collection",
           description: collection.description,
           filters: { collectionId: collection.id },
+          breadcrumb: [
+            { label: "Collections", to: "/collections" },
+            { label: collection.name },
+          ],
         };
       }
     }
@@ -91,17 +95,13 @@ export default function CatalogueListing({ variant }) {
         collectionPlates[collectionRecord?.id]
       : null;
 
-    if (collectionRecord && collectionRecord.displayStatus !== "ACTIVE") {
+    if (collectionRecord && collectionRecord.displayStatus !== "ACTIVE" && collectionRecord.status !== "ACTIVE") {
       scope = null;
     } else if (nav || collectionRecord) {
       const filters =
         nav?.filters ??
         (collectionRecord
-          ? collectionRecord.rule?.flag
-            ? { flag: collectionRecord.rule.flag }
-            : collectionRecord.rule?.occasion
-              ? { occasion: collectionRecord.rule.occasion }
-              : { collectionId: collectionRecord.id }
+          ? { collectionId: collectionRecord.id }
           : null);
       if (filters) {
         const title =
