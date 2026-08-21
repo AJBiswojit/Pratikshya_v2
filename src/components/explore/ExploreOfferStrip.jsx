@@ -13,7 +13,8 @@ import { cn } from "../../utils/cn";
  * a campaign the desk does not already know about.
  */
 export default function ExploreOfferStrip({ offers = [] }) {
-  const shippingLabel = `Complimentary shipping from ₹${FREE_SHIPPING_THRESHOLD.toLocaleString("en-IN")}`;
+  const shippingRules = readShippingRules();
+  const shippingLabel = `Complimentary shipping from ₹${shippingRules.freeShippingThreshold.toLocaleString("en-IN")}`;
 
   return (
     <motion.div

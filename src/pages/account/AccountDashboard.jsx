@@ -364,7 +364,7 @@ export default function AccountDashboard() {
               <QuietEmpty
                 title="Your next favourite piece is waiting."
                 description="Your next discovery starts here."
-                to="/collection/new-arrivals"
+                to="/collections/new-arrivals"
                 cta="Explore New Arrivals"
               />
             )}
@@ -475,7 +475,7 @@ export default function AccountDashboard() {
             <QuietEmpty
               title="Your next discovery starts here."
               description="Explore a few pieces and this edit will begin to take shape."
-              to="/collection/new-arrivals"
+              to="/collections/new-arrivals"
               cta="Explore New Arrivals"
             />
           )}
@@ -522,7 +522,7 @@ export default function AccountDashboard() {
             {collections.map((collection) => (
               <Link
                 key={collection.id}
-                to={`/collection/${collection.slug}`}
+                to={`/collections/${collection.slug}`}
                 className="group block overflow-hidden border border-mist/70"
               >
                 <MediaFrame

@@ -76,7 +76,7 @@ export default function AccountOrders() {
                 </AtelierButton>
                 <AtelierButton
                   as={Link}
-                  to="/collection/new-arrivals"
+                  to="/collections/new-arrivals"
                   variant="outline"
                   size="md"
                 >

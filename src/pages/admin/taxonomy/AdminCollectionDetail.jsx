@@ -94,7 +94,7 @@ export default function AdminCollectionDetail() {
           </AdminPanel>
           <AdminPanel eyebrow="Collection information" title="SEO & lifecycle">
             <dl className="grid gap-4">
-              <Term label="Slug" value={`/collection/${collection.slug}`} />
+              <Term label="Slug" value={`/collections/${collection.slug}`} />
               <Term label="Type" value={collection.type} />
               <Term label="Status" value={<StatusBadge label={collection.displayStatus} tone={tone[collection.displayStatus] || "quiet"} />} />
               <Term label="Dates" value={`${collection.startDate || "No start"} → ${collection.endDate || "No end"}`} />

@@ -149,7 +149,7 @@ export default function CatalogueBrowser({
                       as={Link}
                       to={
                         resolveCollectionRoute("featured")?.href ??
-                        "/collection/featured"
+                        "/collections/featured"
                       }
                       variant="outline"
                       size="md"

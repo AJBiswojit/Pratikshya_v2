@@ -18,7 +18,7 @@ import { departments as canonicalDepartments } from "../data/catalog/taxonomy";
 export const categoryPath = (slug) => `/category/${slug}`;
 
 /** The route prefix owned by the storefront's collection listing. */
-export const collectionPath = (slug) => `/collection/${slug}`;
+export const collectionPath = (slug) => `/collections/${slug}`;
 
 /**
  * The canonical destination for a category record, or null when it must not
