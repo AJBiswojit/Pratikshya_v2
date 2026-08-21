@@ -7,7 +7,7 @@
  * product workspace, offers and filters need taxonomy truth.
  */
 
-import catalogue from "../data/products/catalogue";
+import { products as catalogue } from "../data/catalog/products";
 import { departments as catalogueDepartments } from "../data/catalog/taxonomy";
 import catalogRepository, { slugify } from "./catalogRepository";
 import {

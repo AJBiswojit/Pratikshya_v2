@@ -16,26 +16,20 @@ import {
   useMemo,
   useState,
 } from "react";
-import { INITIAL_DEMO_CUSTOMERS } from "../data/mockCustomers";
 import { readStorage, writeStorage } from "../utils/shopping";
 import { isValidEmail, isValidPhone, validatePassword } from "../utils/validation";
+import {
+  CUSTOMERS_REGISTRY_KEY,
+  loadCustomerRegistry,
+  saveCustomerRegistry,
+} from "../services/customer/customerRegistry";
 
 export const AUTH_STORAGE_KEY = "pratikshya_auth";
-export const CUSTOMERS_REGISTRY_KEY = "pratikshya_customers_registry";
+export { CUSTOMERS_REGISTRY_KEY };
 
 const AuthContext = createContext(null);
 
-/**
- * Returns current list of mock registered customers from storage,
- * falling back to INITIAL_DEMO_CUSTOMERS.
- */
-const getCustomersRegistry = () => {
-  const stored = readStorage(CUSTOMERS_REGISTRY_KEY, null);
-  if (Array.isArray(stored) && stored.length > 0) {
-    return stored;
-  }
-  return INITIAL_DEMO_CUSTOMERS;
-};
+const getCustomersRegistry = () => loadCustomerRegistry();
 
 /**
  * Restores the active mock authenticated session from localStorage.
@@ -253,9 +247,9 @@ export function AuthProvider({ children }) {
         },
       };
 
-      // Persist new customer in mock registry
+      // Persist new customer in the canonical registry
       const updatedRegistry = [...registry, newCustomer];
-      writeStorage(CUSTOMERS_REGISTRY_KEY, updatedRegistry);
+      saveCustomerRegistry(updatedRegistry);
 
       const userProfile = {
         id: newCustomer.id,
@@ -357,7 +351,7 @@ export function AuthProvider({ children }) {
       const nextRegistry = registry.map((c) =>
         c.id === nextUser.id ? { ...c, ...updatedFields } : c
       );
-      writeStorage(CUSTOMERS_REGISTRY_KEY, nextRegistry);
+      saveCustomerRegistry(nextRegistry);
 
       return nextUser;
     });

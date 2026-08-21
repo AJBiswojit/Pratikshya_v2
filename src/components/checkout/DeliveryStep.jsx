@@ -12,7 +12,8 @@ import {
   validateAddress,
 } from "../../utils/checkout";
 import { formatPhone } from "../../utils/validation";
-import { formatINR, FREE_SHIPPING_THRESHOLD } from "../../utils/shopping";
+import { formatINR } from "../../utils/shopping";
+import { readShippingRules } from "../../config/commerceDefaults";
 import { AtelierButton } from "../../design-system";
 import { cn } from "../../utils/cn";
 
@@ -91,6 +92,7 @@ const DeliveryStep = forwardRef(function DeliveryStep(_props, ref) {
   const [addressError, setAddressError] = useState("");
 
   const payable = checkout.totals.total - checkout.totals.shipping - checkout.totals.codFee;
+  const { freeShippingThreshold } = readShippingRules();
 
   const feeFor = (method) => calculateDeliveryFee(method.id, payable);
   const estimateFor = (method) =>
@@ -269,9 +271,9 @@ const DeliveryStep = forwardRef(function DeliveryStep(_props, ref) {
           Delivery Method
         </h3>
         <p className="mt-1.5 font-ui text-xs text-taupe">
-          {payable >= FREE_SHIPPING_THRESHOLD
+          {payable >= freeShippingThreshold
             ? "Standard delivery is complimentary on orders at or above this value."
-            : `Standard delivery is complimentary above ${formatINR(FREE_SHIPPING_THRESHOLD)}.`}
+            : `Standard delivery is complimentary above ${formatINR(freeShippingThreshold)}.`}
         </p>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2" role="radiogroup" aria-label="Delivery method">

@@ -158,6 +158,25 @@ export const collectionRoutes = Object.fromEntries(
  * (`src/data/catalog/taxonomy.js`); collection paths and the legacy
  * jewellery aliases are kept so existing deep links still resolve.
  */
+const collectionFilter = (collection) => {
+  if (collection.rule?.flag) return { flag: collection.rule.flag };
+  if (collection.rule?.occasion) return { occasion: collection.rule.occasion };
+  if (collection.rule?.fabricIncludes) {
+    const fabric = String(collection.rule.fabricIncludes);
+    return { fabric: fabric.charAt(0).toUpperCase() + fabric.slice(1) };
+  }
+  return { collectionId: collection.id };
+};
+
+const managedCollectionScopes = Object.fromEntries(
+  taxonomyRepository.activeCollections().flatMap((collection) => {
+    const scope = { filters: collectionFilter(collection) };
+    const paths = new Set([`/collections/${collection.id}`]);
+    if (collection.slug) paths.add(`/collections/${collection.slug}`);
+    return [...paths].map((path) => [path, scope]);
+  })
+);
+
 export const navigationScopes = {
   ...catalogueNavigationScopes,
 
@@ -168,14 +187,10 @@ export const navigationScopes = {
    * `taxonomyRepository`), never the whole catalogue.
    */
   "/collections": { filters: { curated: true } },
-  "/collections/new-arrivals": { filters: { flag: "isNew" } },
-  "/collections/festive-edit": { filters: { collection: "Festive Edit" } },
-  "/collections/heritage-weaves": { filters: { collection: "Heritage Weaves" } },
-  "/collections/handloom-stories": { filters: { collection: "Handloom Stories" } },
   "/collections/cotton": { filters: { fabric: "Cotton" } },
-  "/collections/silk": { filters: { fabric: "Silk" } },
   "/collections/linen": { filters: { fabric: "Linen" } },
   "/collections/chiffon": { filters: { fabric: "Chiffon" } },
+  ...managedCollectionScopes,
 
   /* Legacy jewellery paths — bridal finishing touches today. */
   "/jewellery": { filters: { department: "bridal", category: "finishing-touches" } },

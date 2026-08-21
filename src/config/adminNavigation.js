@@ -18,12 +18,6 @@ export const ADMIN_BRAND = {
   login: "/admin/login",
 };
 
-/** Module readiness — retained for compatibility. Every listed module is READY. */
-export const MODULE_STATUS = {
-  READY: "READY",
-  SOON: "SOON",
-};
-
 /**
  * Grouped Admin navigation. Operational sub-routes are kept as `children`
  * inside their parent section so the sidebar stays clean while every
@@ -169,20 +163,6 @@ export const findAdminNavItem = (pathname) => {
   );
 };
 
-/** Copy for modules that were historically placeholders — retained for the
- *  un-routed AdminModulePlaceholder compatibility. All listed modules are
- *  now implemented, so this is unused by the live sidebar. */
-export const ADMIN_PLACEHOLDER_COPY = {
-  products: "Product creation, editing and merchandising move here in a later phase.",
-  categories: "Category structure and taxonomy management arrive with the product module.",
-  collections: "Curated collection building arrives with the product module.",
-  offers: "Offer creation, scheduling and coupon rules arrive with the promotions module.",
-  orders: "Full order administration arrives with the order-operations module. Recent orders are already on the dashboard.",
-  customers: "Customer administration arrives with the CRM module.",
-  returns: "Return administration arrives with the order-operations module.",
-  settings: "Business settings arrive once the operational modules above are in place.",
-};
-
 /**
  * Only same-origin `/admin` destinations may be used as a return URL.
  * Anything else falls back to the dashboard.
@@ -206,12 +186,10 @@ export const sanitizeAdminReturnUrl = (url, fallback = "/admin") => {
 
 export default {
   ADMIN_BRAND,
-  MODULE_STATUS,
   ADMIN_NAV_GROUPS,
   flattenAdminNavLinks,
   resolveActiveNavId,
   ADMIN_NAV_ITEMS,
   findAdminNavItem,
-  ADMIN_PLACEHOLDER_COPY,
   sanitizeAdminReturnUrl,
 };

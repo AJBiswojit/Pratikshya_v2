@@ -11,6 +11,11 @@
  * would replace without touching the UI.
  */
 
+import {
+  COMMERCE_DEFAULTS,
+  readShippingRules,
+} from "../config/commerceDefaults";
+
 /* ------------------------------------------------------------------ */
 /* Storage                                                             */
 /* ------------------------------------------------------------------ */
@@ -113,8 +118,9 @@ export const defaultSelection = (product) => ({
  * threshold ships free, everything below carries a flat fee. A shipping
  * service replaces this one function later.
  */
-export const FREE_SHIPPING_THRESHOLD = 5000;
-export const FLAT_SHIPPING_FEE = 99;
+export const FREE_SHIPPING_THRESHOLD = COMMERCE_DEFAULTS.freeShippingThreshold;
+export const FLAT_SHIPPING_FEE = COMMERCE_DEFAULTS.defaultShippingFee;
+export { readShippingRules };
 
 /** Sum of current selling prices × quantities. */
 export const calculateCartSubtotal = (items) =>
@@ -172,15 +178,9 @@ export const calculateCouponDiscount = (items, coupon) => {
 /** Demo shipping: free at the threshold, a flat fee below it, nothing on an empty bag. */
 export const calculateShipping = (payableSubtotal) => {
   if (payableSubtotal <= 0) return 0;
-  try {
-    const shipping = JSON.parse(localStorage.getItem("pratikshya_settings"))?.shipping;
-    if (shipping?.enabled === false) return 0;
-    const threshold = Number(shipping?.freeShippingThreshold ?? FREE_SHIPPING_THRESHOLD);
-    const fee = Number(shipping?.defaultShippingFee ?? FLAT_SHIPPING_FEE);
-    return payableSubtotal >= threshold ? 0 : fee;
-  } catch {
-    return payableSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_FEE;
-  }
+  const shipping = readShippingRules();
+  if (shipping.enabled === false) return 0;
+  return payableSubtotal >= shipping.freeShippingThreshold ? 0 : shipping.defaultShippingFee;
 };
 
 /**
@@ -202,10 +202,10 @@ export const calculateCartTotals = (items, coupon = null) => {
     shipping,
     total,
     saved: productDiscount + couponDiscount,
-    freeShippingRemainder:
-      payable > 0 && payable < FREE_SHIPPING_THRESHOLD
-        ? FREE_SHIPPING_THRESHOLD - payable
-        : 0,
+    freeShippingRemainder: (() => {
+      const threshold = readShippingRules().freeShippingThreshold;
+      return payable > 0 && payable < threshold ? threshold - payable : 0;
+    })(),
   };
 };
 

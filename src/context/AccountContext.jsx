@@ -16,11 +16,12 @@ import {
   useState,
 } from "react";
 import { useAuth } from "./AuthContext";
-import {
-  CUSTOMERS_REGISTRY_KEY,
-} from "./AuthContext";
 import { INITIAL_DEMO_CUSTOMERS } from "../data/mockCustomers";
 import { readStorage, writeStorage } from "../utils/shopping";
+import {
+  loadCustomerRegistry,
+  saveCustomerRegistry,
+} from "../services/customer/customerRegistry";
 
 const ACCOUNT_STORAGE_PREFIX = "pratikshya_account_";
 
@@ -115,8 +116,8 @@ export function AccountProvider({ children }) {
     const storageKey = `${ACCOUNT_STORAGE_PREFIX}${user.id}`;
     writeStorage(storageKey, accountData);
 
-    // Also sync back to mock registry for consistency
-    const registry = readStorage(CUSTOMERS_REGISTRY_KEY, INITIAL_DEMO_CUSTOMERS);
+    // Also sync back to the canonical customer registry
+    const registry = loadCustomerRegistry();
     if (Array.isArray(registry)) {
       const updatedRegistry = registry.map((c) =>
         c.id === user.id
@@ -133,7 +134,7 @@ export function AccountProvider({ children }) {
             }
           : c
       );
-      writeStorage(CUSTOMERS_REGISTRY_KEY, updatedRegistry);
+      saveCustomerRegistry(updatedRegistry);
     }
   }, [user?.id, accountData]);
 

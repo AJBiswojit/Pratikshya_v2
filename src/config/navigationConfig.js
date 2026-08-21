@@ -14,6 +14,40 @@
  */
 
 import { catalogueRoutes, departments } from "../data/catalog/taxonomy";
+import taxonomyRepository from "../services/taxonomyRepository";
+
+const collectionPath = (collection) => `/collections/${collection.id}`;
+
+const collectionNavigationColumns = () => {
+  const collections = taxonomyRepository.activeCollections();
+  const fabric = collections.filter((collection) => collection.rule?.fabricIncludes);
+  const editorial = collections.filter((collection) => !collection.rule?.fabricIncludes);
+  const columns = [];
+  if (editorial.length) {
+    columns.push({
+      title: "Editorial",
+      links: editorial.map((collection) => ({
+        label: collection.name,
+        to: collectionPath(collection),
+      })),
+    });
+  }
+  if (fabric.length) {
+    columns.push({
+      title: "Fabrics",
+      links: fabric.map((collection) => ({
+        label: collection.name,
+        to: collectionPath(collection),
+      })),
+    });
+  }
+  return columns;
+};
+
+const heritageWeaves = () =>
+  taxonomyRepository.findCollection("heritage-weaves") ||
+  taxonomyRepository.activeCollections()[0] ||
+  null;
 
 export const brand = {
   name: "PRATIKSHYA FASHON",
@@ -62,32 +96,13 @@ export const primaryNavigation = [
     eyebrow: "Editorial Collections",
     description:
       "Seasonal edits and fabric stories drawn from the atelier's weaving and finishing traditions.",
-    columns: [
-      {
-        title: "Editorial",
-        links: [
-          { label: "New Arrivals", to: "/collections/new-arrivals" },
-          { label: "Festive Edit", to: "/collections/festive-edit" },
-          { label: "Heritage Weaves", to: "/collections/heritage-weaves" },
-          { label: "Handloom Stories", to: "/collections/handloom-stories" },
-        ],
-      },
-      {
-        title: "Fabrics",
-        links: [
-          { label: "Cotton", to: "/collections/cotton" },
-          { label: "Silk", to: "/collections/silk" },
-          { label: "Linen", to: "/collections/linen" },
-          { label: "Chiffon", to: "/collections/chiffon" },
-        ],
-      },
-    ],
+    columns: collectionNavigationColumns(),
     feature: {
       image: null,
       eyebrow: "Fabric Stories",
-      title: "Heritage Weaves",
-      caption: "Woven, finished and chosen with intention.",
-      to: "/collections/heritage-weaves",
+      title: heritageWeaves()?.name || "Heritage Weaves",
+      caption: heritageWeaves()?.description || "Woven, finished and chosen with intention.",
+      to: heritageWeaves() ? collectionPath(heritageWeaves()) : "/collections",
     },
   },
 ];

@@ -4,12 +4,13 @@ import EmployeeField, { employeeInputClass } from "../../components/employee/Emp
 import EmployeePage from "../../components/employee/EmployeePage";
 import { searchProducts } from "../../services/employees/operationsService";
 import { useEmployeeAuth } from "../../context/EmployeeAuthContext";
+import { useOrder } from "../../context/OrderContext";
 import { formatINR } from "../../utils/shopping";
-import { writeStorage, readStorage } from "../../utils/shopping";
-import { EMPLOYEE_STORAGE_KEYS } from "../../services/employees/storage";
+import { ORDER_STATUS } from "../../config/orderConfig";
 
 export default function EmployeeAssistedOrder() {
   const { employee } = useEmployeeAuth();
+  const { createOrder } = useOrder();
   const [customer, setCustomer] = useState("");
   const [phone, setPhone] = useState("");
   const [query, setQuery] = useState("");
@@ -23,22 +24,60 @@ export default function EmployeeAssistedOrder() {
     event.preventDefault();
     if (!customer.trim() || !selected) return;
     const id = `PF-FLR-${String(Math.floor(20 + Math.random() * 80)).padStart(5, "0")}`;
-    const record = {
+    const associate = `${employee.firstName} ${employee.lastName}`;
+    const amount = Number(selected.price) || 0;
+    const now = new Date().toISOString();
+    const result = createOrder({
       id,
-      employeeId: employee.employeeId,
-      associate: `${employee.firstName} ${employee.lastName}`,
-      customer: customer.trim(),
-      phone: phone.trim(),
-      department: selected.categoryLabel,
+      customerId: null,
+      source: "employee_assisted",
+      channel: "ASSISTED",
+      createdBy: employee.employeeId,
+      associate,
+      floorStatus: "Hold — floor ticket",
+      customer: {
+        fullName: customer.trim(),
+        email: "",
+        phone: phone.trim(),
+      },
+      items: [
+        {
+          lineId: "line-0",
+          productId: selected.id,
+          name: selected.name,
+          image: selected.image,
+          quantity: 1,
+          price: amount,
+          lineTotal: amount,
+        },
+      ],
+      pricing: {
+        subtotal: amount,
+        productDiscount: 0,
+        couponDiscount: 0,
+        shipping: 0,
+        codFee: 0,
+        total: amount,
+        saved: 0,
+      },
+      paymentMethod: { id: "cod", label: "Floor ticket" },
+      deliveryMethod: { id: "standard", label: "Store / Floor" },
+      status: ORDER_STATUS.ORDER_CONFIRMED,
+      createdAt: now,
+      notes: {
+        customer: "",
+        internal: note
+          ? [{ text: note, at: now, by: associate }]
+          : [],
+      },
+    });
+    if (!result?.ok || !result.order) return;
+    setTicket({
+      id: result.order.id,
+      customer: result.order.customer?.fullName,
       pieces: selected.name,
-      amount: selected.price,
-      status: "Hold — floor ticket",
-      createdAt: new Date().toISOString(),
-      note,
-    };
-    const existing = readStorage(EMPLOYEE_STORAGE_KEYS.ASSISTED_ORDERS, []) || [];
-    writeStorage(EMPLOYEE_STORAGE_KEYS.ASSISTED_ORDERS, [record, ...(Array.isArray(existing) ? existing : [])]);
-    setTicket(record);
+      amount,
+    });
   };
 
   return (

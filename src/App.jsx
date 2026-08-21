@@ -48,6 +48,7 @@ const OrderTracking = lazy(() => import("./pages/account/OrderTracking"));
 const OrderReturn = lazy(() => import("./pages/account/OrderReturn"));
 const AccountSettings = lazy(() => import("./pages/account/AccountSettings"));
 const AccountSecurity = lazy(() => import("./pages/account/AccountSecurity"));
+const AccountPreferences = lazy(() => import("./pages/account/AccountPreferences"));
 const AiMirror = lazy(() => import("./pages/account/AiMirror"));
 const AiShoppingAssistant = lazy(() => import("./pages/account/AiShoppingAssistant"));
 
@@ -71,6 +72,7 @@ const EmployeeOfferForm = lazy(() => import("./pages/employee/EmployeeOfferForm"
 const EmployeeOfferDetail = lazy(() => import("./pages/employee/EmployeeOfferDetail"));
 const EmployeeAccessDenied = lazy(() => import("./pages/employee/EmployeeAccessDenied"));
 const EmployeeDesk = lazy(() => import("./pages/employee/EmployeeDesk"));
+const EmployeeReports = lazy(() => import("./pages/employee/EmployeeReports"));
 const EmployeeMediaDashboard = lazy(() => import("./pages/employee/EmployeeMediaDashboard"));
 const EmployeeMediaUpload = lazy(() => import("./pages/employee/EmployeeMediaUpload"));
 const EmployeeMediaDetail = lazy(() => import("./pages/employee/EmployeeMediaDetail"));
@@ -254,8 +256,8 @@ export default function App() {
                           <Route path="/employee/products/:productId/edit" element={<EmployeeProductForm />} />
                           <Route path="/employee/customers" element={<EmployeeCustomers />} />
                           <Route path="/employee/orders" element={<EmployeeOrders />} />
-                          <Route path="/employee/orders/:orderId" element={<EmployeeOrderDetail />} />
                           <Route path="/employee/orders/assisted" element={<EmployeeAssistedOrder />} />
+                          <Route path="/employee/orders/:orderId" element={<EmployeeOrderDetail />} />
                           <Route path="/employee/offers" element={<EmployeeOffers />} />
                           <Route path="/employee/offers/new" element={<EmployeeOfferForm />} />
                           <Route path="/employee/offers/:offerId/edit" element={<EmployeeOfferForm />} />
@@ -287,7 +289,14 @@ export default function App() {
                           <Route path="/employee/styling/wedding" element={<EmployeeDesk />} />
                           <Route path="/employee/sales" element={<EmployeeDesk />} />
                           <Route path="/employee/team" element={<EmployeeDesk />} />
-                          <Route path="/employee/reports" element={<EmployeeDesk />} />
+                          <Route path="/employee/reports" element={<EmployeeReports />} />
+                          <Route path="/employee/reports/sales" element={<EmployeeReports />} />
+                          <Route path="/employee/reports/products" element={<EmployeeReports />} />
+                          <Route path="/employee/reports/customers" element={<EmployeeReports />} />
+                          <Route path="/employee/reports/inventory" element={<EmployeeReports />} />
+                          <Route path="/employee/reports/returns" element={<EmployeeReports />} />
+                          <Route path="/employee/reports/offers" element={<EmployeeReports />} />
+                          <Route path="/employee/reports/employees" element={<EmployeeReports />} />
                           {/* Legacy people-admin URL is retained only as a safe
                               self-profile redirect. Employee account management
                               exists exclusively at /admin/employees. */}
@@ -327,6 +336,7 @@ export default function App() {
                           <Route path="/account/orders" element={<AccountOrders />} />
                           <Route path="/account/settings" element={<AccountSettings />} />
                           <Route path="/account/security" element={<AccountSecurity />} />
+                          <Route path="/account/preferences" element={<AccountPreferences />} />
                           <Route path="/account/ai-mirror" element={<AiMirror />} />
                           <Route path="/account/ai-shopping" element={<AiShoppingAssistant />} />
                         </Route>

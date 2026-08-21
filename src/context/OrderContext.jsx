@@ -156,9 +156,10 @@ export function OrderProvider({ children }) {
 
   const createOrder = useCallback((snapshot) => {
     const result = orderService.addOrder(ordersRef.current, snapshot);
-    if (!result.ok || !result.order) return { ok: false, order: null, message: "" };
+    if (!result.ok || !result.order) return { ok: false, order: null, message: result.message || "" };
     ordersRef.current = result.orders;
     setOrders(result.orders);
+    orderService.saveOrders(result.orders);
     setCurrentOrderId(result.order.id);
     return { ok: true, order: result.order, message: result.message };
   }, []);

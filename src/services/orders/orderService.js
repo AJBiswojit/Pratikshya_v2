@@ -12,6 +12,7 @@
 import {
   ORDER_PAYMENT_STATUS,
   ORDER_STATUS,
+  ORDER_STATUSES,
   canTransition,
   FULFILLMENT_STATUS,
   ORDER_ACTIVITY_TYPES,
@@ -26,12 +27,115 @@ import {
   refundMethodLabel,
 } from "../../utils/orders";
 import { readStorage, writeStorage } from "../../utils/shopping";
+import { EMPLOYEE_STORAGE_KEYS } from "../employees/storage";
 import { buildFulfillmentRecord, normaliseFulfillment, mapOrderStatusToFulfillmentStatus } from "./fulfillmentService";
 import { buildTimelineEvent, appendTimeline } from "./orderTimelineService";
 import { generateDemoOrders } from "./demoOrders";
 
 export const ORDERS_STORAGE_KEY = "pratikshya_orders";
 export const CURRENT_ORDER_KEY = "pratikshya_current_order";
+export const LEGACY_ASSISTED_ORDERS_KEY = EMPLOYEE_STORAGE_KEYS.ASSISTED_ORDERS;
+
+const removeStorageKey = (key) => {
+  try {
+    if (typeof window !== "undefined") window.localStorage.removeItem(key);
+    else if (typeof localStorage !== "undefined") localStorage.removeItem(key);
+  } catch {
+    /* Persistence is an enhancement only. */
+  }
+};
+
+/**
+ * Lift a floor ticket from the legacy assisted-order store into a canonical
+ * order record. Product IDs, customer details, totals, timestamps, status
+ * and employee attribution are preserved.
+ */
+export const transformAssistedOrder = (raw) => {
+  if (!raw || typeof raw !== "object" || !raw.id) return null;
+  const amount = Number(raw.amount ?? raw.pricing?.total ?? 0) || 0;
+  const items =
+    Array.isArray(raw.items) && raw.items.length
+      ? raw.items
+      : [
+          {
+            lineId: "line-0",
+            productId: raw.productId || null,
+            name: raw.pieces || "Assisted piece",
+            quantity: 1,
+            price: amount,
+            lineTotal: amount,
+          },
+        ];
+  const customer =
+    raw.customer && typeof raw.customer === "object"
+      ? raw.customer
+      : {
+          fullName: raw.customer || "Walk-in",
+          email: raw.email || "",
+          phone: raw.phone || "",
+        };
+
+  return {
+    id: String(raw.id),
+    customerId: raw.customerId || null,
+    customer,
+    items,
+    pricing: raw.pricing || {
+      subtotal: amount,
+      productDiscount: 0,
+      couponDiscount: 0,
+      shipping: 0,
+      codFee: 0,
+      total: amount,
+      saved: 0,
+    },
+    paymentMethod: raw.paymentMethod || { id: "cod", label: "Floor ticket" },
+    deliveryMethod: raw.deliveryMethod || { id: "standard", label: "Store / Floor" },
+    status: ORDER_STATUSES[raw.status] ? raw.status : ORDER_STATUS.ORDER_CONFIRMED,
+    channel: "ASSISTED",
+    source: "employee_assisted",
+    createdBy: raw.createdBy || raw.employeeId || null,
+    associate: raw.associate || "",
+    floorStatus: typeof raw.status === "string" && !ORDER_STATUSES[raw.status] ? raw.status : raw.floorStatus || null,
+    createdAt: raw.createdAt || new Date().toISOString(),
+    notes: {
+      customer: "",
+      internal: raw.note
+        ? [{ text: raw.note, at: raw.createdAt || new Date().toISOString(), by: raw.associate || "Associate" }]
+        : [],
+    },
+  };
+};
+
+/**
+ * Idempotent merge of `pratikshya_employee_assisted_orders` into the
+ * canonical order register. Safe to run more than once. When there is
+ * nothing to migrate, this is a no-op.
+ */
+export const migrateAssistedOrders = (existing = []) => {
+  const stored = readStorage(LEGACY_ASSISTED_ORDERS_KEY, null);
+  if (!Array.isArray(stored) || stored.length === 0) {
+    if (stored !== null) removeStorageKey(LEGACY_ASSISTED_ORDERS_KEY);
+    return existing;
+  }
+
+  const byId = new Map(existing.map((order) => [order.id, order]));
+  stored.forEach((raw) => {
+    const transformed = transformAssistedOrder(raw);
+    const order = transformed ? normaliseOrder(transformed) : null;
+    if (!order || byId.has(order.id)) return;
+    byId.set(order.id, order);
+  });
+  const merged = [...byId.values()].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  writeStorage(ORDERS_STORAGE_KEY, merged);
+  removeStorageKey(LEGACY_ASSISTED_ORDERS_KEY);
+  return merged;
+};
+
+export const isAssistedOrder = (order) =>
+  Boolean(order) && (order.channel === "ASSISTED" || order.source === "employee_assisted");
 
 /* ------------------------------------------------------------------ */
 /* Persistence                                                         */
@@ -39,14 +143,14 @@ export const CURRENT_ORDER_KEY = "pratikshya_current_order";
 
 export const loadOrders = () => {
   const stored = readStorage(ORDERS_STORAGE_KEY, null);
-  let orders = normaliseOrders(stored);
+  let orders = migrateAssistedOrders(normaliseOrders(stored));
   if (orders.length === 0) {
     // Seed demo orders only when browser has no orders — never overwrites real orders
     try {
       const demo = generateDemoOrders();
       if (demo.length) {
         writeStorage(ORDERS_STORAGE_KEY, demo);
-        orders = normaliseOrders(demo);
+        orders = migrateAssistedOrders(normaliseOrders(demo));
       }
     } catch (e) {
       // Seeding is best-effort, never breaks order loading

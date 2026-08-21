@@ -80,37 +80,55 @@ export default function CatalogueListing({ variant }) {
     // A Phase 3 navigation path (/women, /kids/boys, /collections/...).
     const nav = resolveNavigationScope(pathname);
     const meta = getRouteMeta(pathname);
-    if (nav && meta) {
-      const collectionSlug = pathname.replace(/^\/collections\/?/, "");
-      const collectionRecord = collectionSlug
-        ? taxonomyRepository.findCollection(collectionSlug)
-        : null;
-      const plate = collectionSlug
-        ? collectionPlates[collectionSlug] ??
-          collectionPlates[collectionRecord?.id]
-        : null;
+    const collectionSlug = pathname.startsWith("/collections/")
+      ? pathname.slice("/collections/".length)
+      : "";
+    const collectionRecord = collectionSlug
+      ? taxonomyRepository.findCollection(collectionSlug)
+      : null;
+    const plate = collectionSlug
+      ? collectionPlates[collectionSlug] ??
+        collectionPlates[collectionRecord?.id]
+      : null;
 
-      scope = {
-        id: collectionRecord?.id ?? plate?.id ?? null,
-        title: collectionRecord?.name ?? plate?.name ?? nav.title ?? meta.label,
-        eyebrow:
-          collectionRecord?.eyebrow || plate?.eyebrow || meta.eyebrow,
-        description:
-          collectionRecord?.description ?? plate?.description ?? meta.description,
-        filters: nav.filters,
-        breadcrumb: collectionSlug
-          ? [
-              { label: "Collections", to: "/collections" },
-              {
-                label:
-                  collectionRecord?.name ??
-                  plate?.name ??
-                  nav.title ??
-                  meta.label,
-              },
-            ]
-          : meta.breadcrumb,
-      };
+    if (collectionRecord && collectionRecord.displayStatus !== "ACTIVE") {
+      scope = null;
+    } else if (nav || collectionRecord) {
+      const filters =
+        nav?.filters ??
+        (collectionRecord
+          ? collectionRecord.rule?.flag
+            ? { flag: collectionRecord.rule.flag }
+            : collectionRecord.rule?.occasion
+              ? { occasion: collectionRecord.rule.occasion }
+              : { collectionId: collectionRecord.id }
+          : null);
+      if (filters) {
+        const title =
+          collectionRecord?.name ??
+          plate?.name ??
+          nav?.title ??
+          meta?.label ??
+          collectionSlug;
+        scope = {
+          id: collectionRecord?.id ?? plate?.id ?? null,
+          title,
+          eyebrow:
+            collectionRecord?.eyebrow || plate?.eyebrow || meta?.eyebrow || "Collection",
+          description:
+            collectionRecord?.description ??
+            plate?.description ??
+            meta?.description ??
+            "",
+          filters,
+          breadcrumb: collectionSlug
+            ? [
+                { label: "Collections", to: "/collections" },
+                { label: title },
+              ]
+            : meta?.breadcrumb,
+        };
+      }
     }
   }
 
