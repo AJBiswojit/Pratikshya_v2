@@ -1,27 +1,37 @@
-# PRATIKSHYA FASHON --- Phase 2
+# PRATIKSHYA FASHON — Backend Architecture, Database & API Contract Design
 
-# Backend Architecture, Database & API Contract Design
-
-**Status:** ARCHITECTURE COMPLETE --- awaiting explicit approval before any implementation.\
-**Date:** 2026-08-21\
-**Scope:** Production backend for the cleaned Phase 1 frontend at `AJBiswojit/Pratikshya_v2`.\
+**Status:** PLANNED ARCHITECTURE — the backend is **not implemented**. This document is design/audit only and describes the **target** Python + FastAPI backend, clearly separated from the **current** frontend and the **future** AI layer.\
+**Date:** 2026-08-21 (updated to reflect completed Phase 1 frontend stabilization)\
+**Scope:** Planned production backend for the stabilized Phase 1 frontend at `AJBiswojit/Pratikshya_v2`.\
 **Constraint honoured:** No backend files, migrations, APIs, servers, storage integrations, or payment integrations were created. This document is the only deliverable.
+
+**Backend technology decision (FINAL):** Python + FastAPI + PostgreSQL + SQLAlchemy + Alembic, with a future AI service layer. Node.js/Express, NestJS, Java Spring Boot, PHP, and Django-as-primary-framework are **not** the planned stack.
 
 **Companions (do not replace):**
 
 -   `docs/backend-integration-audit.md` --- frontend → backend feature matrix
 -   `docs/feature-rationalization-audit.md` --- cleanup / single-source decisions
--   `docs/employee-management-api-contract.md` --- Admin employee-account contract
+-   `docs/employee-management-api-contract.md` --- Admin + Employee API contract
 
 ------------------------------------------------------------------------
 
 ## 0. How to read this document
 
+This document distinguishes three states throughout. Treat anything that does not exist yet in the repository as **planned/target**, not as implemented:
+
+| State | Meaning | Where it appears |
+|---|---|---|
+| **CURRENT** | What the React + Vite frontend does today (localStorage + repositories + static seeds) | "Current frontend architecture", §8, §34 |
+| **PLANNED / TARGET** | The FastAPI backend this document specifies (not yet built) | §4–§42 |
+| **FUTURE** | AI services and deferred infrastructure (not in V1) | §44, §44.1 |
+
+Do **not** read planned FastAPI endpoints, PostgreSQL tables, or Alembic migrations as existing. Use "planned", "target", "proposed", and "migration target" terminology for backend components.
+
 This architecture **formalizes the cleaned frontend**. It does not invent a competing catalogue, a second lifecycle, a second order store, or a second permission vocabulary.
 
 **ONE BUSINESS CAPABILITY → ONE AUTHORITATIVE SOURCE → ONE BACKEND SERVICE → ONE API CONTRACT → ONE DATABASE MODEL**
 
-After this document: **STOP.** Phase 3 begins only after explicit approval of §42.
+After this document: **STOP.** Backend implementation (Phase A–L, §42) begins only after explicit approval.
 
 ------------------------------------------------------------------------
 
@@ -46,6 +56,21 @@ The **authoritative source of truth** for:
 
 The frontend remains the **UX source of truth**. It must never again be authoritative for price, stock, publication, payment success, role, or media URLs.
 
+### Current frontend architecture (post-Phase 1 stabilization)
+
+Phase 1 frontend stabilization is **complete** and verified by the regression suite. The current frontend is:
+
+-   **Stack:** React 19 + Vite 7 + Tailwind 4 + React Router 7, single-file production build (`vite-plugin-singlefile`), no HTTP backend.
+-   **Canonical customer storage:** `pratikshya_customers_registry` (via `services/customer/customerRegistry.js`). The legacy `pratikshya_customers` admin list is **migration/legacy only** — merged once, then removed. Admin CRM, Employee directory, account area, and analytics all read the one registry.
+-   **Canonical order storage:** `pratikshya_orders` (via `services/orders/orderService.js`). Assisted employee orders are the **same order entity** with `channel = "ASSISTED"` / `source = "employee_assisted"`; the legacy `pratikshya_employee_assisted_orders` key is **migration/legacy only**.
+-   **Single-source commerce numbers:** `config/commerceDefaults.js` holds authored shipping/COD defaults; runtime authority is Admin Settings (`pratikshya_settings`) through `readShippingRules()` / `readPaymentRules()`. `checkoutConfig.js` is UI metadata only.
+-   **Collection fixes:** `FREE_SHIPPING_THRESHOLD` is now defined (Explore no longer fails at runtime); New Arrivals resolves through `taxonomyRepository.isProductInCollection(product, "new-arrivals")` (Admin ↔ storefront wired); collection membership resolves through **one** `taxonomyRepository.isProductInCollection` function (manual IDs + `rule.flag` / `rule.occasion` / `rule.fabricIncludes`); `/collection/:slug` is a legacy redirect to the canonical `/collections/:slug`.
+-   **Shared portal shell:** `PortalShell` + `PortalSidebar` + `usePortalSidebarCollapse` + `usePortalDrawer` + `RailTooltip` power both Admin and Employee portals. Desktop supports expanded / collapsed (72px rail with tooltips, active states preserved); mobile uses an off-canvas drawer with backdrop, Escape handling, focus management, body-scroll lock, and auto-close on navigation. Collapse preferences persist in `pratikshya_admin_sidebar_collapsed` and `pratikshya_employee_sidebar_collapsed` (UI chrome — not business settings).
+-   **Admin Collection Detail is responsive:** shrinkable `minmax(0, …)` grid tracks, `min-w-0`, `table-fixed` product table, truncated product names, internal table scrolling only when necessary; main content expands when the sidebar collapses (`flex-1 min-w-0` in `PortalShell`).
+-   **Dead code removed** (Phase 1 low-risk cleanup): `CorrectionDialog`, `AdminModulePlaceholder`, `AdminComingSoon`, `ADMIN_PLACEHOLDER_COPY`/`MODULE_STATUS`, `data/products/catalogue.js` shim, `loadAttendanceMap`, and the `demoOrders.js` stub body.
+
+The backend described in the rest of this document **replaces these repositories** feature-by-feature; it does not rewrite pages.
+
 ### Non-negotiable rules (carried from Phase 1)
 
 1.  **ONE `products` table.** No `women_products` / `men_products` / `kids_products` / `bridal_products`.
@@ -55,9 +80,9 @@ The frontend remains the **UX source of truth**. It must never again be authorit
 5.  **Marketing placements store product IDs only** --- never product snapshots.
 6.  **Brand lock:** `src/assets/pratikshya_logo.webp` stays a frontend asset.
 7.  **Sandbox QR is sandbox-only** and can never mark a live order paid.
-8.  **Assisted orders are the same order entity** with `channel = ASSISTED`.
-9.  **One customer identity** --- Admin CRM, Employee directory, and storefront account share `customers`.
-10. **Shipping / COD / tax numbers live in settings**, not in checkout UI config.
+8.  **Assisted orders are the same order entity** with `channel = ASSISTED`. *(Implemented in Phase 1.)*
+9.  **One customer identity** --- Admin CRM, Employee directory, and storefront account share `customers`. *(Implemented in Phase 1.)*
+10. **Shipping / COD / tax numbers live in settings**, not in checkout UI config. *(Implemented in Phase 1 via `commerceDefaults` + settings authority.)*
 
 ### Python and future AI integration
 
@@ -81,35 +106,39 @@ The commerce backend remains the single modular monolith and the future AI layer
 
 ### What this phase does **not** do
 
--   Does not create ````text
+This phase does **not** create the `backend/` directory, write any FastAPI code, migrations, schemas, or storage/payment integrations, and does **not** modify frontend functionality. The layout below is the **planned** repository structure (the mandated conceptual baseline), with the more granular layer names from earlier revisions mapped onto it.
+
+### Planned backend repository layout (conceptual — do not create yet)
+
+```text
 backend/
 ├── app/
-│   ├── config/            # environment, constants, placement catalogue, permission keys
-│   ├── middleware/        # auth, RBAC, idempotency, rate-limit, request-id, CSRF
+│   ├── main.py            # FastAPI application factory, lifespan, health
+│   ├── core/              # environment config, constants, placement catalogue, permission keys
 │   ├── api/               # FastAPI routers — HTTP only
-│   │   └── v1/
-│   ├── controllers/       # parse request, call service, map HTTP status
-│   ├── services/          # business commands
-│   ├── repositories/      # SQLAlchemy — no HTTP, no auth decisions
-│   ├── schemas/           # Pydantic v2 request/response schemas
-│   ├── validators/        # domain validators
-│   ├── policies/          # authorization helpers
-│   ├── models/            # SQLAlchemy ORM models
-│   ├── events/            # in-process domain events → audit_logs (NOT Kafka)
-│   ├── utils/             # money, ids, time, hashing
-│   ├── tasks/             # scheduled/background jobs
-│   └── main.py            # FastAPI application factory, lifespan, health
-├── migrations/            # Alembic revisions
+│   │   └── v1/            # versioned REST surface (all routes live here)
+│   ├── models/            # SQLAlchemy ORM models (tables)
+│   ├── schemas/           # Pydantic v2 request/response schemas (validators folded in)
+│   ├── repositories/      # SQLAlchemy data-access — no HTTP, no auth decisions
+│   ├── services/          # business commands / transactions / lifecycle (controllers folded in)
+│   ├── dependencies/      # DI: auth principal, RBAC, policies, pagination
+│   ├── middleware/        # auth, RBAC, idempotency, rate-limit, request-id, CORS, CSRF
+│   ├── workers/           # scheduled/background jobs (expiry sweepers, notifications)
+│   └── ai/                # FUTURE AI service boundary (empty scaffold only — see §44.1)
+├── alembic/               # Alembic migration revisions
 ├── seeds/                 # taxonomy, canonical products, admin, settings
 ├── tests/
 │   ├── unit/
 │   ├── integration/
 │   ├── api/
 │   └── concurrency/
+├── requirements.txt
 ├── alembic.ini
-├── pyproject.toml
-└── .env.example
+├── .env.example
+└── README.md
 ```
+
+Earlier revision names map onto this structure as follows: `config` → `core`, `controllers` → `services` (route handlers parse + delegate only), `validators`/`policies` → `dependencies`/`schemas`, `events`/`tasks` → `workers`, `utils` → `core`. The rest of this document uses those logical layer names interchangeably; the directory above is the target.
 
 ### Layer responsibilities
 
@@ -161,6 +190,7 @@ One Python application process. One PostgreSQL database. Cross-domain work (chec
     RETURNS           returns · return_items
     CUSTOMERS         addresses · preferences (profile columns on customers)
     WORKFORCE         attendance · leave · performance          (V1 — portal already uses them)
+    NOTIFICATIONS     notification_templates · notification_deliveries   (V1 — order status, staff events; see §27.1)
     SYSTEM            settings · audit_logs · idempotency_keys
 
 ### Explicitly not domains in V1
@@ -320,6 +350,8 @@ Bytes live in object storage. Authored catalogue plates (`product.media.primary/
   `leave_requests`         Leave workflow                                Yes
   `performance_records`    Reviews / targets                             Yes
   `settings`               JSONB sections matching `SETTINGS_DEFAULTS`   Yes
+  `notification_templates` Seeded copy per event kind (§27.1)            Yes (catalogue)
+  `notification_deliveries` Queued/attempted outbound notifications (§27.1) Yes
   `audit_logs`             Immutable house diary                         Yes
   `idempotency_keys`       Payment/order/refund/reserve                  Yes
   `product_id_sequences`   Per-family serial for `PF-…-NNNN`             Yes
@@ -491,7 +523,9 @@ See §31 for keys/indexes/on-delete. Summary of the important ones:
 
   Brand logo                                    Frontend asset              Nothing else
 
-  Nav collapse (`pf_*_nav_groups`)              Frontend                    Keep localStorage
+  Sidebar collapse (`pratikshya_admin_sidebar_collapsed`, `pratikshya_employee_sidebar_collapsed`)  Frontend  Keep localStorage (UI chrome)
+
+  Nav group expansion (`pf_admin_nav_groups`, `pf_employee_nav_groups`)  Frontend    Keep localStorage (UI chrome)
 
   Recently viewed / style prefs                 Frontend V1, backend V1.5   Client cache OK
 
@@ -583,9 +617,14 @@ Cookie sessions require CSRF on mutating requests:
 
 Webhook routes (`POST /payments/webhooks`) are **not** cookie-authenticated; they verify gateway signatures instead and must skip CSRF.
 
-## 9.6 Refresh
+## 9.6 Access + refresh tokens
 
-No separate refresh token in V1. Sliding cookie renewal on authenticated requests. If a native app appears later, add rotating refresh tokens.
+> **Updated decision (supersedes the earlier "no refresh token in V1" note).** The planned FastAPI auth issues **short-lived access tokens (JWT)** plus **rotating refresh tokens**, per the security principles and the employee API contract (`POST /api/v1/auth/employee/refresh`). This is a *planned* target behaviour — the current frontend mock sessions have no real refresh flow.
+
+-   Access token: JWT, short TTL (e.g. 15 min), carried in `Authorization: Bearer …` or an `HttpOnly` cookie depending on the client. Never stored in localStorage as an authoritative credential.
+-   Refresh token: opaque, rotated on every use, stored `HttpOnly` (hash only on the server), longer TTL (e.g. 30 days). Reuse of a rotated token revokes the token family.
+-   The employee contract exposes refresh at `POST /api/v1/auth/employee/refresh`; admin and customer auth expose the equivalent under `/admin/auth/…` and `/auth/…`.
+-   Sliding cookie renewal remains acceptable for browser sessions; the refresh pair is what makes native/API clients safe.
 
 ------------------------------------------------------------------------
 
@@ -1249,6 +1288,20 @@ Write: Super Admin only. Each write → audit_log `SETTINGS_UPDATED`.
 
 Public GET returns only storefront-safe slices (shipping fees, COD fee, return window, store name). Never GSTIN secrets beyond what's already public.
 
+## 27.1 Notifications architecture
+
+Notifications are **planned** for V1 (Phase K) because the current frontend already surfaces order/status/return events in the account area and staff feeds; the backend will make them authoritative and eventually pushable. This is a new domain in this revision (previously only implied by the `notifications` settings section).
+
+    notification_templates (id, event_kind, channel EMAIL|SMS|PUSH|IN_APP, locale, subject, body, active)
+    notification_deliveries (id, template_id, principal_kind, principal_id, entity_type, entity_id,
+                             channel, status QUEUED|SENT|FAILED|SUPPRESSED, error, delivered_at, timestamps)
+
+-   **Event kinds (V1):** order confirmed, payment confirmed, order shipped/out-for-delivery/delivered, return requested/approved/rejected/refunded, leave requested/reviewed, employee credential reset, low-stock alert (inventory threshold).
+-   **Triggers:** domain events (§32) enqueue a delivery after a successful commit. **Never** enqueue on a rolled-back transaction.
+-   **Delivery:** a `workers/` background job drains the queue; IN_APP deliveries are read from `notification_deliveries` (no separate inbox table in V1). Email/SMS/PUSH go through provider adapters behind a `NotificationProvider` interface (mock adapter in development).
+-   **Preferences:** customer notification prefs live on `customer_preferences`; staff prefs are a later option. `settings.notifications` holds the enabled channels and provider config (secrets in server env only).
+-   **AI (future):** AI assistants may *generate* notification copy, but they never own the delivery queue or the customer-facing channel decisions.
+
 ------------------------------------------------------------------------
 
 # 28. Audit-log architecture
@@ -1278,8 +1331,10 @@ Never log passwords, tokens, card data, webhook secrets.
 
 # 29. API route map
 
+**API versioning:** all routes are namespaced under `/api/v1`. A future breaking change introduces `/api/v2` rather than altering `/api/v1` in place; `/api/v1` is kept alive through a deprecation window. The frontend pins a single `API_BASE` and never hardcodes version-less endpoints.
+
 Base: `/api/v1`\
-Auth: cookie session (or `Authorization: Bearer` for webhooks/tools)\
+Auth: cookie session or JWT `Authorization: Bearer` (webhooks/tools use provider signatures, never user sessions)\
 Success: `{ "ok": true, "data": …, "meta": { "requestId", "version" } }`\
 Error: see §30.
 
@@ -1306,22 +1361,30 @@ Staff preview is **not** a public `?preview=1` that bypasses filters. Use `GET /
 
   POST        `/auth/change-password`   customer    owner                  
 
+  POST        `/auth/refresh`           token       ---                    rotate refresh (§9.6)
+
   GET         `/auth/csrf`              public      ---                    
 
   POST        `/admin/auth/login`       public      admin credentials      cookie `pf_admin`
 
   POST        `/admin/auth/logout`      admin                              
 
+  POST        `/admin/auth/refresh`     admin       ---                    rotate refresh (§9.6)
+
   GET         `/admin/me`               admin                              
 
-  POST        `/employee/auth/login`    public      employee credentials   cookie `pf_employee`
+  POST        `/auth/employee/login`    public      employee credentials   cookie `pf_employee`
 
-  POST        `/employee/auth/logout`   employee                           
+  POST        `/auth/employee/logout`   employee                           
 
-  GET         `/employee/me`            employee                           
+  POST        `/auth/employee/refresh`  employee    ---                    rotate refresh (§9.6)
 
-  POST        `/employee/me/password`   employee    owner                  
+  GET         `/employees/me`           employee                           
+
+  POST        `/employees/me/password`  employee    owner                  
   -----------------------------------------------------------------------------------------------
+
+The employee auth and management endpoints are specified in full by `docs/employee-management-api-contract.md` (`POST /api/v1/auth/employee/login`, `GET /api/v1/employees/me`, etc.). The compact paths above are `/api/v1`-relative shorthand for those canonical endpoints.
 
 ### 29.2 Public catalogue
 
@@ -1454,7 +1517,7 @@ Admin: `/admin/offers` CRUD + activate/pause/archive
 
   POST           `/admin/orders/:id/allocate\|pick\|pack\|ready\|dispatch\|deliver`   no force
 
-  POST           `/employee/orders/assisted`                                          `orders.create`, channel ASSISTED
+  POST           `/employees/{id}/orders/assisted`                                   `orders.create`, channel ASSISTED (see employee contract)
   -----------------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 29.9 Returns / refunds
@@ -1465,8 +1528,8 @@ Admin/employee: approve, reject, pickup, receive, inspect, refund-initiate\
 
 ### 29.10 Identity admin, workforce, settings, audit, analytics
 
-Employee management: honour `docs/employee-management-api-contract.md` under `/admin/employees`.\
-Workforce: `/employee/attendance/*`, `/employee/leave/*`, `/admin/workforce/*`\
+Employee management: honour `docs/employee-management-api-contract.md` under `/api/v1/employees/*`.\
+Workforce: `/employees/{id}/attendance/*`, `/employees/{id}/leave/*`, `/employees/{id}/performance`, `/admin/workforce/*` (see employee contract)\
 Settings: `GET/PUT /admin/settings/:section`\
 Audit: `GET /admin/activity`\
 Analytics: `GET /admin/analytics/:section` read-models\
@@ -1571,7 +1634,17 @@ Store `idempotency_keys (key, principal_id, route, request_hash, response_code, 
 
 Isolation: default `READ COMMITTED` + row locks. No SERIALIZABLE required if locks are on balance/offer/payment rows.
 
-Jobs: expiry sweeper every 60s in-process. Good enough for V1; not Redis.
+## 32.1 Background jobs (`workers/`)
+
+The `app/workers/` directory hosts scheduled/background work. V1 jobs (in-process scheduler, no external queue):
+
+-   Reservation expiry sweeper (60s) — `UPDATE … WHERE status='ACTIVE' AND expires_at > now()`.
+-   Guest-cart purge (idle > 30 days).
+-   Notification delivery drain (§27.1).
+-   Idempotency-key TTL cleanup (24h).
+-   Optional low-stock / leave-approval reminder scan.
+
+Jobs are **idempotent** and never make authorization decisions. They re-check state at execution time (browser clock is not authority). If a job must later scale across instances, an external queue (e.g. Redis/Celery) can replace the in-process scheduler **without changing commerce APIs** — the same principle that lets AI workloads move to workers later.
 
 ------------------------------------------------------------------------
 
@@ -1655,7 +1728,7 @@ Authored seeds (`src/data/catalog/products.js`, taxonomy, collections, offers, d
 
   `pratikshya_auth` / `_customers_registry` / `_account_{id}`   `customers` + addresses                **MIGRATE** identity; **passwords cannot be recovered** --- force reset
 
-  `pratikshya_customers`                                        ---                                    **REMOVE** (Phase 1 stale store)
+  `pratikshya_customers`                                        ---                                    **ALREADY CONSOLIDATED** (Phase 1: merged into the registry, then key removed)
 
   `pratikshya_admins` / `_credentials` / `_auth`                `admins`                               **MIGRATE** seed hashed demo only in sandbox
 
@@ -1663,7 +1736,7 @@ Authored seeds (`src/data/catalog/products.js`, taxonomy, collections, offers, d
 
   `pratikshya_employee_activity`                                `audit_logs`                           **MIGRATE** optional
 
-  `pratikshya_employee_assisted_orders`                         ---                                    **REMOVE** (already merged into orders)
+  `pratikshya_employee_assisted_orders`                         ---                                    **ALREADY CONSOLIDATED** (Phase 1: merged into `orders` with `channel=ASSISTED`, then key removed)
 
   `pratikshya_attendance` / `_leave` / `_performance`           workforce tables                       **MIGRATE**
 
@@ -1671,7 +1744,9 @@ Authored seeds (`src/data/catalog/products.js`, taxonomy, collections, offers, d
 
   `pratikshya_recently_viewed` / `_preferences`                 optional later                         **REMAIN CLIENT-SIDE** V1
 
-  `pf_admin_nav_groups` / `pf_employee_nav_groups`              ---                                    **REMAIN CLIENT-SIDE**
+  `pf_admin_nav_groups` / `pf_employee_nav_groups`              ---                                    **REMAIN CLIENT-SIDE** (nav group expansion)
+
+  `pratikshya_admin_sidebar_collapsed` / `pratikshya_employee_sidebar_collapsed`  ---                **REMAIN CLIENT-SIDE** (rail collapse preference)
 
   `pratikshya_ai_*`                                             ---                                    **REMAIN CLIENT-SIDE** / sandbox
 
@@ -1791,6 +1866,13 @@ Targets (reasonable, not premature):
 -   CDN for media
 -   No Redis cache in V1 --- catalogue is small (\~128 products, will grow slowly)
 -   First endpoints to watch: `GET /catalog/products`, search, `POST /checkout/sessions/:id/reserve`
+
+## 40.1 Caching architecture
+
+-   **V1: no distributed cache.** PostgreSQL (with the indexes in §33) is the source of truth; the catalogue is small enough to serve directly.
+-   **Edge/CDN caching** for immutable media only (`Cache-Control: immutable`, §36) and for public, non-personalized catalogue GETs (short TTL + `Vary: Accept-Encoding`).
+-   **No client-side authority:** any frontend hydration cache is a display cache; authoritative price/stock/publication/role always come from the API.
+-   **When Redis is justified later** (hot session cache, cross-instance rate limiting, catalogue at 10k+ SKUs), add it as an infrastructure layer — it must **never** become the source of truth (same rule as in §44's infrastructure table).
 
 ------------------------------------------------------------------------
 
@@ -1938,39 +2020,45 @@ After INSPECTED. Creates provider refund for LIVE. Webhook completes. Sandbox ma
 
 ------------------------------------------------------------------------
 
-# 42. Implementation roadmap (Phase 3 --- do not start)
+# 42. Implementation roadmap (planned — do not start)
+
+> **Relabelled:** the earlier revision used `3A`–`3M`. The phases are now **Phase A–L** so all four documents share one migration vocabulary (`backend-integration-audit.md`, `feature-rationalization-audit.md`). The scope per phase is unchanged; the labels map `3A→A`, `3B→B`, `3C→C`, `3D→C`, `3E→E`, `3F→D`, `3G→H`, `3H→G`, `3I→H`, `3J→I`, `3K→I`, `3L→J`, `3M→K`.
+
+This is a **phased (non-“big-bang”) migration**. Frontend repository/service interfaces stay stable; each phase adds a thin API adapter behind the existing function names.
 
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   Phase                                                  Scope                                                                                                                      Depends on
   ------------------------------------------------------ -------------------------------------------------------------------------------------------------------------------------- ------------------
-  **3A** Foundation                                      FastAPI application, environment config, PostgreSQL, Alembic migrations runner, error envelope, request-id, CORS, health   ---
+  **A** Foundation                                       FastAPI application, environment config, PostgreSQL, SQLAlchemy, Alembic runner, error envelope, request-id, CORS, health    ---
 
-  **3B** Auth + RBAC                                     customers/admins/employees, sessions, cookies, policies, employee management API                                           3A
+  **B** Authentication + RBAC                            customers/admins/employees, JWT access+refresh, sessions, policies, employee management API                                A
 
-  **3C** Catalogue + taxonomy                            seed departments/categories/subcategories, public GET products/search                                                      3A
+  **C** Product/catalogue                                seed departments/categories/subcategories/products, public GET products/search, lifecycle commands + validators             B
 
-  **3D** Product lifecycle + review                      commands, validators, bulk loops, delete permanently                                                                       3B, 3C
+  **D** Taxonomy / categories / collections + marketing  collection CRUD + membership, IDs only, live resolve, slug URLs                                                            C
 
-  **3E** Media + object storage                          signed upload, ownership, no blob URLs                                                                                     3D
+  **E** Media / marketing media + object storage         signed upload, ownership, no blob URLs, placements media                                                                    C, D
 
-  **3F** Collections + marketing                         IDs only, live resolve, slug URLs                                                                                          3C, 3E
+  **F** Customers                                        addresses, preferences, merge with orders                                                                                   B
 
-  **3G** Inventory                                       locations, movements, locks, transfers                                                                                     3C
+  **G** Cart / wishlist                                  server prices, guest merge, validateOffer (offers)                                                                          C, H
 
-  **3H** Cart + wishlist + offers                        server prices, merge, validateOffer                                                                                        3C, 3G
+  **H** Orders / inventory                               balances, movements, reservations, transfers; sessions, totals, channel ASSISTED, fulfillment commands                      C
 
-  **3I** Checkout + orders                               sessions, totals, channel ASSISTED, fulfillment commands                                                                   3H
+  **I** Payments / returns / refunds                     intents, webhooks, sandbox vs live; inspect then restock; provider refund                                                    H
 
-  **3J** Payments + webhooks                             intents, signature, sandbox vs live, Sandbox QR isolated                                                                   3I
+  **J** Employee / workforce                             attendance, leave, performance, reports, activity/audit, settings, analytics                                                B--H
 
-  **3K** Returns + refunds                               inspect then restock; provider refund                                                                                      3J, 3G
+  **K** Notifications / background jobs + final migration  notification queue/workers; seeds, production flag, drop authoritative business keys                                   J
 
-  **3L** Admin/Employee integration                      adapters in existing repositories, workforce, settings, analytics, audit                                                   3B--3K
-
-  **3M** Migration + remove authoritative localStorage   seeds, production flag, drop business keys                                                                                 3L
+  **L** AI services (future)                             AI service boundary scaffold, assistants/recommendations/search — no core-commerce coupling                                K
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Each phase: tests for success / 401 / 403 / 404 / validation / illegal transition / idempotency / direct URL.
+
+**Migration principle (restated):** the frontend must never call `fetch()` directly against ad-hoc endpoints, and must never touch PostgreSQL directly. The seam is always:
+
+    React component → productService (stable interface) → API adapter → FastAPI
 
 ------------------------------------------------------------------------
 
@@ -2020,37 +2108,52 @@ Each phase: tests for success / 401 / 403 / 404 / validation / illegal transitio
 
 ## 44.1 AI readiness
 
-AI remains deliberately deferred from V1 implementation.
+AI remains deliberately deferred from V1 implementation. **Do not implement AI now** — the backend is Python/FastAPI so future AI capabilities can be integrated without introducing a second language ecosystem for the AI layer.
 
-The backend is Python/FastAPI so future AI capabilities can be integrated without introducing a separate language ecosystem for the AI layer.
-
-Reserved future boundary:
+### Reserved future boundary (conceptual)
 
 ``` text
-app/
-├── services/
-│   └── ...
-└── ai/
-    ├── shopping/
-    ├── recommendations/
-    ├── vision/
-    ├── personalization/
-    └── business/
+backend/app/ai/
+├── assistants/           # AI shopping assistant, support assistant
+├── recommendations/      # recommendation engine (derived data only)
+├── search/               # semantic search, embeddings over the catalogue
+├── personalization/      # style signals → ranking (derived, not catalogue authority)
+├── product_intelligence/ # product tagging, descriptions, embeddings
+├── customer_support/     # customer-support assistant
+└── common/               # shared clients, embedding/prompt utilities, guardrails
 ```
 
-Rules:
+This is the mandated conceptual structure; the earlier `shopping/ recommendations/ vision/ personalization/ business/` naming maps onto it (`shopping`→`assistants`, `vision`→`product_intelligence`, `business`→`assistants`/`product_intelligence`). The AI layer is a **separate service boundary** — it may be a separate deployable later, but in V1 nothing exists there except a documented scaffold.
+
+### Future AI capabilities (allowed by this architecture)
+
+-   LLM APIs (shopping/business/support assistants)
+-   Recommendation engines
+-   Semantic search
+-   Product embeddings
+-   AI shopping assistant
+-   Customer support assistant
+-   Personalization
+-   Product intelligence
+-   Marketing intelligence
+
+### Rules
 
 -   AI must consume canonical backend data.
 
 -   AI must not maintain a second product/customer/order/inventory store.
 
--   AI-generated recommendations are derived data, not catalogue authority.
+-   AI-generated recommendations and embeddings are **derived data**, not catalogue authority.
 
 -   AI requests must respect customer/admin/employee authorization.
 
 -   AI workloads may later move to background workers without changing commerce APIs.
 
+-   AI must not be tightly coupled to core commerce transactions (checkout, payments, orders) — it reads and suggests, it never transacts.
+
 -   Do not create `ai_sessions` or AI persistence tables in V1 unless a concrete product requirement is approved.
+
+### Explicitly deferred (unchanged from prior revision)
 
 -   Microservices, Kafka, Kubernetes, GraphQL, Elasticsearch, Redis
 
@@ -2062,11 +2165,11 @@ Rules:
 
 -   Email verification gate
 
--   Native-app JWT refresh
+-   Native-app JWT refresh (refresh tokens now planned — §9.6; this refers to device-specific flows beyond it)
 
 -   Automatic image transcoding
 
--   Carrier tracking webhooks (synthetic legs stay until 3K+)
+-   Carrier tracking webhooks (synthetic legs stay until Phase K+)
 
 -   Stackable offers
 
@@ -2104,7 +2207,7 @@ Rules:
 
 5.  **Inventory:** keep two-location model (store + warehouse).\
 
-6.  **Workforce (attendance/leave/performance)** in V1 vs defer to 3L-optional.\
+6.  **Workforce (attendance/leave/performance)** in V1 vs defer to Phase J-optional.\
 
 7.  **Guest cart:** server cart + guest cookie (recommended) vs localStorage until login.\
 
@@ -2135,11 +2238,11 @@ Approve in particular:
 3.  Placements as product ID lists resolved at read time\
 4.  Webhook-only payment capture; Sandbox QR isolated\
 5.  Three-portal cookie auth\
-6.  Modular monolith stack in §2\
-7.  Roadmap 3A → 3M
+6.  Modular monolith stack (FastAPI + PostgreSQL + SQLAlchemy + Alembic, §1 / §4)\
+7.  Roadmap Phase A → Phase L (§42)
 
-After approval, implementation begins at **Phase 3A**.
+After approval, implementation begins at **Phase A**.
 
 ------------------------------------------------------------------------
 
-*End of Phase 2 architecture. No backend code was written. Python/FastAPI is the approved architectural direction for the next implementation phase, subject to the §46 approval gate.*
+*End of planned backend architecture. No backend code was written. Python + FastAPI + PostgreSQL + SQLAlchemy + Alembic is the locked architectural direction for the next implementation phase, with a future AI service layer; nothing here is implemented yet.*
